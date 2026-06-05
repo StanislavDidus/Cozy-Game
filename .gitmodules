@@ -1,0 +1,3 @@
+[submodule "extern/typewriter"]
+	path = extern/typewriter
+	url = git@github.com:KedengKedeng/typewriter.git
