@@ -10,15 +10,15 @@ public:
         Game(title, screen_width, screen_height)
     {}
 
-    void init() override {};
-    void shutdown() override {};
+    void init() override {}
+    void shutdown() override {}
 };
 
 class MainLayer : public typewriter::Layer {
 public:
     void onAttach() override;
     void onRender() override;
-    void onEvent(typewriter::Event& event) override {};
+    void onEvent(typewriter::Event& event) override {}
 private:
     std::shared_ptr<typewriter::Camera> camera = nullptr;
 };
