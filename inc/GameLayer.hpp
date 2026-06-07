@@ -22,7 +22,7 @@ private:
     int screen_height;
     
     //---------// OBJECTS //-------//
-    std::unique_ptr<Player> player;
+    typewriter::Entity player;
     
     //----------// STATE MACHINE //-----------//
     GameState current_state = GameState::G_NONE;

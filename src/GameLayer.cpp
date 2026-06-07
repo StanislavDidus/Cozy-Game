@@ -1,4 +1,6 @@
 #include "GameLayer.hpp"
+
+#include "Components.hpp"
 #include "Player.hpp"
 
 GameLayer::GameLayer(int screen_width, int screen_height)
@@ -11,7 +13,8 @@ void GameLayer::onAttach()
 {
     Layer::onAttach();
     
-    camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width), 0.f, static_cast<float>(screen_height));
+    camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width), static_cast<float>(screen_height), 0.0f);
+    ui_camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width), 0.f, static_cast<float>(screen_height));
     
     initAssets();
     
@@ -72,7 +75,13 @@ void GameLayer::enterState(GameState state)
     case GameState::G_MENU:
         break;
     case GameState::G_GAME:
-        break;
+        {
+            player = scene.createEntity();
+            typewriter::Registry& registry = scene.getRegistry();
+            registry.emplace<Components::Transform2D>(player, glm::vec2{0.0f, 0.0f}, glm::vec2{40.0f,80.0f});
+            registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/Player.png"));
+            break;
+        }
     default:
         break;
     }   
@@ -102,7 +111,15 @@ void GameLayer::renderState(GameState state)
     case GameState::G_MENU:
         break;
     case GameState::G_GAME:
-        typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+        {
+            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+        
+            auto view = scene.getRegistry().view<Components::Transform2D, Components::Sprite2D>();
+            for (auto [entity, transform, sprite] : view.each())
+            {
+                typewriter::Renderer2D::drawSprite(sprite.sprite, transform.position.x, transform.position.y, transform.size.x, transform.size.y);
+            }
+        }
         break;
     default:
         break;
