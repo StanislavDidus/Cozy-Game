@@ -1,6 +1,8 @@
 #include "GameLayer.hpp"
 
 #include "Components.hpp"
+#include "Systems/InputSystem.hpp"
+#include "Systems/CollisionSystem.hpp"
 #include "Player.hpp"
 
 GameLayer::GameLayer(int screen_width, int screen_height)
@@ -13,7 +15,7 @@ void GameLayer::onAttach()
 {
     Layer::onAttach();
     
-    camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width), static_cast<float>(screen_height), 0.0f);
+    camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width), 0.0f, static_cast<float>(screen_height));
     ui_camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width), 0.f, static_cast<float>(screen_height));
     
     initAssets();
@@ -25,7 +27,7 @@ void GameLayer::onUpdate(float deltaTime)
 {
     Layer::onUpdate(deltaTime);
     
-    updateState(current_state);
+    updateState(current_state, deltaTime);
 }
 
 void GameLayer::onRender()
@@ -38,6 +40,25 @@ void GameLayer::onRender()
     renderState(current_state);
     
     typewriter::Renderer2D::endScene();
+}
+
+void GameLayer::onEvent(typewriter::Event& event)
+{
+    Layer::onEvent(event);
+    
+    typewriter::EventDispatcher dispatcher(event);
+    dispatcher.dispatch<typewriter::KeyPressedEvent>(std::bind(&GameLayer::onKeyPressed, this, std::placeholders::_1));
+    dispatcher.dispatch<typewriter::KeyReleasedEvent>(std::bind(&GameLayer::onKeyReleased, this, std::placeholders::_1));
+}
+
+bool GameLayer::onKeyPressed(typewriter::KeyPressedEvent& event)
+{
+    return true;
+}
+
+bool GameLayer::onKeyReleased(typewriter::KeyReleasedEvent& event)
+{
+    return true;
 }
 
 void GameLayer::setState(GameState new_state)
@@ -76,10 +97,33 @@ void GameLayer::enterState(GameState state)
         break;
     case GameState::G_GAME:
         {
+            input_system = std::make_unique<InputSystem>(scene);
+            collision_system = std::make_unique<CollisionSystem>(scene);
+            
+            // Init Player
             player = scene.createEntity();
             typewriter::Registry& registry = scene.getRegistry();
-            registry.emplace<Components::Transform2D>(player, glm::vec2{0.0f, 0.0f}, glm::vec2{40.0f,80.0f});
+            registry.emplace<Components::Player>(player, glm::vec2{150.0f, 150.0f}, glm::vec2{50.0f, 50.0f}, glm::vec2{0.0f}, 210.0f, 250.0f);
+            registry.emplace<Components::Transform2D>(player, glm::vec2{200.0f, 200.0f}, glm::vec2{40.0f,80.0f});
             registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/Player.png"));
+            registry.emplace<Components::Collider>(player, glm::vec2{0.0f}, glm::vec2{0.0f});
+            
+            // Init colliders
+            typewriter::Entity west_wall = scene.createEntity();
+            registry.emplace<Components::Transform2D>(west_wall, glm::vec2{0.0f, 0.0f}, glm::vec2{125.0f, 540.0f});
+            registry.emplace<Components::Collider>(west_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
+            
+            typewriter::Entity east_wall = scene.createEntity();
+            registry.emplace<Components::Transform2D>(east_wall, glm::vec2{870.0f, 0.0f}, glm::vec2{90.0f, 540.0f});
+            registry.emplace<Components::Collider>(east_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
+            
+            typewriter::Entity north_wall = scene.createEntity();
+            registry.emplace<Components::Transform2D>(north_wall, glm::vec2{0.0f,390.0f}, glm::vec2{960.0f, 150.0f});
+            registry.emplace<Components::Collider>(north_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
+            
+            typewriter::Entity south_wall = scene.createEntity();
+            registry.emplace<Components::Transform2D>(south_wall, glm::vec2{0.0f,-10.0f}, glm::vec2{960.0f, 10.0f});
+            registry.emplace<Components::Collider>(south_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
             break;
         }
     default:
@@ -87,7 +131,7 @@ void GameLayer::enterState(GameState state)
     }   
 }
 
-void GameLayer::updateState(GameState state)
+void GameLayer::updateState(GameState state, float deltaTime)
 {
     switch (state)
     {
@@ -96,6 +140,10 @@ void GameLayer::updateState(GameState state)
     case GameState::G_MENU:
         break;
     case GameState::G_GAME:
+        input_system->update(deltaTime);
+        collision_system->update(deltaTime);
+        //camera->setPosition(scene.getRegistry().get<Components::Transform2D>(player).position);
+        //camera->setPosition(glm::vec2{1.0f, 0.0f});
         break;
     default:
         break;

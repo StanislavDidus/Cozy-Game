@@ -4,6 +4,8 @@
 
 #include "Enums.hpp"
 
+class CollisionSystem;
+class InputSystem;
 class Player;
 
 class GameLayer : public typewriter::Layer
@@ -13,13 +15,21 @@ public:
     void onAttach() override;
     void onUpdate(float deltaTime) override;
     void onRender() override;
-    void onEvent(typewriter::Event& event) override {}
+    void onEvent(typewriter::Event& event) override;
 private:
     std::shared_ptr<typewriter::Camera> camera = nullptr;
     std::shared_ptr<typewriter::Camera> ui_camera = nullptr;
     typewriter::Scene scene;
     int screen_width;
     int screen_height;
+    
+    //--------// INPUT //----------//
+    bool onKeyPressed(typewriter::KeyPressedEvent& event);
+    bool onKeyReleased(typewriter::KeyReleasedEvent& event);
+    
+    //------// SYSTEMS //----------//
+    std::unique_ptr<InputSystem> input_system;
+    std::unique_ptr<CollisionSystem> collision_system;
     
     //---------// OBJECTS //-------//
     typewriter::Entity player;
@@ -29,7 +39,7 @@ private:
     void setState(GameState new_state);
     void exitState(GameState state);
     void enterState(GameState state);
-    void updateState(GameState state);
+    void updateState(GameState state, float deltaTime);
     void renderState(GameState state);
     
     //----------// ASSETS //----------//

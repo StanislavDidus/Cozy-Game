@@ -13,6 +13,9 @@ add_subdirectory(extern)
 set(SOURCE_FILES
         src/main.cpp
         src/GameLayer.cpp
+        src/Systems/InputSystem.cpp
+        src/Systems/CollisionSystem.cpp
+        src/Systems/PhysicsSystem.cpp
 )
 set(HEADER_FILES
         inc/Components.hpp
@@ -20,7 +23,10 @@ set(HEADER_FILES
         inc/BaseObject.hpp
         inc/Player.hpp
         inc/GameLayer.hpp
-        inc/Enums.hpp)
+        inc/Enums.hpp
+        inc/Systems/InputSystem.hpp
+        inc/Systems/CollisionSystem.hpp
+        inc/Systems/PhysicsSystem.hpp)
 
 set(ALL_FILES ${SOURCE_FILES} ${HEADER_FILES})
 

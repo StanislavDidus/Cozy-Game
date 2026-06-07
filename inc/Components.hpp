@@ -16,4 +16,19 @@ namespace Components
     {
         typewriter::Sprite sprite;
     };
+    
+    struct Player
+    {
+        glm::vec2 acceleration;
+        glm::vec2 deceleration;
+        glm::vec2 velocity;
+        float movement_speed;
+        float max_movement_speed;
+    };
+    
+    struct Collider
+    {
+        glm::vec2 min;
+        glm::vec2 max;
+    };
 }
