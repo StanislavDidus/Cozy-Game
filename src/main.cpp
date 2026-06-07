@@ -17,7 +17,7 @@ public:
 };
 
 int main() {
-    auto game = CozyGame(TITLE, SCREEN_WIDTH, SCREEN_HEIGHT);
+    CozyGame game = CozyGame(TITLE, SCREEN_WIDTH, SCREEN_HEIGHT);
     game.pushLayer(new GameLayer(SCREEN_WIDTH, SCREEN_HEIGHT));
     game.start();
 }

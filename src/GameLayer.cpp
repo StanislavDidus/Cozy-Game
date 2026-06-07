@@ -15,7 +15,7 @@ void GameLayer::onAttach()
 {
     Layer::onAttach();
     
-    camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width), 0.0f, static_cast<float>(screen_height));
+    camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width),  static_cast<float>(screen_height), 0.0f);
     ui_camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width), 0.f, static_cast<float>(screen_height));
     
     initAssets();
@@ -118,11 +118,11 @@ void GameLayer::enterState(GameState state)
             registry.emplace<Components::Collider>(east_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
             
             typewriter::Entity north_wall = scene.createEntity();
-            registry.emplace<Components::Transform2D>(north_wall, glm::vec2{0.0f,390.0f}, glm::vec2{960.0f, 150.0f});
+            registry.emplace<Components::Transform2D>(north_wall, glm::vec2{0.0f, 0.0f}, glm::vec2{960.0f, 150.0f});
             registry.emplace<Components::Collider>(north_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
             
             typewriter::Entity south_wall = scene.createEntity();
-            registry.emplace<Components::Transform2D>(south_wall, glm::vec2{0.0f,-10.0f}, glm::vec2{960.0f, 10.0f});
+            registry.emplace<Components::Transform2D>(south_wall, glm::vec2{0.0f,540.0f}, glm::vec2{960.0f, 550.0f});
             registry.emplace<Components::Collider>(south_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
             break;
         }
@@ -131,6 +131,7 @@ void GameLayer::enterState(GameState state)
     }   
 }
 
+float camera_x = 0.0f;
 void GameLayer::updateState(GameState state, float deltaTime)
 {
     switch (state)
@@ -143,7 +144,10 @@ void GameLayer::updateState(GameState state, float deltaTime)
         input_system->update(deltaTime);
         collision_system->update(deltaTime);
         //camera->setPosition(scene.getRegistry().get<Components::Transform2D>(player).position);
-        //camera->setPosition(glm::vec2{1.0f, 0.0f});
+        //camera->setPosition(glm::vec2{camera_x, 0.0f});
+        //camera->setPosition({glm::vec2{0.5f, 0.0f}});
+        //camera_x += deltaTime * 0.05f;
+        //std::cout << camera_x << std::endl;
         break;
     default:
         break;

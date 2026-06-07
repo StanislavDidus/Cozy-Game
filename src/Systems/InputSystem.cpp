@@ -16,11 +16,11 @@ void InputSystem::update(float deltaTime)
         glm::vec2 direction {0.0f, 0.0f};
         if (typewriter::Input::isKeyPressed(typewriter::SCANCODE_W))
         {
-            direction.y = 1.0f;
+            direction.y = -1.0f;
         }
         if (typewriter::Input::isKeyPressed(typewriter::SCANCODE_S))
         {
-            direction.y = -1.0f;
+            direction.y = 1.0f;
         }
         if (typewriter::Input::isKeyPressed(typewriter::SCANCODE_A))
         {
