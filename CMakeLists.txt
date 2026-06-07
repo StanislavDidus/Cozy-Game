@@ -19,9 +19,6 @@ set(SOURCE_FILES
 )
 set(HEADER_FILES
         inc/Components.hpp
-        inc/Object.hpp
-        inc/BaseObject.hpp
-        inc/Player.hpp
         inc/GameLayer.hpp
         inc/Enums.hpp
         inc/Systems/InputSystem.hpp

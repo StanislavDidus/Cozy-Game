@@ -3,7 +3,6 @@
 #include "Components.hpp"
 #include "Systems/InputSystem.hpp"
 #include "Systems/CollisionSystem.hpp"
-#include "Player.hpp"
 
 GameLayer::GameLayer(int screen_width, int screen_height)
     : screen_width(screen_width)
@@ -34,7 +33,7 @@ void GameLayer::onRender()
 {
     Layer::onRender();
     
-    typewriter::Renderer2D::setClearColor(typewriter::Color::DarkGray);
+    typewriter::Renderer2D::setClearColor(typewriter::Color{215, 178, 143, 255}); // Color of the walls
     typewriter::Renderer2D::startScene(camera);
     
     renderState(current_state);
@@ -141,13 +140,17 @@ void GameLayer::updateState(GameState state, float deltaTime)
     case GameState::G_MENU:
         break;
     case GameState::G_GAME:
-        input_system->update(deltaTime);
-        collision_system->update(deltaTime);
-        //camera->setPosition(scene.getRegistry().get<Components::Transform2D>(player).position);
-        //camera->setPosition(glm::vec2{camera_x, 0.0f});
-        //camera->setPosition({glm::vec2{0.5f, 0.0f}});
-        //camera_x += deltaTime * 0.05f;
-        //std::cout << camera_x << std::endl;
+        {
+            input_system->update(deltaTime);
+            collision_system->update(deltaTime);
+        
+            const Components::Transform2D& player_transform = scene.getRegistry().get<Components::Transform2D>(player);
+            camera->setPosition(player_transform.position - glm::vec2{screen_width, screen_height} * 0.5f);
+            //camera->setPosition(glm::vec2{camera_x, 0.0f});
+            //camera->setPosition({glm::vec2{1.0f, 0.0f}});
+            //camera_x += deltaTime * 0.05f;
+            //std::cout << camera_x << std::endl;
+        }
         break;
     default:
         break;
