@@ -12,12 +12,25 @@ add_subdirectory(extern)
 
 set(SOURCE_FILES
         src/main.cpp
+        src/GameLayer.cpp
 )
-set(HEADER_FILES)
+set(HEADER_FILES
+        inc/Components.hpp
+        inc/Object.hpp
+        inc/BaseObject.hpp
+        inc/Player.hpp
+        inc/GameLayer.hpp
+        inc/Enums.hpp)
 
 set(ALL_FILES ${SOURCE_FILES} ${HEADER_FILES})
 
 add_executable(${GAME_NAME} ${ALL_FILES})
+
+#Copy assets and data folders to the build folder
+add_custom_target(copy_assets_game
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_LIST_DIR}/copy_assets.cmake
+)
+add_dependencies(${GAME_NAME} copy_assets_game)
 
 target_include_directories(${GAME_NAME} PUBLIC inc)
 
