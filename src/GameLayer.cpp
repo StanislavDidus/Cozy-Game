@@ -4,6 +4,7 @@
 #include "Systems/InputSystem.hpp"
 #include "Systems/CollisionSystem.hpp"
 #include "Systems/InteractionSystem.hpp"
+#include "FoodSpawner.hpp"
 
 GameLayer::GameLayer(int screen_width, int screen_height)
     : screen_width(screen_width)
@@ -114,6 +115,8 @@ void GameLayer::enterState(GameState state)
             collision_system = std::make_unique<CollisionSystem>(scene);
             interaction_system = std::make_unique<InteractionSystem>(scene);
             
+            food_spawner = std::make_unique<FoodSpawner>(scene);
+            
             // Init Player
             player = scene.createEntity();
             typewriter::Registry& registry = scene.getRegistry();
@@ -142,10 +145,42 @@ void GameLayer::enterState(GameState state)
             
             // Init interactable object
             typewriter::Entity microwave = scene.createEntity();
-            registry.emplace<Components::Transform2D>(microwave, glm::vec2{200.0f, 250.0f}, glm::vec2{125.0f, 125.0f});
+            registry.emplace<Components::Transform2D>(microwave, glm::vec2{175.0f, 125.0f}, glm::vec2{125.0f, 125.0f});
             registry.emplace<Components::Collider>(microwave, glm::vec2{0.0f}, glm::vec2{0.0f});
-            registry.emplace<Components::InteractableObject>(microwave, []{std::cout << "Used microwave" << std::endl;});
+            registry.emplace<Components::InteractableObject>(microwave, [&registry](typewriter::Entity player, typewriter::Entity object)
+            {
+               std::cout << "Microwave used."  << std::endl;
+                
+                auto& player_component = registry.get<Components::Player>(player);
+                auto& microwave_component = registry.get<Components::Microwave>(object);
+                
+                if (player_component.inv_food > 0 && microwave_component.status == Components::Microwave::Status::EMPTY)
+                {
+                    // Cook     
+                }
+                
+                if (microwave_component.status == Components::Microwave::Status::DONE)
+                {
+                    // Eat food
+                }
+                
+                if (microwave_component.status == Components::Microwave::Status::COOKING)
+                {
+                    // Speed up the process of cooking
+                }
+            });
             registry.emplace<Components::Sprite2D>(microwave, typewriter::ResourceManager::loadSprite("assets/Microwave.png"));
+            registry.emplace<Components::Microwave>(microwave, 5.0f);
+            
+            typewriter::Entity delivery_zone = scene.createEntity();
+            registry.emplace<Components::Transform2D>(delivery_zone, glm::vec2{170.0f, 430.0f}, glm::vec2{80.0f, 80.0f});
+            registry.emplace<Components::Sprite2D>(delivery_zone, typewriter::ResourceManager::loadSprite("assets/Carpet.png"));
+            registry.emplace<Components::DeliveryZone>(delivery_zone);
+            
+            food_spawner->spawnFood(delivery_zone);
+            food_spawner->spawnFood(delivery_zone);
+            food_spawner->spawnFood(delivery_zone);
+            food_spawner->spawnFood(delivery_zone);
             break;
         }
     default:
@@ -174,6 +209,7 @@ void GameLayer::updateState(GameState state, float deltaTime)
             //camera->setPosition({glm::vec2{1.0f, 0.0f}});
             //camera_x += deltaTime * 0.05f;
             //std::cout << camera_x << std::endl;
+            std::cout << scene.getRegistry().get<Components::Player>(player).inv_food << std::endl;
         }
         break;
     default:
@@ -196,8 +232,10 @@ void GameLayer::renderState(GameState state)
             auto view = scene.getRegistry().view<Components::Transform2D, Components::Sprite2D>();
             for (auto [entity, transform, sprite] : view.each())
             {
-                typewriter::Renderer2D::drawSprite(sprite.sprite, transform.position.x, transform.position.y, transform.size.x, transform.size.y);
+                typewriter::Renderer2D::drawSprite(sprite.sprite, transform.position.x, transform.position.y, transform.size.x, transform.size.y, sprite.layer);
             }
+            
+            interaction_system->render();
         }
         break;
     default:
@@ -215,10 +253,7 @@ void GameLayer::renderUIState(GameState state)
         break;
     case GameState::G_GAME:
         {
-            interaction_system->render();
-            
-            typewriter::Renderer2D::drawRectangle(mouse_position.x, mouse_position.y, 30.0f, 30.0f, typewriter::Color::BlueViolet);
-            //typewriter::Renderer2D::drawSprite(level_sprite, 0.0f, 0.0f, 100.0f, 100.0f, 1);
+            //interaction_system->render();
         }
         break;
     default:

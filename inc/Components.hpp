@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Layers.hpp"
+#include "core/ecs/Scene.hpp"
 #include "glm/vec2.hpp"
 #include "graphics/Sprite.hpp"
 #include "graphics/SDL/shared/SDLFont.hpp"
@@ -15,6 +17,7 @@ namespace Components
     struct Sprite2D
     {
         typewriter::Sprite sprite;
+        int layer = BASE_LAYER;
     };
     
     struct Player
@@ -24,6 +27,9 @@ namespace Components
         glm::vec2 velocity;
         float movement_speed;
         float max_movement_speed;
+        
+        int inv_food = 0;
+        int max_inv_food = 3;
     };
     
     struct Collider
@@ -39,6 +45,29 @@ namespace Components
     
     struct InteractableObject
     {
-        std::function<void()> func;
+        std::function<void(typewriter::Entity player, typewriter::Entity object)> func;
+    };
+    
+    struct Microwave
+    {
+        enum class Status
+        {
+            EMPTY,
+            COOKING,
+            DONE,
+        };
+        
+        float heat_time;
+        Status status = Status::EMPTY;
+    };
+    
+    struct DeliveryZone
+    {
+        typewriter::Entity food = entt::null;
+    };
+    
+    struct FoodPackage
+    {
+        int food_count = 1;    
     };
 }

@@ -17,6 +17,7 @@ set(SOURCE_FILES
         src/Systems/CollisionSystem.cpp
         src/Systems/PhysicsSystem.cpp
         src/Systems/InteractionSystem.cpp
+        src/FoodSpawner.cpp
 )
 set(HEADER_FILES
         inc/Components.hpp
@@ -26,7 +27,9 @@ set(HEADER_FILES
         inc/Systems/CollisionSystem.hpp
         inc/Systems/PhysicsSystem.hpp
         inc/Systems/InteractionSystem.hpp
-        inc/StateMachine/State.hpp)
+        inc/StateMachine/State.hpp
+        inc/FoodSpawner.hpp
+        inc/Layers.hpp)
 
 set(ALL_FILES ${SOURCE_FILES} ${HEADER_FILES})
 

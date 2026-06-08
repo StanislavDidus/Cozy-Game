@@ -4,6 +4,7 @@
 
 #include "Enums.hpp"
 
+class FoodSpawner;
 class InteractionSystem;
 class CollisionSystem;
 class InputSystem;
@@ -28,13 +29,15 @@ private:
     bool onKeyPressed(typewriter::KeyPressedEvent& event);
     bool onKeyReleased(typewriter::KeyReleasedEvent& event);
     bool onMouseMoved(typewriter::MouseMovedEvent& event);
-    
     glm::vec2 mouse_position;
     
     //------// SYSTEMS //----------//
     std::unique_ptr<InputSystem> input_system;
     std::unique_ptr<CollisionSystem> collision_system;
     std::unique_ptr<InteractionSystem> interaction_system;
+    
+    //------// HELPERS //----------/
+    std::unique_ptr<FoodSpawner> food_spawner;
     
     //---------// OBJECTS //-------//
     typewriter::Entity player;
