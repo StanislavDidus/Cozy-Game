@@ -3,6 +3,7 @@
 #include "Components.hpp"
 #include "Systems/InputSystem.hpp"
 #include "Systems/CollisionSystem.hpp"
+#include "Systems/InteractionSystem.hpp"
 
 GameLayer::GameLayer(int screen_width, int screen_height)
     : screen_width(screen_width)
@@ -15,7 +16,7 @@ void GameLayer::onAttach()
     Layer::onAttach();
     
     camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width),  static_cast<float>(screen_height), 0.0f);
-    ui_camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width), 0.f, static_cast<float>(screen_height));
+    ui_camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width), static_cast<float>(screen_height), 0.0f);
     
     initAssets();
     
@@ -39,6 +40,12 @@ void GameLayer::onRender()
     renderState(current_state);
     
     typewriter::Renderer2D::endScene();
+    
+    typewriter::Renderer2D::startScene(ui_camera);
+    
+    renderUIState(current_state);
+    
+    typewriter::Renderer2D::endScene();
 }
 
 void GameLayer::onEvent(typewriter::Event& event)
@@ -48,6 +55,7 @@ void GameLayer::onEvent(typewriter::Event& event)
     typewriter::EventDispatcher dispatcher(event);
     dispatcher.dispatch<typewriter::KeyPressedEvent>(std::bind(&GameLayer::onKeyPressed, this, std::placeholders::_1));
     dispatcher.dispatch<typewriter::KeyReleasedEvent>(std::bind(&GameLayer::onKeyReleased, this, std::placeholders::_1));
+    dispatcher.dispatch<typewriter::MouseMovedEvent>(std::bind(&GameLayer::onMouseMoved, this, std::placeholders::_1));
 }
 
 bool GameLayer::onKeyPressed(typewriter::KeyPressedEvent& event)
@@ -57,6 +65,12 @@ bool GameLayer::onKeyPressed(typewriter::KeyPressedEvent& event)
 
 bool GameLayer::onKeyReleased(typewriter::KeyReleasedEvent& event)
 {
+    return true;
+}
+
+bool GameLayer::onMouseMoved(typewriter::MouseMovedEvent& event)
+{
+    mouse_position = glm::vec2{event.getX(), event.getY()};
     return true;
 }
 
@@ -98,6 +112,7 @@ void GameLayer::enterState(GameState state)
         {
             input_system = std::make_unique<InputSystem>(scene);
             collision_system = std::make_unique<CollisionSystem>(scene);
+            interaction_system = std::make_unique<InteractionSystem>(scene);
             
             // Init Player
             player = scene.createEntity();
@@ -106,6 +121,7 @@ void GameLayer::enterState(GameState state)
             registry.emplace<Components::Transform2D>(player, glm::vec2{200.0f, 200.0f}, glm::vec2{40.0f,80.0f});
             registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/Player.png"));
             registry.emplace<Components::Collider>(player, glm::vec2{0.0f}, glm::vec2{0.0f});
+            registry.emplace<Components::CanInteract>(player, 200.0f);
             
             // Init colliders
             typewriter::Entity west_wall = scene.createEntity();
@@ -123,6 +139,13 @@ void GameLayer::enterState(GameState state)
             typewriter::Entity south_wall = scene.createEntity();
             registry.emplace<Components::Transform2D>(south_wall, glm::vec2{0.0f,540.0f}, glm::vec2{960.0f, 550.0f});
             registry.emplace<Components::Collider>(south_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
+            
+            // Init interactable object
+            typewriter::Entity microwave = scene.createEntity();
+            registry.emplace<Components::Transform2D>(microwave, glm::vec2{200.0f, 250.0f}, glm::vec2{125.0f, 125.0f});
+            registry.emplace<Components::Collider>(microwave, glm::vec2{0.0f}, glm::vec2{0.0f});
+            registry.emplace<Components::InteractableObject>(microwave, []{std::cout << "Used microwave" << std::endl;});
+            registry.emplace<Components::Sprite2D>(microwave, typewriter::ResourceManager::loadSprite("assets/Microwave.png"));
             break;
         }
     default:
@@ -143,6 +166,7 @@ void GameLayer::updateState(GameState state, float deltaTime)
         {
             input_system->update(deltaTime);
             collision_system->update(deltaTime);
+            interaction_system->update(deltaTime);
         
             const Components::Transform2D& player_transform = scene.getRegistry().get<Components::Transform2D>(player);
             camera->setPosition(player_transform.position - glm::vec2{screen_width, screen_height} * 0.5f);
@@ -174,6 +198,27 @@ void GameLayer::renderState(GameState state)
             {
                 typewriter::Renderer2D::drawSprite(sprite.sprite, transform.position.x, transform.position.y, transform.size.x, transform.size.y);
             }
+        }
+        break;
+    default:
+        break;
+    }   
+}
+
+void GameLayer::renderUIState(GameState state)
+{
+    switch (state)
+    {
+    case GameState::G_NONE:
+        break;
+    case GameState::G_MENU:
+        break;
+    case GameState::G_GAME:
+        {
+            interaction_system->render();
+            
+            typewriter::Renderer2D::drawRectangle(mouse_position.x, mouse_position.y, 30.0f, 30.0f, typewriter::Color::BlueViolet);
+            //typewriter::Renderer2D::drawSprite(level_sprite, 0.0f, 0.0f, 100.0f, 100.0f, 1);
         }
         break;
     default:

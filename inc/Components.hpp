@@ -31,4 +31,14 @@ namespace Components
         glm::vec2 min;
         glm::vec2 max;
     };
+    
+    struct CanInteract
+    {
+        float radius;
+    };
+    
+    struct InteractableObject
+    {
+        std::function<void()> func;
+    };
 }

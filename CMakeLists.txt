@@ -16,6 +16,7 @@ set(SOURCE_FILES
         src/Systems/InputSystem.cpp
         src/Systems/CollisionSystem.cpp
         src/Systems/PhysicsSystem.cpp
+        src/Systems/InteractionSystem.cpp
 )
 set(HEADER_FILES
         inc/Components.hpp
@@ -23,7 +24,9 @@ set(HEADER_FILES
         inc/Enums.hpp
         inc/Systems/InputSystem.hpp
         inc/Systems/CollisionSystem.hpp
-        inc/Systems/PhysicsSystem.hpp)
+        inc/Systems/PhysicsSystem.hpp
+        inc/Systems/InteractionSystem.hpp
+        inc/StateMachine/State.hpp)
 
 set(ALL_FILES ${SOURCE_FILES} ${HEADER_FILES})
 

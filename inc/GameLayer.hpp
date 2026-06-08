@@ -4,6 +4,7 @@
 
 #include "Enums.hpp"
 
+class InteractionSystem;
 class CollisionSystem;
 class InputSystem;
 class Player;
@@ -26,10 +27,14 @@ private:
     //--------// INPUT //----------//
     bool onKeyPressed(typewriter::KeyPressedEvent& event);
     bool onKeyReleased(typewriter::KeyReleasedEvent& event);
+    bool onMouseMoved(typewriter::MouseMovedEvent& event);
+    
+    glm::vec2 mouse_position;
     
     //------// SYSTEMS //----------//
     std::unique_ptr<InputSystem> input_system;
     std::unique_ptr<CollisionSystem> collision_system;
+    std::unique_ptr<InteractionSystem> interaction_system;
     
     //---------// OBJECTS //-------//
     typewriter::Entity player;
@@ -41,6 +46,7 @@ private:
     void enterState(GameState state);
     void updateState(GameState state, float deltaTime);
     void renderState(GameState state);
+    void renderUIState(GameState state);
     
     //----------// ASSETS //----------//
     typewriter::Sprite level_sprite;
