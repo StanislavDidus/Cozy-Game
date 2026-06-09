@@ -1,10 +1,12 @@
 #include "GameLayer.hpp"
 
 #include "Components.hpp"
+#include "Config.hpp"
 #include "Systems/InputSystem.hpp"
 #include "Systems/CollisionSystem.hpp"
 #include "Systems/InteractionSystem.hpp"
 #include "Systems/ObjectManager.hpp"
+#include "Systems/ButtonSystem.hpp"
 #include "FoodSpawner.hpp"
 
 GameLayer::GameLayer(int screen_width, int screen_height)
@@ -23,6 +25,7 @@ void GameLayer::onAttach()
     initAssets();
     
     setState(GameState::G_GAME);
+    init();
 }
 
 void GameLayer::onUpdate(float deltaTime)
@@ -30,6 +33,9 @@ void GameLayer::onUpdate(float deltaTime)
     Layer::onUpdate(deltaTime);
     
     updateState(current_state, deltaTime);
+    
+    mouse_down = false;
+    mouse_up = false;
 }
 
 void GameLayer::onRender()
@@ -43,7 +49,7 @@ void GameLayer::onRender()
     
     typewriter::Renderer2D::endScene();
     
-    typewriter::Renderer2D::startScene(ui_camera);
+    typewriter::Renderer2D::startScene(ui_camera, 1);
     
     renderUIState(current_state);
     
@@ -58,6 +64,8 @@ void GameLayer::onEvent(typewriter::Event& event)
     dispatcher.dispatch<typewriter::KeyPressedEvent>(std::bind(&GameLayer::onKeyPressed, this, std::placeholders::_1));
     dispatcher.dispatch<typewriter::KeyReleasedEvent>(std::bind(&GameLayer::onKeyReleased, this, std::placeholders::_1));
     dispatcher.dispatch<typewriter::MouseMovedEvent>(std::bind(&GameLayer::onMouseMoved, this, std::placeholders::_1));
+    dispatcher.dispatch<typewriter::MouseButtonPressedEvent>(std::bind(&GameLayer::onMousePressed, this, std::placeholders::_1));
+    dispatcher.dispatch<typewriter::MouseButtonReleasedEvent>(std::bind(&GameLayer::onMouseReleased, this, std::placeholders::_1));
 }
 
 bool GameLayer::onKeyPressed(typewriter::KeyPressedEvent& event)
@@ -74,6 +82,136 @@ bool GameLayer::onMouseMoved(typewriter::MouseMovedEvent& event)
 {
     mouse_position = glm::vec2{event.getX(), event.getY()};
     return true;
+}
+
+bool GameLayer::onMousePressed(typewriter::MouseButtonPressedEvent& event)
+{
+    mouse_down = event.getMouseButton() == BUTTON_LEFT;
+    return true;
+}
+
+bool GameLayer::onMouseReleased(typewriter::MouseButtonReleasedEvent& event)
+{
+    mouse_up = event.getMouseButton() == BUTTON_LEFT;
+    return true;
+}
+
+void GameLayer::init()
+{
+    input_system = std::make_unique<InputSystem>(scene);
+    collision_system = std::make_unique<CollisionSystem>(scene);
+    interaction_system = std::make_unique<InteractionSystem>(scene);
+    object_manager = std::make_unique<ObjectManager>(scene);
+    button_system = std::make_unique<ButtonSystem>(scene);
+    
+    food_spawner = std::make_unique<FoodSpawner>(scene);
+    
+    // Init Player
+    player = scene.createEntity();
+    typewriter::Registry& registry = scene.getRegistry();
+    registry.emplace<Components::Player>(player, glm::vec2{150.0f, 150.0f}, glm::vec2{50.0f, 50.0f}, glm::vec2{0.0f}, 250.0f, 300.0f);
+    registry.emplace<Components::Transform2D>(player, glm::vec2{200.0f, 200.0f}, glm::vec2{40.0f,80.0f});
+    registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/Player.png"));
+    registry.emplace<Components::Collider>(player, glm::vec2{0.0f}, glm::vec2{0.0f});
+    registry.emplace<Components::CanInteract>(player, PLAYER_INTERACT_RADIUS);
+    
+    // Init colliders
+    typewriter::Entity west_wall = scene.createEntity();
+    registry.emplace<Components::Transform2D>(west_wall, glm::vec2{0.0f, 0.0f}, glm::vec2{125.0f, 540.0f});
+    registry.emplace<Components::Collider>(west_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
+    
+    typewriter::Entity east_wall = scene.createEntity();
+    registry.emplace<Components::Transform2D>(east_wall, glm::vec2{870.0f, 0.0f}, glm::vec2{90.0f, 540.0f});
+    registry.emplace<Components::Collider>(east_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
+    
+    typewriter::Entity north_wall = scene.createEntity();
+    registry.emplace<Components::Transform2D>(north_wall, glm::vec2{0.0f, 0.0f}, glm::vec2{960.0f, 150.0f});
+    registry.emplace<Components::Collider>(north_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
+    
+    typewriter::Entity south_wall = scene.createEntity();
+    registry.emplace<Components::Transform2D>(south_wall, glm::vec2{0.0f,540.0f}, glm::vec2{960.0f, 550.0f});
+    registry.emplace<Components::Collider>(south_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
+    
+    // Init interactable object
+    typewriter::Entity microwave = scene.createEntity();
+    registry.emplace<Components::Transform2D>(microwave, glm::vec2{175.0f, 125.0f}, glm::vec2{125.0f, 125.0f});
+    registry.emplace<Components::Collider>(microwave, glm::vec2{0.0f}, glm::vec2{0.0f});
+    registry.emplace<Components::SpriteAnimation>(microwave, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Microwave.png", 20, 21)});
+    registry.emplace<Components::InteractableObject>(microwave, [&registry](typewriter::Entity player, typewriter::Entity object)
+    {
+        auto& player_component = registry.get<Components::Player>(player);
+        auto& microwave_component = registry.get<Components::Microwave>(object);
+        
+        if (player_component.inv_food > 0 && microwave_component.status == Components::Microwave::Status::EMPTY)
+        {
+            // Cook     
+            player_component.inv_food -= 1;
+            //std::cout << player_component.inv_food << std::endl;
+            microwave_component.status = Components::Microwave::Status::COOKING;
+        }
+        
+        if (microwave_component.status == Components::Microwave::Status::DONE)
+        {
+            // Eat food
+            microwave_component.status = Components::Microwave::Status::EMPTY;
+            player_component.hunger -= FOOD_REPLENISHMENT;
+            if (player_component.hunger < 0.0f)
+            {   
+                player_component.hunger = 0.0f;
+            }
+            if (registry.all_of<Components::SpriteAnimation>(object))
+            {
+                registry.get<Components::SpriteAnimation>(object).frame = 0;
+            }
+            }
+        
+        if (microwave_component.status == Components::Microwave::Status::COOKING)
+        {
+            // Speed up the process of cooking
+            //microwave_component.heat_timer += deltaTime;
+        }
+    });
+    //registry.emplace<Components::Sprite2D>(microwave, typewriter::ResourceManager::loadSprite("assets/Microwave.png", typewriter::RectI(0,0,20,7)));
+    registry.emplace<Components::Microwave>(microwave, FOOD_COOK_TIME);
+    
+    typewriter::Entity delivery_zone = scene.createEntity();
+    registry.emplace<Components::Transform2D>(delivery_zone, glm::vec2{170.0f, 430.0f}, glm::vec2{80.0f, 80.0f});
+    registry.emplace<Components::Sprite2D>(delivery_zone, typewriter::ResourceManager::loadSprite("assets/Carpet.png"));
+    registry.emplace<Components::DeliveryZone>(delivery_zone);
+    
+    // Window
+    typewriter::Entity window = scene.createEntity();
+    registry.emplace<Components::Transform2D>(window, glm::vec2{400.0f, 50.0f}, glm::vec2{150.0f, 80.0f});
+    registry.emplace<Components::SpriteAnimation>(window, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Window.png", 32, 22)});
+    registry.emplace<Components::Window>(window, false);
+    registry.emplace<Components::InteractableObject>(window, [&registry](typewriter::Entity player, typewriter::Entity object)
+    {
+           registry.get<Components::Window>(object).opened = !registry.get<Components::Window>(object).opened;
+        
+           if (registry.get<Components::Window>(object).opened)
+           {
+               registry.get<Components::SpriteAnimation>(object).frame = 1;
+           }
+           else
+           {
+               registry.get<Components::SpriteAnimation>(object).frame = 0;
+           }
+    });
+    
+    // Computer
+    typewriter::Entity computer = scene.createEntity();
+    registry.emplace<Components::Transform2D>(computer, glm::vec2{750.0f, 430.0f}, glm::vec2{90.0f, 90.0f});
+    registry.emplace<Components::SpriteAnimation>(computer, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Computer.png", 16, 16)});
+    //registry.emplace<Components::Windo>(window, false);
+    registry.emplace<Components::InteractableObject>(computer, [&registry, this](typewriter::Entity player, typewriter::Entity object)
+    {
+        setState(GameState::G_COMPUTER);
+    });
+    
+    food_spawner->spawnFood(delivery_zone);
+    food_spawner->spawnFood(delivery_zone);
+    food_spawner->spawnFood(delivery_zone);
+    food_spawner->spawnFood(delivery_zone);
 }
 
 void GameLayer::setState(GameState new_state)
@@ -97,6 +235,13 @@ void GameLayer::exitState(GameState state)
         break;
     case GameState::G_GAME:
         break;
+    case GameState::G_COMPUTER:
+        {
+            auto& registry = scene.getRegistry(); 
+            registry.destroy(exit_button);
+            registry.destroy(food_button);
+            break;
+        }
     default:
         break;
     }
@@ -111,83 +256,20 @@ void GameLayer::enterState(GameState state)
     case GameState::G_MENU:
         break;
     case GameState::G_GAME:
+        break;
+    case GameState::G_COMPUTER:
         {
-            input_system = std::make_unique<InputSystem>(scene);
-            collision_system = std::make_unique<CollisionSystem>(scene);
-            interaction_system = std::make_unique<InteractionSystem>(scene);
-            object_manager = std::make_unique<ObjectManager>(scene);
+            auto& registry = scene.getRegistry();
             
-            food_spawner = std::make_unique<FoodSpawner>(scene);
+            exit_button = scene.createEntity();
+            registry.emplace<Components::Transform2D>(exit_button, glm::vec2{675.0f, 130.0f}, glm::vec2{150.0f, 70.0f});
+            registry.emplace<Components::Sprite2D>(exit_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{24,0,12,5}), 1);
+            registry.emplace<Components::Button>(exit_button, [this]{setState(GameState::G_GAME);});
             
-            // Init Player
-            player = scene.createEntity();
-            typewriter::Registry& registry = scene.getRegistry();
-            registry.emplace<Components::Player>(player, glm::vec2{150.0f, 150.0f}, glm::vec2{50.0f, 50.0f}, glm::vec2{0.0f}, 210.0f, 250.0f);
-            registry.emplace<Components::Transform2D>(player, glm::vec2{200.0f, 200.0f}, glm::vec2{40.0f,80.0f});
-            registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/Player.png"));
-            registry.emplace<Components::Collider>(player, glm::vec2{0.0f}, glm::vec2{0.0f});
-            registry.emplace<Components::CanInteract>(player, 200.0f);
-            
-            // Init colliders
-            typewriter::Entity west_wall = scene.createEntity();
-            registry.emplace<Components::Transform2D>(west_wall, glm::vec2{0.0f, 0.0f}, glm::vec2{125.0f, 540.0f});
-            registry.emplace<Components::Collider>(west_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
-            
-            typewriter::Entity east_wall = scene.createEntity();
-            registry.emplace<Components::Transform2D>(east_wall, glm::vec2{870.0f, 0.0f}, glm::vec2{90.0f, 540.0f});
-            registry.emplace<Components::Collider>(east_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
-            
-            typewriter::Entity north_wall = scene.createEntity();
-            registry.emplace<Components::Transform2D>(north_wall, glm::vec2{0.0f, 0.0f}, glm::vec2{960.0f, 150.0f});
-            registry.emplace<Components::Collider>(north_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
-            
-            typewriter::Entity south_wall = scene.createEntity();
-            registry.emplace<Components::Transform2D>(south_wall, glm::vec2{0.0f,540.0f}, glm::vec2{960.0f, 550.0f});
-            registry.emplace<Components::Collider>(south_wall, glm::vec2{0.0f}, glm::vec2{0.0f});
-            
-            // Init interactable object
-            typewriter::Entity microwave = scene.createEntity();
-            registry.emplace<Components::Transform2D>(microwave, glm::vec2{175.0f, 125.0f}, glm::vec2{125.0f, 125.0f});
-            registry.emplace<Components::Collider>(microwave, glm::vec2{0.0f}, glm::vec2{0.0f});
-            registry.emplace<Components::InteractableObject>(microwave, [&registry](typewriter::Entity player, typewriter::Entity object)
-            {
-               std::cout << "Microwave used."  << std::endl;
-                
-                auto& player_component = registry.get<Components::Player>(player);
-                auto& microwave_component = registry.get<Components::Microwave>(object);
-                
-                if (player_component.inv_food > 0 && microwave_component.status == Components::Microwave::Status::EMPTY)
-                {
-                    // Cook     
-                    player_component.inv_food -= 1;
-                    microwave_component.status = Components::Microwave::Status::COOKING;
-                }
-                
-                if (microwave_component.status == Components::Microwave::Status::DONE)
-                {
-                    // Eat food
-                    microwave_component.status = Components::Microwave::Status::EMPTY;
-                    player_component.hunger = std::max(player_component.hunger - 0.2f, 0.0f);
-                }
-                
-                if (microwave_component.status == Components::Microwave::Status::COOKING)
-                {
-                    // Speed up the process of cooking
-                    //microwave_component.heat_timer += deltaTime;
-                }
-            });
-            registry.emplace<Components::Sprite2D>(microwave, typewriter::ResourceManager::loadSprite("assets/Microwave.png"));
-            registry.emplace<Components::Microwave>(microwave, 5.0f);
-            
-            typewriter::Entity delivery_zone = scene.createEntity();
-            registry.emplace<Components::Transform2D>(delivery_zone, glm::vec2{170.0f, 430.0f}, glm::vec2{80.0f, 80.0f});
-            registry.emplace<Components::Sprite2D>(delivery_zone, typewriter::ResourceManager::loadSprite("assets/Carpet.png"));
-            registry.emplace<Components::DeliveryZone>(delivery_zone);
-            
-            food_spawner->spawnFood(delivery_zone);
-            food_spawner->spawnFood(delivery_zone);
-            food_spawner->spawnFood(delivery_zone);
-            food_spawner->spawnFood(delivery_zone);
+            food_button = scene.createEntity();
+            registry.emplace<Components::Transform2D>(food_button, glm::vec2{100.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
+            registry.emplace<Components::Sprite2D>(food_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{0,0,8,8}), 1);
+            registry.emplace<Components::Button>(food_button, [this]{computer_state = ComputerState::G_FOOD;});
             break;
         }
     default:
@@ -195,7 +277,6 @@ void GameLayer::enterState(GameState state)
     }   
 }
 
-float camera_x = 0.0f;
 void GameLayer::updateState(GameState state, float deltaTime)
 {
     switch (state)
@@ -210,17 +291,39 @@ void GameLayer::updateState(GameState state, float deltaTime)
             collision_system->update(deltaTime);
             interaction_system->update(deltaTime);
             object_manager->update(deltaTime);
+            button_system->update(deltaTime, mouse_position, mouse_down, mouse_up);
         
+            // Make camera follow the player
             const Components::Transform2D& player_transform = scene.getRegistry().get<Components::Transform2D>(player);
-            camera->setPosition(player_transform.position - glm::vec2{screen_width, screen_height} * 0.5f);
-            //camera->setPosition(glm::vec2{camera_x, 0.0f});
-            //camera->setPosition({glm::vec2{1.0f, 0.0f}});
-            //camera_x += deltaTime * 0.05f;
-            //std::cout << camera_x << std::endl;
-            std::cout << scene.getRegistry().get<Components::Player>(player).inv_food << std::endl;
+            glm::vec2 half_screen{screen_width * 0.5f, screen_height * 0.5f};
+            glm::vec2 current_camera_centre = glm::vec2{camera->getPosition().x, camera->getPosition().y} + half_screen;
+            glm::vec2 to_player = player_transform.position - current_camera_centre;
+            float distance = glm::length(to_player);
             
-            scene.getRegistry().get<Components::Player>(player).hunger += 0.005f * deltaTime;
+            float move_radius = 100.0f;
+            
+            if (distance > move_radius)
+            {
+                float excess_distance = distance - move_radius;
+                glm::vec2 direction = to_player / distance;
+                
+                glm::vec2 new_camera_centre = current_camera_centre + (direction * excess_distance);
+                
+                camera->setPosition(new_camera_centre - half_screen);
+            }
+            
+            // Update stats
+            scene.getRegistry().get<Components::Player>(player).hunger += HUNGER_UP * deltaTime;
+            scene.getRegistry().get<Components::Player>(player).sanity += SANITY_UP * deltaTime;
+            
         }
+        break;
+    case GameState::G_COMPUTER:
+        // Update stats
+        scene.getRegistry().get<Components::Player>(player).hunger += HUNGER_UP * deltaTime;
+        scene.getRegistry().get<Components::Player>(player).sanity += SANITY_UP * deltaTime;
+        
+        button_system->update(deltaTime, mouse_position, mouse_down, mouse_up);
         break;
     default:
         break;
@@ -242,15 +345,37 @@ void GameLayer::renderState(GameState state)
             auto view = scene.getRegistry().view<Components::Transform2D, Components::Sprite2D>();
             for (auto [entity, transform, sprite] : view.each())
             {
-                typewriter::Renderer2D::drawSprite(sprite.sprite, transform.position.x, transform.position.y, transform.size.x, transform.size.y, sprite.layer);
+                typewriter::Renderer2D::drawSprite(sprite.sprite, transform.position.x, transform.position.y, transform.size.x, transform.size.y, 0);
+            }
+            
+            auto view1 = scene.getRegistry().view<Components::Transform2D, Components::SpriteAnimation>();
+            for (auto [entity, transform, sprite_animation] : view1.each())
+            {
+                typewriter::Renderer2D::drawSprite(sprite_animation.sprite_animation[sprite_animation.frame], transform.position.x, transform.position.y, transform.size.x, transform.size.y, 0);
             }
             
             interaction_system->render();
+        }
+        break;
+    case GameState::G_COMPUTER:
+        {
+            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+        
+            typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/Computer_Screen.png"), 50.0f, 25.0f, screen_width - 100.0f, screen_height - 50.0f, 1);
             
-            auto& player_component = scene.getRegistry().get<Components::Player>(player);
-            auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 24);
-            auto text = typewriter::ResourceManager::loadText(font, std::format("Hunger: {}", player_component.hunger));
-            typewriter::Renderer2D::drawText(text.get(), 100.0f, 70.0f);
+            auto view = scene.getRegistry().view<Components::Transform2D, Components::Sprite2D>();
+            for (auto [entity, transform, sprite] : view.each())
+            {
+                typewriter::Renderer2D::drawSprite(sprite.sprite, transform.position.x, transform.position.y, transform.size.x, transform.size.y, sprite.layer);
+            }
+            
+            auto view1 = scene.getRegistry().view<Components::Transform2D, Components::SpriteAnimation>();
+            for (auto [entity, transform, sprite_animation] : view1.each())
+            {
+                typewriter::Renderer2D::drawSprite(sprite_animation.sprite_animation[sprite_animation.frame], transform.position.x, transform.position.y, transform.size.x, transform.size.y, 0);
+            }
+            
+            interaction_system->render();
         }
         break;
     default:
@@ -268,8 +393,37 @@ void GameLayer::renderUIState(GameState state)
         break;
     case GameState::G_GAME:
         {
-            //interaction_system->render();
+            auto& player_component = scene.getRegistry().get<Components::Player>(player);
+            auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 35);
+            auto text = typewriter::ResourceManager::loadText(font, std::format("Hunger: {}", player_component.hunger));
+            typewriter::Renderer2D::drawText(text.get(), 0.0f, 0.0f, 1);
+            
+            auto text1 = typewriter::ResourceManager::loadText(font, std::format("Food: {}", player_component.inv_food));
+            typewriter::Renderer2D::drawText(text1.get(), 0.0f, 50.0f, 1);
+            
+            auto text2 = typewriter::ResourceManager::loadText(font, std::format("Temperature: {}", player_component.temperature));
+            typewriter::Renderer2D::drawText(text2.get(), 0.0f, 100.0f, 1);
+            
+            auto text3 = typewriter::ResourceManager::loadText(font, std::format("Sanity: {}", player_component.sanity));
+            typewriter::Renderer2D::drawText(text3.get(), 0.0f, 150.0f, 1);
         }
+        break;
+    case GameState::G_COMPUTER:
+        {
+            auto& player_component = scene.getRegistry().get<Components::Player>(player);
+            auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 35);
+            auto text = typewriter::ResourceManager::loadText(font, std::format("Hunger: {}", player_component.hunger));
+            typewriter::Renderer2D::drawText(text.get(), 0.0f, 0.0f, 1);
+            
+            auto text1 = typewriter::ResourceManager::loadText(font, std::format("Food: {}", player_component.inv_food));
+            typewriter::Renderer2D::drawText(text1.get(), 0.0f, 50.0f, 1);
+            
+            auto text2 = typewriter::ResourceManager::loadText(font, std::format("Temperature: {}", player_component.temperature));
+            typewriter::Renderer2D::drawText(text2.get(), 0.0f, 100.0f, 1);
+            
+            auto text3 = typewriter::ResourceManager::loadText(font, std::format("Sanity: {}", player_component.sanity));
+            typewriter::Renderer2D::drawText(text3.get(), 0.0f, 150.0f, 1);
+    }
         break;
     default:
         break;

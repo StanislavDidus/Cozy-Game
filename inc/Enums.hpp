@@ -5,5 +5,11 @@ enum class GameState
     G_NONE,
     G_MENU,
     G_GAME,
-    G_PHONE,
+    G_COMPUTER,
+};
+
+enum class ComputerState
+{
+    G_MENU,
+    G_FOOD,
 };

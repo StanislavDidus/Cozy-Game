@@ -19,6 +19,8 @@ set(SOURCE_FILES
         src/Systems/InteractionSystem.cpp
         src/FoodSpawner.cpp
         src/Systems/ObjectManager.cpp
+        src/Systems/ButtonSystem.cpp
+        src/ComputerState.cpp
 )
 set(HEADER_FILES
         inc/Components.hpp
@@ -31,7 +33,10 @@ set(HEADER_FILES
         inc/StateMachine/State.hpp
         inc/FoodSpawner.hpp
         inc/Layers.hpp
-        inc/Systems/ObjectManager.hpp)
+        inc/Systems/ObjectManager.hpp
+        inc/Config.hpp
+        inc/Systems/ButtonSystem.hpp
+)
 
 set(ALL_FILES ${SOURCE_FILES} ${HEADER_FILES})
 

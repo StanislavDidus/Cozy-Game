@@ -13,7 +13,6 @@ FoodSpawner::FoodSpawner(Scene& scene)
     
 }
 
-
 constexpr int MAX_FOOD = 3;
 constexpr float FOOD_WIDTH = 70.0f;
 constexpr float FOOD_HEIGHT = 70.0f;
@@ -30,7 +29,7 @@ void FoodSpawner::spawnFood(Entity delivery_zone)
         Entity food = registry.create(); 
         glm::vec2 delivery_position = registry.get<Components::Transform2D>(delivery_zone).position;
         registry.emplace<Components::Transform2D>(food, glm::vec2{delivery_position.x, delivery_position.y}, glm::vec2{FOOD_WIDTH, FOOD_HEIGHT});
-        registry.emplace<Components::Sprite2D>(food, ResourceManager::loadSprite("assets/FoodPackage.png", math::RectI(0,0,16,16)), ITEM_LAYER);
+        registry.emplace<Components::Sprite2D>(food, ResourceManager::loadSprite("assets/FoodPackage.png", math::RectI(0,0,16,16)));
         registry.emplace<Components::FoodPackage>(food);
         
         // Assign food to delivery zone
@@ -44,6 +43,8 @@ void FoodSpawner::spawnFood(Entity delivery_zone)
                 player_component.inv_food < player_component.max_inv_food)
             {
                 player_component.inv_food += registry.get<Components::FoodPackage>(delivery_zone_component.food).food_count;
+                if (player_component.inv_food > player_component.max_inv_food)
+                    player_component.inv_food = player_component.max_inv_food;
                 registry.destroy(delivery_zone_component.food);
                 delivery_zone_component.food = entt::null;
             }

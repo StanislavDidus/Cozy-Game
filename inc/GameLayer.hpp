@@ -4,6 +4,7 @@
 
 #include "Enums.hpp"
 
+class ButtonSystem;
 class FoodSpawner;
 class InteractionSystem;
 class CollisionSystem;
@@ -30,13 +31,18 @@ private:
     bool onKeyPressed(typewriter::KeyPressedEvent& event);
     bool onKeyReleased(typewriter::KeyReleasedEvent& event);
     bool onMouseMoved(typewriter::MouseMovedEvent& event);
+    bool onMousePressed(typewriter::MouseButtonPressedEvent& event);
+    bool onMouseReleased(typewriter::MouseButtonReleasedEvent& event);
     glm::vec2 mouse_position;
+    bool mouse_down = false;
+    bool mouse_up = false;
     
     //------// SYSTEMS //----------//
     std::unique_ptr<InputSystem> input_system;
     std::unique_ptr<CollisionSystem> collision_system;
     std::unique_ptr<InteractionSystem> interaction_system;
     std::unique_ptr<ObjectManager> object_manager;
+    std::unique_ptr<ButtonSystem> button_system;
     
     //------// HELPERS //----------/
     std::unique_ptr<FoodSpawner> food_spawner;
@@ -45,6 +51,7 @@ private:
     typewriter::Entity player;
     
     //----------// STATE MACHINE //-----------//
+    void init();
     GameState current_state = GameState::G_NONE;
     void setState(GameState new_state);
     void exitState(GameState state);
@@ -57,6 +64,16 @@ private:
     void renderStats();
     //float hunger = 0.0f;
     float hunger_speed = 1.0f;
+    
+    //------// COMPUTER SCREEN //-------//
+    typewriter::Entity exit_button = entt::null;
+    typewriter::Entity food_button = entt::null;
+    ComputerState computer_state = ComputerState::G_MENU;
+    
+    void setComputerState(ComputerState state);
+    void enterComputerState(ComputerState state);
+    void exitComputerState(ComputerState state);
+    void updateComputerState(ComputerState state, float deltaTime);
     
     //----------// ASSETS //----------//
     typewriter::Sprite level_sprite;

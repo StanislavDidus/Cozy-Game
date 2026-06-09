@@ -4,6 +4,7 @@
 #include "core/ecs/Scene.hpp"
 #include "glm/vec2.hpp"
 #include "graphics/Sprite.hpp"
+#include "graphics/SpriteAnimation.hpp"
 #include "graphics/SDL/shared/SDLFont.hpp"
 
 namespace Components
@@ -20,6 +21,12 @@ namespace Components
         int layer = BASE_LAYER;
     };
     
+    struct SpriteAnimation
+    {
+        typewriter::SpriteAnimation sprite_animation;
+        int frame = 0;
+    };
+    
     struct Player
     {
         glm::vec2 acceleration;
@@ -32,6 +39,8 @@ namespace Components
         int max_inv_food = 3;
         
         float hunger = 0.0f;
+        float temperature = 0.0f;
+        float sanity = 0.0f;
     };
     
     struct Collider
@@ -64,6 +73,11 @@ namespace Components
         Status status = Status::EMPTY;
     };
     
+    struct Window
+    {
+        bool opened = false;
+    };
+    
     struct DeliveryZone
     {
         typewriter::Entity food = entt::null;
@@ -72,5 +86,10 @@ namespace Components
     struct FoodPackage
     {
         int food_count = 1;    
+    };
+    
+    struct Button
+    {
+        std::function<void()> func;
     };
 }
