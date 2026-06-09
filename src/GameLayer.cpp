@@ -4,6 +4,7 @@
 #include "Systems/InputSystem.hpp"
 #include "Systems/CollisionSystem.hpp"
 #include "Systems/InteractionSystem.hpp"
+#include "Systems/ObjectManager.hpp"
 #include "FoodSpawner.hpp"
 
 GameLayer::GameLayer(int screen_width, int screen_height)
@@ -114,6 +115,7 @@ void GameLayer::enterState(GameState state)
             input_system = std::make_unique<InputSystem>(scene);
             collision_system = std::make_unique<CollisionSystem>(scene);
             interaction_system = std::make_unique<InteractionSystem>(scene);
+            object_manager = std::make_unique<ObjectManager>(scene);
             
             food_spawner = std::make_unique<FoodSpawner>(scene);
             
@@ -157,16 +159,21 @@ void GameLayer::enterState(GameState state)
                 if (player_component.inv_food > 0 && microwave_component.status == Components::Microwave::Status::EMPTY)
                 {
                     // Cook     
+                    player_component.inv_food -= 1;
+                    microwave_component.status = Components::Microwave::Status::COOKING;
                 }
                 
                 if (microwave_component.status == Components::Microwave::Status::DONE)
                 {
                     // Eat food
+                    microwave_component.status = Components::Microwave::Status::EMPTY;
+                    player_component.hunger = std::max(player_component.hunger - 0.2f, 0.0f);
                 }
                 
                 if (microwave_component.status == Components::Microwave::Status::COOKING)
                 {
                     // Speed up the process of cooking
+                    //microwave_component.heat_timer += deltaTime;
                 }
             });
             registry.emplace<Components::Sprite2D>(microwave, typewriter::ResourceManager::loadSprite("assets/Microwave.png"));
@@ -202,6 +209,7 @@ void GameLayer::updateState(GameState state, float deltaTime)
             input_system->update(deltaTime);
             collision_system->update(deltaTime);
             interaction_system->update(deltaTime);
+            object_manager->update(deltaTime);
         
             const Components::Transform2D& player_transform = scene.getRegistry().get<Components::Transform2D>(player);
             camera->setPosition(player_transform.position - glm::vec2{screen_width, screen_height} * 0.5f);
@@ -210,6 +218,8 @@ void GameLayer::updateState(GameState state, float deltaTime)
             //camera_x += deltaTime * 0.05f;
             //std::cout << camera_x << std::endl;
             std::cout << scene.getRegistry().get<Components::Player>(player).inv_food << std::endl;
+            
+            scene.getRegistry().get<Components::Player>(player).hunger += 0.005f * deltaTime;
         }
         break;
     default:
@@ -236,6 +246,11 @@ void GameLayer::renderState(GameState state)
             }
             
             interaction_system->render();
+            
+            auto& player_component = scene.getRegistry().get<Components::Player>(player);
+            auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 24);
+            auto text = typewriter::ResourceManager::loadText(font, std::format("Hunger: {}", player_component.hunger));
+            typewriter::Renderer2D::drawText(text.get(), 100.0f, 70.0f);
         }
         break;
     default:
@@ -259,6 +274,10 @@ void GameLayer::renderUIState(GameState state)
     default:
         break;
     }   
+}
+
+void GameLayer::renderStats()
+{
 }
 
 void GameLayer::initAssets()

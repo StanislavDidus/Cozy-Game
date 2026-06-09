@@ -8,6 +8,7 @@ class FoodSpawner;
 class InteractionSystem;
 class CollisionSystem;
 class InputSystem;
+class ObjectManager;
 class Player;
 
 class GameLayer : public typewriter::Layer
@@ -35,6 +36,7 @@ private:
     std::unique_ptr<InputSystem> input_system;
     std::unique_ptr<CollisionSystem> collision_system;
     std::unique_ptr<InteractionSystem> interaction_system;
+    std::unique_ptr<ObjectManager> object_manager;
     
     //------// HELPERS //----------/
     std::unique_ptr<FoodSpawner> food_spawner;
@@ -50,6 +52,11 @@ private:
     void updateState(GameState state, float deltaTime);
     void renderState(GameState state);
     void renderUIState(GameState state);
+    
+    //----------// UI //-------------//
+    void renderStats();
+    //float hunger = 0.0f;
+    float hunger_speed = 1.0f;
     
     //----------// ASSETS //----------//
     typewriter::Sprite level_sprite;

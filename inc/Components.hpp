@@ -30,6 +30,8 @@ namespace Components
         
         int inv_food = 0;
         int max_inv_food = 3;
+        
+        float hunger = 0.0f;
     };
     
     struct Collider
@@ -58,6 +60,7 @@ namespace Components
         };
         
         float heat_time;
+        float heat_timer = 0.0f;
         Status status = Status::EMPTY;
     };
     
