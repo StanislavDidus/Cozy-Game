@@ -47,6 +47,7 @@ void FoodSpawner::spawnFood(Entity delivery_zone)
                     player_component.inv_food = player_component.max_inv_food;
                 registry.destroy(delivery_zone_component.food);
                 delivery_zone_component.food = entt::null;
+                registry.remove<Components::InteractableObject>(object);
             }
         });
     }

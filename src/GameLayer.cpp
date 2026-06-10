@@ -174,7 +174,7 @@ void GameLayer::init()
     //registry.emplace<Components::Sprite2D>(microwave, typewriter::ResourceManager::loadSprite("assets/Microwave.png", typewriter::RectI(0,0,20,7)));
     registry.emplace<Components::Microwave>(microwave, FOOD_COOK_TIME);
     
-    typewriter::Entity delivery_zone = scene.createEntity();
+    delivery_zone = scene.createEntity();
     registry.emplace<Components::Transform2D>(delivery_zone, glm::vec2{170.0f, 430.0f}, glm::vec2{80.0f, 80.0f});
     registry.emplace<Components::Sprite2D>(delivery_zone, typewriter::ResourceManager::loadSprite("assets/Carpet.png"));
     registry.emplace<Components::DeliveryZone>(delivery_zone);
@@ -236,12 +236,8 @@ void GameLayer::exitState(GameState state)
     case GameState::G_GAME:
         break;
     case GameState::G_COMPUTER:
-        {
-            auto& registry = scene.getRegistry(); 
-            registry.destroy(exit_button);
-            registry.destroy(food_button);
-            break;
-        }
+        exitComputerState(current_computer_state);
+        break;
     default:
         break;
     }
@@ -258,20 +254,8 @@ void GameLayer::enterState(GameState state)
     case GameState::G_GAME:
         break;
     case GameState::G_COMPUTER:
-        {
-            auto& registry = scene.getRegistry();
-            
-            exit_button = scene.createEntity();
-            registry.emplace<Components::Transform2D>(exit_button, glm::vec2{675.0f, 130.0f}, glm::vec2{150.0f, 70.0f});
-            registry.emplace<Components::Sprite2D>(exit_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{24,0,12,5}), 1);
-            registry.emplace<Components::Button>(exit_button, [this]{setState(GameState::G_GAME);});
-            
-            food_button = scene.createEntity();
-            registry.emplace<Components::Transform2D>(food_button, glm::vec2{100.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
-            registry.emplace<Components::Sprite2D>(food_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{0,0,8,8}), 1);
-            registry.emplace<Components::Button>(food_button, [this]{computer_state = ComputerState::G_FOOD;});
-            break;
-        }
+        enterComputerState(current_computer_state);
+        break;
     default:
         break;
     }   
@@ -315,6 +299,7 @@ void GameLayer::updateState(GameState state, float deltaTime)
             // Update stats
             scene.getRegistry().get<Components::Player>(player).hunger += HUNGER_UP * deltaTime;
             scene.getRegistry().get<Components::Player>(player).sanity += SANITY_UP * deltaTime;
+            food_order_timer += deltaTime;
             
         }
         break;
@@ -322,8 +307,11 @@ void GameLayer::updateState(GameState state, float deltaTime)
         // Update stats
         scene.getRegistry().get<Components::Player>(player).hunger += HUNGER_UP * deltaTime;
         scene.getRegistry().get<Components::Player>(player).sanity += SANITY_UP * deltaTime;
+        food_order_timer += deltaTime;
         
         button_system->update(deltaTime, mouse_position, mouse_down, mouse_up);
+        
+        updateComputerState(current_computer_state, deltaTime);
         break;
     default:
         break;
@@ -376,6 +364,8 @@ void GameLayer::renderState(GameState state)
             }
             
             interaction_system->render();
+            
+            renderComputerState(current_computer_state);
         }
         break;
     default:

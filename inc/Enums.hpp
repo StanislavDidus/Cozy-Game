@@ -10,6 +10,9 @@ enum class GameState
 
 enum class ComputerState
 {
+    G_NONE,
     G_MENU,
     G_FOOD,
+    G_NEWS,
+    G_GAME,
 };

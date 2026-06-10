@@ -3,6 +3,7 @@
 #include <typewriter/Typewriter.hpp>
 
 #include "Enums.hpp"
+#include "Config.hpp"
 
 class ButtonSystem;
 class FoodSpawner;
@@ -48,7 +49,8 @@ private:
     std::unique_ptr<FoodSpawner> food_spawner;
     
     //---------// OBJECTS //-------//
-    typewriter::Entity player;
+    typewriter::Entity player = entt::null;
+    typewriter::Entity delivery_zone = entt::null;
     
     //----------// STATE MACHINE //-----------//
     void init();
@@ -68,12 +70,19 @@ private:
     //------// COMPUTER SCREEN //-------//
     typewriter::Entity exit_button = entt::null;
     typewriter::Entity food_button = entt::null;
-    ComputerState computer_state = ComputerState::G_MENU;
+    typewriter::Entity game_button = entt::null;
+    typewriter::Entity food_order_button = entt::null;
+    typewriter::Entity return_button = entt::null;
+    ComputerState current_computer_state = ComputerState::G_MENU;
+    
+    //-------// PC APPS //----------//
+    float food_order_timer = FOOD_ORDER_TIME;
     
     void setComputerState(ComputerState state);
     void enterComputerState(ComputerState state);
     void exitComputerState(ComputerState state);
     void updateComputerState(ComputerState state, float deltaTime);
+    void renderComputerState(ComputerState state);
     
     //----------// ASSETS //----------//
     typewriter::Sprite level_sprite;
