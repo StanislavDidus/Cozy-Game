@@ -36,6 +36,7 @@ set(HEADER_FILES
         inc/Systems/ObjectManager.hpp
         inc/Config.hpp
         inc/Systems/ButtonSystem.hpp
+        inc/Obstacle.hpp
 )
 
 set(ALL_FILES ${SOURCE_FILES} ${HEADER_FILES})

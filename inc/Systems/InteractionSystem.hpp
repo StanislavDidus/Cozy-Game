@@ -14,7 +14,7 @@ public:
    InteractionSystem(typewriter::Scene& scene);
    ~InteractionSystem() = default; 
    
-   void update(float deltaTime);
+   void update(float deltaTime, bool interact);
    void render();
 private:
    typewriter::Scene& scene;

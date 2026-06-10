@@ -35,10 +35,12 @@ private:
     bool onMousePressed(typewriter::MouseButtonPressedEvent& event);
     bool onMouseReleased(typewriter::MouseButtonReleasedEvent& event);
     glm::vec2 mouse_position;
+    bool interact = false;
     bool mouse_down = false;
     bool mouse_up = false;
     
     //------// SYSTEMS //----------//
+    void renderSystem(bool ui);
     std::unique_ptr<InputSystem> input_system;
     std::unique_ptr<CollisionSystem> collision_system;
     std::unique_ptr<InteractionSystem> interaction_system;
@@ -75,7 +77,15 @@ private:
     typewriter::Entity return_button = entt::null;
     ComputerState current_computer_state = ComputerState::G_MENU;
     
+    //------// PC GAME //--------//
     float game_boot_timer = 0.0f;
+    float player_y_pos = 0.0f;
+    float player_velocity_y = 0.0f;
+    float player_jump_force = 400.0f;
+    float player_gravity = 700.0f;
+    std::vector<typewriter::AABB> obstacles;
+    float obstacle_spawn_timer = 0.0f;
+    float sanity_timer = 0.0f;
     
     //-------// PC APPS //----------//
     float food_order_timer = FOOD_ORDER_TIME;

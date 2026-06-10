@@ -13,7 +13,7 @@ InteractionSystem::InteractionSystem(typewriter::Scene& scene)
     
 }
 
-void InteractionSystem::update(float deltaTime)
+void InteractionSystem::update(float deltaTime, bool interact)
 {
     auto& registry = scene.getRegistry();
     auto view = registry.view<Components::Transform2D, Components::CanInteract, Components::Player>();
@@ -28,7 +28,7 @@ void InteractionSystem::update(float deltaTime)
             
             if (distance < can_interact.radius)
             {
-                if (typewriter::Input::isKeyPressed(typewriter::SCANCODE_SPACE))
+                if (interact)
                 {
                     interactable_object_.func(entity, entity_);
                 }

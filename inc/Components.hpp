@@ -19,12 +19,16 @@ namespace Components
     {
         typewriter::Sprite sprite;
         int layer = BASE_LAYER;
+        bool ui = false;
     };
     
     struct SpriteAnimation
     {
         typewriter::SpriteAnimation sprite_animation;
         int frame = 0;
+        int layer = BASE_LAYER;
+        bool ui = false;
+        
     };
     
     struct Player

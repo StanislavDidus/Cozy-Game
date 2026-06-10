@@ -34,6 +34,7 @@ void GameLayer::onUpdate(float deltaTime)
     
     updateState(current_state, deltaTime);
     
+    interact = false;
     mouse_down = false;
     mouse_up = false;
 }
@@ -49,7 +50,7 @@ void GameLayer::onRender()
     
     typewriter::Renderer2D::endScene();
     
-    typewriter::Renderer2D::startScene(ui_camera, 1);
+    typewriter::Renderer2D::startScene(ui_camera);
     
     renderUIState(current_state);
     
@@ -70,6 +71,7 @@ void GameLayer::onEvent(typewriter::Event& event)
 
 bool GameLayer::onKeyPressed(typewriter::KeyPressedEvent& event)
 {
+    if (event.getKeyCode() == SDLK_SPACE) interact = true;
     return true;
 }
 
@@ -94,6 +96,23 @@ bool GameLayer::onMouseReleased(typewriter::MouseButtonReleasedEvent& event)
 {
     mouse_up = event.getMouseButton() == BUTTON_LEFT;
     return true;
+}
+
+void GameLayer::renderSystem(bool ui)
+{
+    auto view = scene.getRegistry().view<Components::Transform2D, Components::Sprite2D>();
+    for (auto [entity, transform, sprite] : view.each())
+    {
+        if ((ui && sprite.ui) || (!ui && !sprite.ui))
+            typewriter::Renderer2D::drawSprite(sprite.sprite, transform.position.x, transform.position.y, transform.size.x, transform.size.y);
+    }
+            
+    auto view1 = scene.getRegistry().view<Components::Transform2D, Components::SpriteAnimation>();
+    for (auto [entity, transform, sprite_animation] : view1.each())
+    {
+        if ((ui && sprite_animation.ui) || (!ui && !sprite_animation.ui))
+            typewriter::Renderer2D::drawSprite(sprite_animation.sprite_animation[sprite_animation.frame], transform.position.x, transform.position.y, transform.size.x, transform.size.y);
+    }
 }
 
 void GameLayer::init()
@@ -273,7 +292,7 @@ void GameLayer::updateState(GameState state, float deltaTime)
         {
             input_system->update(deltaTime);
             collision_system->update(deltaTime);
-            interaction_system->update(deltaTime);
+            interaction_system->update(deltaTime, interact);
             object_manager->update(deltaTime);
             button_system->update(deltaTime, mouse_position, mouse_down, mouse_up);
         
@@ -299,6 +318,9 @@ void GameLayer::updateState(GameState state, float deltaTime)
             // Update stats
             scene.getRegistry().get<Components::Player>(player).hunger += HUNGER_UP * deltaTime;
             scene.getRegistry().get<Components::Player>(player).sanity += SANITY_UP * deltaTime;
+            if (scene.getRegistry().get<Components::Player>(player).sanity < 0.0f)
+                scene.getRegistry().get<Components::Player>(player).sanity = 0.0f;
+            
             food_order_timer += deltaTime;
             
         }
@@ -307,6 +329,8 @@ void GameLayer::updateState(GameState state, float deltaTime)
         // Update stats
         scene.getRegistry().get<Components::Player>(player).hunger += HUNGER_UP * deltaTime;
         scene.getRegistry().get<Components::Player>(player).sanity += SANITY_UP * deltaTime;
+        if (scene.getRegistry().get<Components::Player>(player).sanity < 0.0f)
+            scene.getRegistry().get<Components::Player>(player).sanity = 0.0f;
         food_order_timer += deltaTime;
         
         button_system->update(deltaTime, mouse_position, mouse_down, mouse_up);
@@ -330,17 +354,7 @@ void GameLayer::renderState(GameState state)
         {
             typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
         
-            auto view = scene.getRegistry().view<Components::Transform2D, Components::Sprite2D>();
-            for (auto [entity, transform, sprite] : view.each())
-            {
-                typewriter::Renderer2D::drawSprite(sprite.sprite, transform.position.x, transform.position.y, transform.size.x, transform.size.y, 0);
-            }
-            
-            auto view1 = scene.getRegistry().view<Components::Transform2D, Components::SpriteAnimation>();
-            for (auto [entity, transform, sprite_animation] : view1.each())
-            {
-                typewriter::Renderer2D::drawSprite(sprite_animation.sprite_animation[sprite_animation.frame], transform.position.x, transform.position.y, transform.size.x, transform.size.y, 0);
-            }
+            renderSystem(false);
             
             interaction_system->render();
         }
@@ -348,24 +362,8 @@ void GameLayer::renderState(GameState state)
     case GameState::G_COMPUTER:
         {
             typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
-        
-            typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/Computer_Screen.png"), 50.0f, 25.0f, screen_width - 100.0f, screen_height - 50.0f, 1);
             
-            auto view = scene.getRegistry().view<Components::Transform2D, Components::Sprite2D>();
-            for (auto [entity, transform, sprite] : view.each())
-            {
-                typewriter::Renderer2D::drawSprite(sprite.sprite, transform.position.x, transform.position.y, transform.size.x, transform.size.y, sprite.layer);
-            }
-            
-            auto view1 = scene.getRegistry().view<Components::Transform2D, Components::SpriteAnimation>();
-            for (auto [entity, transform, sprite_animation] : view1.each())
-            {
-                typewriter::Renderer2D::drawSprite(sprite_animation.sprite_animation[sprite_animation.frame], transform.position.x, transform.position.y, transform.size.x, transform.size.y, 0);
-            }
-            
-            interaction_system->render();
-            
-            renderComputerState(current_computer_state);
+            renderSystem(false);
         }
         break;
     default:
@@ -383,36 +381,18 @@ void GameLayer::renderUIState(GameState state)
         break;
     case GameState::G_GAME:
         {
-            auto& player_component = scene.getRegistry().get<Components::Player>(player);
-            auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 35);
-            auto text = typewriter::ResourceManager::loadText(font, std::format("Hunger: {}", player_component.hunger));
-            typewriter::Renderer2D::drawText(text.get(), 0.0f, 0.0f, 1);
-            
-            auto text1 = typewriter::ResourceManager::loadText(font, std::format("Food: {}", player_component.inv_food));
-            typewriter::Renderer2D::drawText(text1.get(), 0.0f, 50.0f, 1);
-            
-            auto text2 = typewriter::ResourceManager::loadText(font, std::format("Temperature: {}", player_component.temperature));
-            typewriter::Renderer2D::drawText(text2.get(), 0.0f, 100.0f, 1);
-            
-            auto text3 = typewriter::ResourceManager::loadText(font, std::format("Sanity: {}", player_component.sanity));
-            typewriter::Renderer2D::drawText(text3.get(), 0.0f, 150.0f, 1);
+            renderStats(); 
         }
         break;
     case GameState::G_COMPUTER:
         {
-            auto& player_component = scene.getRegistry().get<Components::Player>(player);
-            auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 35);
-            auto text = typewriter::ResourceManager::loadText(font, std::format("Hunger: {}", player_component.hunger));
-            typewriter::Renderer2D::drawText(text.get(), 0.0f, 0.0f, 1);
+            typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/Computer_Screen.png"), 50.0f, 25.0f, screen_width - 100.0f, screen_height - 50.0f);
             
-            auto text1 = typewriter::ResourceManager::loadText(font, std::format("Food: {}", player_component.inv_food));
-            typewriter::Renderer2D::drawText(text1.get(), 0.0f, 50.0f, 1);
+            renderStats();
             
-            auto text2 = typewriter::ResourceManager::loadText(font, std::format("Temperature: {}", player_component.temperature));
-            typewriter::Renderer2D::drawText(text2.get(), 0.0f, 100.0f, 1);
-            
-            auto text3 = typewriter::ResourceManager::loadText(font, std::format("Sanity: {}", player_component.sanity));
-            typewriter::Renderer2D::drawText(text3.get(), 0.0f, 150.0f, 1);
+            renderSystem(true);
+        
+            renderComputerState(current_computer_state);
     }
         break;
     default:
@@ -422,6 +402,19 @@ void GameLayer::renderUIState(GameState state)
 
 void GameLayer::renderStats()
 {
+    auto& player_component = scene.getRegistry().get<Components::Player>(player);
+    auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 35);
+    auto text = typewriter::ResourceManager::loadText(font, std::format("Hunger: {}", player_component.hunger));
+    typewriter::Renderer2D::drawText(text.get(), 0.0f, 0.0f);
+            
+    auto text1 = typewriter::ResourceManager::loadText(font, std::format("Food: {}", player_component.inv_food));
+    typewriter::Renderer2D::drawText(text1.get(), 0.0f, 50.0f);
+            
+    auto text2 = typewriter::ResourceManager::loadText(font, std::format("Temperature: {}", player_component.temperature));
+    typewriter::Renderer2D::drawText(text2.get(), 0.0f, 100.0f);
+            
+    auto text3 = typewriter::ResourceManager::loadText(font, std::format("Sanity: {}", player_component.sanity));
+    typewriter::Renderer2D::drawText(text3.get(), 0.0f, 150.0f);
 }
 
 void GameLayer::initAssets()
