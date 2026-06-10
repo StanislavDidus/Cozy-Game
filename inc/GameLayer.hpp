@@ -75,6 +75,8 @@ private:
     typewriter::Entity return_button = entt::null;
     ComputerState current_computer_state = ComputerState::G_MENU;
     
+    float game_boot_timer = 0.0f;
+    
     //-------// PC APPS //----------//
     float food_order_timer = FOOD_ORDER_TIME;
     

@@ -66,6 +66,8 @@ void GameLayer::enterComputerState(ComputerState state)
         break;
     case ComputerState::G_GAME:
         {
+            game_boot_timer = 0.0f;
+            
             return_button = scene.createEntity();
             registry.emplace<Components::Transform2D>(return_button, glm::vec2{570.0f, 130.0f}, glm::vec2{70.0f, 70.0f});
             registry.emplace<Components::Sprite2D>(return_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{24,5,5,5}), 1);
@@ -119,6 +121,20 @@ void GameLayer::updateComputerState(ComputerState state, float deltaTime)
         break;
     case ComputerState::G_FOOD:
         break;
+    case ComputerState::G_GAME:
+        {
+            game_boot_timer += deltaTime;
+            
+            if (game_boot_timer > GAME_BOOT_TIME)
+            {
+                
+            }
+            else
+            {
+                typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI{0,0,16,16}), 400.0f, 300.0f, 100.0f, 100.0f);
+            }
+        }
+        break;
     default:
         break;
     }
@@ -150,6 +166,18 @@ void GameLayer::renderComputerState(ComputerState state)
             }
             break;
         }
+    case ComputerState::G_GAME:
+        {
+            if (game_boot_timer > GAME_BOOT_TIME)
+            {
+                
+            }
+            else
+            {
+                typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI{0,0,16,16}), 400.0f, 300.0f, 100.0f, 100.0f, 1);
+            }
+        }
+        break;
     default:
         break;
     }
