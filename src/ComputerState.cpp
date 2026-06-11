@@ -1,3 +1,4 @@
+#include "Button.hpp"
 #include "Components.hpp"
 #include "Config.hpp"
 #include "FoodSpawner.hpp"
@@ -40,6 +41,12 @@ void GameLayer::enterComputerState(ComputerState state)
            registry.emplace<Components::Transform2D>(game_button, glm::vec2{205.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
            registry.emplace<Components::Sprite2D>(game_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{16,0,8,8}), 1, true);
            registry.emplace<Components::Button>(game_button, [this]{setComputerState(ComputerState::G_GAME);});
+           
+           news_button = scene.createEntity();
+           registry.emplace<Components::Transform2D>(news_button, glm::vec2{310.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
+           registry.emplace<Components::Sprite2D>(news_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{8,0,8,8}), 1, true);
+           registry.emplace<Components::Button>(news_button, [this]{setComputerState(ComputerState::G_NEWS);});
+           
            break;
        }
    case ComputerState::G_FOOD:
@@ -63,6 +70,20 @@ void GameLayer::enterComputerState(ComputerState state)
            break;
        }
     case ComputerState::G_NEWS:
+        return_button = scene.createEntity();
+        registry.emplace<Components::Transform2D>(return_button, glm::vec2{570.0f, 130.0f}, glm::vec2{70.0f, 70.0f});
+        registry.emplace<Components::Sprite2D>(return_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{24,5,5,5}), 1, true);
+        registry.emplace<Components::Button>(return_button, [this]
+        {
+            // If player is reading something we close the message 
+            // If not we just go to menu
+            if (reading_message != std::nullopt)
+                reading_message = std::nullopt;
+            else
+            {
+                setComputerState(ComputerState::G_MENU);
+            }
+        });
         break;
     case ComputerState::G_GAME:
         {
@@ -91,6 +112,7 @@ void GameLayer::exitComputerState(ComputerState state)
         {
             registry.destroy(food_button);
             registry.destroy(game_button);
+            registry.destroy(news_button);
         }
         break;
     case ComputerState::G_FOOD:
@@ -100,6 +122,9 @@ void GameLayer::exitComputerState(ComputerState state)
         }
         break;
     case ComputerState::G_NEWS:
+        {
+            registry.destroy(return_button);
+        }
         break;
     case ComputerState::G_GAME:
         game_boot_timer = 0.0f;
@@ -203,6 +228,33 @@ void GameLayer::updateComputerState(ComputerState state, float deltaTime)
             }
         }
         break;
+    case ComputerState::G_NEWS:
+        {
+            // If player is reading something we don't update buttons
+            if (reading_message != std::nullopt) break;
+        
+            auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", MESSAGE_TEXT_SIZE);
+            int pos = 0;
+            //int to_show = glm::clamp(MESSAGE_MAX_SHOWN, 0, static_cast<int>(messages.size()));
+            for (int i = starting_point; i < starting_point + MESSAGE_MAX_SHOWN; ++i)
+            {
+                if (i >= messages.size()) break;
+                
+                auto& msg = messages[i];
+                float offset_y = pos * MESSAGE_HEIGHT;
+                
+                // Read button
+                Button button{glm::vec2{MESSAGE_POSITION_X + MESSAGE_WIDTH, MESSAGE_POSITION_Y + offset_y,}, glm::vec2{MESSAGE_READ_WIDTH, MESSAGE_READ_HEIGHT}};
+                if (button.isPressed(mouse_position, mouse_up))
+                {
+                    reading_message = msg;
+                    msg.read = true;
+                }
+                
+                ++pos;
+            }
+        }
+        
     default:
         break;
     }
@@ -253,6 +305,47 @@ void GameLayer::renderComputerState(ComputerState state)
             else
             {
                 typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI{0,0,16,16}), 400.0f, 300.0f, 100.0f, 100.0f);
+            }
+        }
+        break;
+    case ComputerState::G_NEWS:
+        {
+            auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", MESSAGE_TEXT_SIZE);
+            if (reading_message == std::nullopt)
+            {
+                int pos = 0;
+                //int to_show = glm::clamp(MESSAGE_MAX_SHOWN, 0, static_cast<int>(messages.size()));
+                for (int i = starting_point; i < starting_point + MESSAGE_MAX_SHOWN; ++i)
+                {
+                    if (i >= messages.size()) break;
+                    
+                    auto& msg = messages[i];
+                    float offset_y = pos * MESSAGE_HEIGHT;
+                    
+                    typewriter::Sprite sprite = typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{36,0 ,32,9});
+                    typewriter::Renderer2D::drawSprite(sprite, MESSAGE_POSITION_X, MESSAGE_POSITION_Y + offset_y, MESSAGE_WIDTH, MESSAGE_HEIGHT);
+                    auto text = typewriter::ResourceManager::loadText(font, msg.title);
+                    typewriter::Renderer2D::drawText(text.get(), MESSAGE_POSITION_X, MESSAGE_POSITION_Y + offset_y);
+                    
+                    // Read button
+                    typewriter::Sprite read_button_sprite_green = typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{36,9 ,15,6});
+                    typewriter::Sprite read_button_sprite_red = typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{51,9 ,15,6});
+                    if (!msg.read)
+                        typewriter::Renderer2D::drawSprite(read_button_sprite_green, MESSAGE_POSITION_X + MESSAGE_WIDTH, MESSAGE_POSITION_Y + offset_y, MESSAGE_READ_WIDTH, MESSAGE_READ_HEIGHT);
+                    else
+                        typewriter::Renderer2D::drawSprite(read_button_sprite_red, MESSAGE_POSITION_X + MESSAGE_WIDTH, MESSAGE_POSITION_Y + offset_y, MESSAGE_READ_WIDTH, MESSAGE_READ_HEIGHT);
+                    auto read_button_text = typewriter::ResourceManager::loadText(font, "READ");
+                    typewriter::Renderer2D::drawText(read_button_text.get(), MESSAGE_POSITION_X + MESSAGE_WIDTH, MESSAGE_POSITION_Y + offset_y);
+                    
+                    ++pos;
+                }
+            }
+            else
+            {
+                auto text = typewriter::ResourceManager::loadText(font, reading_message->text);
+                typewriter::Renderer2D::drawText(text.get(), MESSAGE_TEXT_POSITION_X, MESSAGE_POSITION_Y);
+                
+                typewriter::Renderer2D::drawRectangle(MESSAGE_POSITION_X - 20.0f, MESSAGE_POSITION_Y - 20.0f, 300.0f, 300.0f, typewriter::Color::DarkSlateGrey);
             }
         }
         break;

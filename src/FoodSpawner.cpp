@@ -61,7 +61,7 @@ void FoodSpawner::spawnFood(Entity delivery_zone)
         if (++food_count > MAX_FOOD)
         {
             //TODO: for now just type a warning 
-            LOG_WARN("Food limit reached");
+            //LOG_WARN("Food limit reached");
             food_count = MAX_FOOD;
         }
     }

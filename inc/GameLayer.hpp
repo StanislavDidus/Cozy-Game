@@ -4,6 +4,8 @@
 
 #include "Enums.hpp"
 #include "Config.hpp"
+#include "EmailMessage.hpp"
+#include "GameManager.hpp"
 
 class ButtonSystem;
 class FoodSpawner;
@@ -34,6 +36,7 @@ private:
     bool onMouseMoved(typewriter::MouseMovedEvent& event);
     bool onMousePressed(typewriter::MouseButtonPressedEvent& event);
     bool onMouseReleased(typewriter::MouseButtonReleasedEvent& event);
+    bool onMouseScrolled(typewriter::MouseScrolledEvent& event);
     glm::vec2 mouse_position;
     bool interact = false;
     bool mouse_down = false;
@@ -73,6 +76,7 @@ private:
     typewriter::Entity exit_button = entt::null;
     typewriter::Entity food_button = entt::null;
     typewriter::Entity game_button = entt::null;
+    typewriter::Entity news_button = entt::null;
     typewriter::Entity food_order_button = entt::null;
     typewriter::Entity return_button = entt::null;
     ComputerState current_computer_state = ComputerState::G_MENU;
@@ -89,6 +93,15 @@ private:
     
     //-------// PC APPS //----------//
     float food_order_timer = FOOD_ORDER_TIME;
+    
+    //--------// PC NEWS //---------//
+    std::vector<EmailMessage> messages;
+    int starting_point = 0;
+    std::optional<EmailMessage> reading_message = std::nullopt;
+    
+    //---------// GAME LOOP //-----------//
+    GameDay current_game_day = GameDay::ONE;
+    std::unique_ptr<GameManager> game_manager;
     
     void setComputerState(ComputerState state);
     void enterComputerState(ComputerState state);

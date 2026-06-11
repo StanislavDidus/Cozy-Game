@@ -21,6 +21,8 @@ set(SOURCE_FILES
         src/Systems/ObjectManager.cpp
         src/Systems/ButtonSystem.cpp
         src/ComputerState.cpp
+        src/Button.cpp
+        src/GameManager.cpp
 )
 set(HEADER_FILES
         inc/Components.hpp
@@ -37,6 +39,9 @@ set(HEADER_FILES
         inc/Config.hpp
         inc/Systems/ButtonSystem.hpp
         inc/Obstacle.hpp
+        inc/Button.hpp
+        inc/EmailMessage.hpp
+        inc/GameManager.hpp
 )
 
 set(ALL_FILES ${SOURCE_FILES} ${HEADER_FILES})

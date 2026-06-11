@@ -8,6 +8,7 @@
 #include "Systems/ObjectManager.hpp"
 #include "Systems/ButtonSystem.hpp"
 #include "FoodSpawner.hpp"
+#include "EmailMessage.hpp"
 
 GameLayer::GameLayer(int screen_width, int screen_height)
     : screen_width(screen_width)
@@ -67,16 +68,17 @@ void GameLayer::onEvent(typewriter::Event& event)
     dispatcher.dispatch<typewriter::MouseMovedEvent>(std::bind(&GameLayer::onMouseMoved, this, std::placeholders::_1));
     dispatcher.dispatch<typewriter::MouseButtonPressedEvent>(std::bind(&GameLayer::onMousePressed, this, std::placeholders::_1));
     dispatcher.dispatch<typewriter::MouseButtonReleasedEvent>(std::bind(&GameLayer::onMouseReleased, this, std::placeholders::_1));
+    dispatcher.dispatch<typewriter::MouseScrolledEvent>(std::bind(&GameLayer::onMouseScrolled, this, std::placeholders::_1));
 }
 
 bool GameLayer::onKeyPressed(typewriter::KeyPressedEvent& event)
 {
-    if (event.getKeyCode() == SDLK_SPACE) interact = true;
     return true;
 }
 
 bool GameLayer::onKeyReleased(typewriter::KeyReleasedEvent& event)
 {
+    if (event.getKeyCode() == SDLK_SPACE) interact = true;
     return true;
 }
 
@@ -95,6 +97,16 @@ bool GameLayer::onMousePressed(typewriter::MouseButtonPressedEvent& event)
 bool GameLayer::onMouseReleased(typewriter::MouseButtonReleasedEvent& event)
 {
     mouse_up = event.getMouseButton() == BUTTON_LEFT;
+    return true;
+}
+
+bool GameLayer::onMouseScrolled(typewriter::MouseScrolledEvent& event)
+{
+    if (current_computer_state == ComputerState::G_NEWS && messages.size() > 4)
+    {
+        starting_point -= event.getYOffset();
+        starting_point = glm::clamp(starting_point, 0, static_cast<int>(messages.size()) - MESSAGE_MAX_SHOWN);
+    }
     return true;
 }
 
@@ -227,10 +239,24 @@ void GameLayer::init()
         setState(GameState::G_COMPUTER);
     });
     
+    // Game manager
+    
+    game_manager = std::make_unique<GameManager>();
+    
+    // Test
+    
     food_spawner->spawnFood(delivery_zone);
     food_spawner->spawnFood(delivery_zone);
     food_spawner->spawnFood(delivery_zone);
     food_spawner->spawnFood(delivery_zone);
+    
+    // Test messages
+    EmailMessage message{"Introduction letter.", "This is an introduction letter."};
+    EmailMessage message1{"Test letter.", "SPAM"};
+    EmailMessage message2{"Last Message", "Last message."};
+    messages.push_back(message);
+    messages.push_back(message1);
+    messages.push_back(message2);
 }
 
 void GameLayer::setState(GameState new_state)
@@ -361,6 +387,8 @@ void GameLayer::renderState(GameState state)
         break;
     case GameState::G_COMPUTER:
         {
+            // Render main level and game objects
+            // PC UI is rendered in renderUIState
             typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
             
             renderSystem(false);

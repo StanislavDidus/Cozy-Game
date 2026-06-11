@@ -16,3 +16,11 @@ enum class ComputerState
     G_NEWS,
     G_GAME,
 };
+
+enum class GameDay
+{
+    NONE,
+    ONE,
+    TWO,
+    THREE,
+};

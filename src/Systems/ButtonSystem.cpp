@@ -25,11 +25,17 @@ void ButtonSystem::update(float deltaTime, const glm::vec2& mouse_position, bool
     for (auto [entity, transform, button] : view.each())
     {
         typewriter::RectF rect {transform.position.x, transform.position.y,
-        transform.position.x + transform.size.x, transform.position.y + transform.size.y};
+        transform.size.x, transform.size.y};
         
         if (isPointInsideRect(mouse_position, rect) && mouse_up)
         {
-            button.func(); 
+            functions.push_back(button.func);
         }
     }
+    
+    for (const auto& func : functions)
+    {
+        func();
+    }
+    functions.clear();
 }

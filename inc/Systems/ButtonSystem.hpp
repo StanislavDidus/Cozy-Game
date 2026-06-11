@@ -17,4 +17,6 @@ public:
   void update(float deltaTime, const glm::vec2& mouse_position, bool mouse_down, bool mouse_up);
 private:
   typewriter::Scene& scene;
+  
+  std::vector<std::function<void()>> functions;
 };
