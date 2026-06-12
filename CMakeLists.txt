@@ -23,6 +23,7 @@ set(SOURCE_FILES
         src/ComputerState.cpp
         src/Button.cpp
         src/GameManager.cpp
+        src/Components.cpp
 )
 set(HEADER_FILES
         inc/Components.hpp

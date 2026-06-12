@@ -361,28 +361,29 @@ void GameLayer::enterState(GameState state)
     case GameState::G_MENU:
         {
             auto& registry = scene.getRegistry();
-            start_button = registry.create();
-            registry.emplace<typewriter::Transform2D>(start_button, glm::vec2{200.0f, 200.0f}, glm::vec2{100.0f, 60.0f});
-            registry.emplace<Components::Sprite2D>(start_button, typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI(0,32,48,16)), 1, true);
-            registry.emplace<typewriter::Clickable>(start_button, typewriter::AABB{glm::vec2{200.0f, 200.0f}, glm::vec2{100.0f, 60.0f}}, [this]
-            {
-                game_manager = std::make_unique<GameManager>();
-                
-                initGameStory();
-                
-                init();
-                setState(GameState::G_GAME);
-                return true;
-            });
-            
-            exit_menu_button = registry.create();
-            registry.emplace<typewriter::Transform2D>(exit_menu_button, glm::vec2{200.0f, 300.0f}, glm::vec2{100.0f, 60.0f});
-            registry.emplace<Components::Sprite2D>(exit_menu_button, typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI(0,48,48,16)), 1, true);
-            registry.emplace<typewriter::Clickable>(exit_menu_button, typewriter::AABB{glm::vec2{200.0f, 300.0f}, glm::vec2{100.0f, 60.0f}}, [this]
-            {
-                std::exit(0);
-                return true;
-            });
+
+            start_button = Components::createButton(registry,
+                [this]{
+                    game_manager = std::make_unique<GameManager>();
+
+                    initGameStory();
+
+                    init();
+                    setState(GameState::G_GAME);
+                    return true;
+                },
+                glm::vec2{200.0f, 200.0f}, glm::vec2{100.0f, 60.0f},
+                typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI(0,32,48,16))
+            );
+
+            exit_menu_button = Components::createButton(registry,
+                []{
+                    std::exit(0);
+                    return true;
+                },
+                glm::vec2{200.0f, 300.0f}, glm::vec2{100.0f, 60.0f},
+                typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI(0,32,48,16))
+            );
         }
         break;
     case GameState::G_GAME:

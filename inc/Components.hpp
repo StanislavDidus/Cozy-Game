@@ -1,18 +1,13 @@
 #pragma once
 
-#include "Layers.hpp"
-#include "core/ecs/Scene.hpp"
 #include "glm/vec2.hpp"
-#include "graphics/Sprite.hpp"
-#include "graphics/SpriteAnimation.hpp"
-#include "graphics/SDL/shared/SDLFont.hpp"
+#include <typewriter/Typewriter.hpp>
 
 namespace Components
 {
     struct Sprite2D
     {
         typewriter::Sprite sprite;
-        int layer = BASE_LAYER;
         bool ui = false;
     };
     
@@ -20,7 +15,6 @@ namespace Components
     {
         typewriter::SpriteAnimation sprite_animation;
         int frame = 0;
-        int layer = BASE_LAYER;
         bool ui = false;
         
     };
@@ -79,4 +73,6 @@ namespace Components
     {
         int food_count = 1;    
     };
+
+    typewriter::Entity createButton(typewriter::Registry& registry, const std::function<bool()>& onClick, const glm::vec2& position, const glm::vec2& size, const typewriter::Sprite& sprite);
 }
