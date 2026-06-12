@@ -20,19 +20,26 @@ public:
     GameManager() = default;
 	~GameManager() = default;
 
-	void update(float deltaTime);
+	void update(float deltaTime, bool is_window_open);
+	void render();
 	
 	bool isDayEnded() const;
+	bool isDroneAttack() const;
 	
 	int getCurrentday() const;
 	DayPhase getDayPhase() const;
 	
 	void setGameDay(int day);
 	void setNextDay();
+	void restartDay();
 	void initDays(const std::vector<Day>& days);
 private:
 	float timer = 0.0f;
 	
 	int current_day = 0;
 	std::vector<Day> days;
+	
+	// DRONE ATTACK SYSTEM
+	bool drones_active = true;
+	float window_open_timer = 0.0f;
 };
