@@ -20,7 +20,7 @@ void ButtonSystem::update(float deltaTime, const glm::vec2& mouse_position, bool
             functions.push_back(button.onClick);
         }
     }
-    
+
     for (const auto& func : functions)
     {
         func();

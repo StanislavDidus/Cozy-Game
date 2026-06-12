@@ -181,7 +181,7 @@ void GameLayer::updateComputerState(ComputerState state, float deltaTime)
                 {
                     obstacle_spawn_timer = 0.0f;     
                     
-                    typewriter::AABB obstacle{glm::vec2{OBSTACLE_SPAWN_POSITION_X, OBSTACLE_SPAWN_POSITION_Y}, glm::vec2{OBSTACLE_SPAWN_POSITION_X + OBSTACLE_SPAWN_WIDTH, OBSTACLE_SPAWN_POSITION_Y + OBSTACLE_SPAWN_HEIGHT}};
+                    typewriter::AABB obstacle{glm::vec2{OBSTACLE_SPAWN_POSITION_X, OBSTACLE_SPAWN_POSITION_Y}, glm::vec2{OBSTACLE_SPAWN_WIDTH, OBSTACLE_SPAWN_HEIGHT}};
                     obstacles.push_back(obstacle);
                 }
                 
@@ -199,7 +199,7 @@ void GameLayer::updateComputerState(ComputerState state, float deltaTime)
                     float y = 320.0f + player_y_pos;
                     float width = 40.0f;
                     float height = 70.0f;
-                    typewriter::AABB a{glm::vec2{x, y}, glm::vec2{x + width, y + height}};
+                    typewriter::AABB a{glm::vec2{x, y}, glm::vec2{width, height}};
                     if (a.overlap(obstacle))
                     {
                         setComputerState(ComputerState::G_MENU);
