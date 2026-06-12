@@ -561,7 +561,8 @@ void GameLayer::renderUIState(GameState state)
             auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 35);
             std::string hint = hints[displayed_hint];
             auto text = typewriter::ResourceManager::loadText(font, hint);
-            typewriter::Renderer2D::drawText(text.get(), 15.0f, 225.0f);
+            text->setWrapWidth(400);
+            typewriter::Renderer2D::drawText(text.get(), 200.0f, 225.0f);
         }
         break;
     default:
