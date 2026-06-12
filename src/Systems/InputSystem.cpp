@@ -10,7 +10,7 @@ InputSystem::InputSystem(typewriter::Scene& scene)
 
 void InputSystem::update(float deltaTime)
 {
-    auto view = scene.getRegistry().view<Components::Transform2D, Components::Player>();
+    auto view = scene.getRegistry().view<typewriter::Transform2D, Components::Player>();
     for (auto [entity, transform, player] : view.each())
     {
         glm::vec2 direction {0.0f, 0.0f};
