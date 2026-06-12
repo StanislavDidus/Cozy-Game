@@ -72,6 +72,10 @@ private:
     //float hunger = 0.0f;
     float hunger_speed = 1.0f;
     
+    //-------// GAME MENU //----------//
+    typewriter::Entity start_button = entt::null;
+    typewriter::Entity exit_menu_button = entt::null;
+    
     //------// COMPUTER SCREEN //-------//
     typewriter::Entity exit_button = entt::null;
     typewriter::Entity food_button = entt::null;
@@ -100,8 +104,14 @@ private:
     std::optional<EmailMessage> reading_message = std::nullopt;
     
     //---------// GAME LOOP //-----------//
-    GameDay current_game_day = GameDay::ONE;
+    void initGameStory();
+    void checkDayEnd();
+    void renderDayInfo();
     std::unique_ptr<GameManager> game_manager;
+    
+    //-------// DAY END TRANSITION //-----//
+    float day_end_timer = 0.0f;
+    int displayed_hint = 0;
     
     void setComputerState(ComputerState state);
     void enterComputerState(ComputerState state);

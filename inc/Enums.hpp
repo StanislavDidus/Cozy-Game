@@ -6,6 +6,7 @@ enum class GameState
     G_MENU,
     G_GAME,
     G_COMPUTER,
+    G_DAY_END,
 };
 
 enum class ComputerState
@@ -17,10 +18,10 @@ enum class ComputerState
     G_GAME,
 };
 
-enum class GameDay
+enum class DayPhase
 {
-    NONE,
-    ONE,
-    TWO,
-    THREE,
+    UNDEFINED,
+    MORNING,
+    AFTERNOON,
+    EVENING,
 };
