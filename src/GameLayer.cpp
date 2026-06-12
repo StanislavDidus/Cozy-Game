@@ -300,7 +300,7 @@ void GameLayer::init()
     
     // Window
 
-    typewriter::Entity window = scene.createEntity();
+    window = scene.createEntity();
     registry.emplace<typewriter::Transform2D>(window, glm::vec2{400.0f, 50.0f}, glm::vec2{150.0f, 80.0f});
 
     registry.emplace<Components::SpriteAnimation>(window, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Window.png", 32, 22)});
@@ -314,15 +314,15 @@ void GameLayer::init()
     
     // Bed
     typewriter::Entity bed = scene.createEntity();
-    registry.emplace<Components::Transform2D>(bed, glm::vec2{740.0f, 150.0f}, glm::vec2{100.0f, 120.0f});
+    registry.emplace<typewriter::Transform2D>(bed, glm::vec2{740.0f, 150.0f}, glm::vec2{100.0f, 120.0f});
     registry.emplace<Components::SpriteAnimation>(bed, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Bed.png", 24, 24)});
-    registry.emplace<Components::Collider>(bed, glm::vec2{0.0f}, glm::vec2{0.0f});
+    registry.emplace<typewriter::Collision2D>(bed, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
     
     // Computer
     typewriter::Entity computer = scene.createEntity();
     registry.emplace<typewriter::Transform2D>(computer, glm::vec2{750.0f, 430.0f}, glm::vec2{90.0f, 90.0f});
     registry.emplace<Components::SpriteAnimation>(computer, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Computer.png", 16, 16)});
-    registry.emplace<Components::Collider>(computer, glm::vec2{0.0f}, glm::vec2{0.0f});
+    registry.emplace<typewriter::Collision2D>(computer, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
     registry.emplace<Components::InteractableObject>(computer, [&registry, this](typewriter::Entity player, typewriter::Entity object)
     {
         setState(GameState::G_COMPUTER);
@@ -392,7 +392,7 @@ void GameLayer::enterState(GameState state)
             start_button = registry.create();
             registry.emplace<typewriter::Transform2D>(start_button, glm::vec2{200.0f, 200.0f}, glm::vec2{100.0f, 60.0f});
             registry.emplace<Components::Sprite2D>(start_button, typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI(0,32,48,16)), 1, true);
-            registry.emplace<typewriter::Clickable>(start_button, typewriter::AABB{glm::vec2{200.0f, 200.0f}, glm::vec2{100.0f, 60.0f}}, [this]
+            registry.emplace<typewriter::Clickable>(start_button, typewriter::AABB{glm::vec2{200.0f, 200.0f}, glm::vec2{300.0f, 260.0f}}, [this]
             {
                 game_manager = std::make_unique<GameManager>();
                 
@@ -406,7 +406,7 @@ void GameLayer::enterState(GameState state)
             exit_menu_button = registry.create();
             registry.emplace<typewriter::Transform2D>(exit_menu_button, glm::vec2{200.0f, 300.0f}, glm::vec2{100.0f, 60.0f});
             registry.emplace<Components::Sprite2D>(exit_menu_button, typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI(0,48,48,16)), 1, true);
-            registry.emplace<typewriter::Clickable>(exit_menu_button, typewriter::AABB{glm::vec2{200.0f, 300.0f}, glm::vec2{100.0f, 60.0f}}, [this]
+            registry.emplace<typewriter::Clickable>(exit_menu_button, typewriter::AABB{glm::vec2{200.0f, 300.0f}, glm::vec2{300.0f, 360.0f}}, [this]
             {
                 std::exit(0);
                 return true;
