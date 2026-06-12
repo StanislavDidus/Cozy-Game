@@ -56,6 +56,7 @@ private:
     //---------// OBJECTS //-------//
     typewriter::Entity player = entt::null;
     typewriter::Entity delivery_zone = entt::null;
+    typewriter::Entity window = entt::null;
     
     //----------// STATE MACHINE //-----------//
     void init();
@@ -107,11 +108,13 @@ private:
     void initGameStory();
     void checkDayEnd();
     void renderDayInfo();
+    void checkLoseCondition();
     std::unique_ptr<GameManager> game_manager;
     
     //-------// DAY END TRANSITION //-----//
     float day_end_timer = 0.0f;
     int displayed_hint = 0;
+    float day_transit_timer = 0.0f;
     
     void setComputerState(ComputerState state);
     void enterComputerState(ComputerState state);
