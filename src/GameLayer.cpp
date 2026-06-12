@@ -9,6 +9,16 @@
 #include "Systems/ButtonSystem.hpp"
 #include "FoodSpawner.hpp"
 #include "EmailMessage.hpp"
+#include "glm/gtc/random.hpp"
+
+static std::array<std::string, 5> hints = 
+    {
+    "Press on microwave while cooking to speed up the process.",
+        "Try to think in the future on what you are going to need.",
+        "You cannot have more then three food packages by your door. EAT them.",
+        "Always check your mailbox for new story details.",
+        "Try to have fun."
+};
 
 GameLayer::GameLayer(int screen_width, int screen_height)
     : screen_width(screen_width)
@@ -16,17 +26,84 @@ GameLayer::GameLayer(int screen_width, int screen_height)
 {
 }
 
+void GameLayer::initGameStory()
+{
+    std::vector<Day> days;
+    
+    // Day one
+    {
+        Day day;
+        auto& events = day.events;
+        
+        events.push_back(EventPoint{[]
+        {
+            std::cout << "Huh. I am hungry." << std::endl;
+        }, 5.0f});
+        
+        days.push_back(day);
+    }
+    
+    game_manager->initDays(days);
+    game_manager->setGameDay(0);
+}
+
+void GameLayer::checkDayEnd()
+{
+    // See if day has ended
+    if (game_manager->isDayEnded())
+    {
+        setState(GameState::G_DAY_END);
+    }
+}
+
+void GameLayer::renderDayInfo()
+{
+    auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 35);
+    std::string day_number = "Day " + std::to_string(game_manager->getCurrentday() + 1);
+    
+    auto text = typewriter::ResourceManager::loadText(font, day_number);
+    typewriter::Renderer2D::drawText(text.get(), 400.0f, 0.0f);
+    
+    DayPhase day_phase = game_manager->getDayPhase();
+    
+    std::string day_phase_text;
+    if (day_phase == DayPhase::MORNING)
+    {
+       day_phase_text = "MORNING";
+    }
+    if (day_phase == DayPhase::AFTERNOON)
+    {
+        day_phase_text = "AFTERNOON";
+    }
+    if (day_phase == DayPhase::EVENING)
+    {
+        day_phase_text = "EVENING";
+    }
+    
+    auto text1 = typewriter::ResourceManager::loadText(font, day_phase_text);
+    typewriter::Renderer2D::drawText(text1.get(), 500.0f, 0.0f);
+}
+
 void GameLayer::onAttach()
 {
     Layer::onAttach();
+    
+    // Init rand
+    srand(time(NULL));
     
     camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width),  static_cast<float>(screen_height), 0.0f);
     ui_camera = std::make_shared<typewriter::Camera>(0.f, static_cast<float>(screen_width), static_cast<float>(screen_height), 0.0f);
     
     initAssets();
     
-    setState(GameState::G_GAME);
-    init();
+    input_system = std::make_unique<InputSystem>(scene);
+    collision_system = std::make_unique<CollisionSystem>(scene);
+    interaction_system = std::make_unique<InteractionSystem>(scene);
+    object_manager = std::make_unique<ObjectManager>(scene);
+    button_system = std::make_unique<ButtonSystem>(scene);
+    food_spawner = std::make_unique<FoodSpawner>(scene);
+    
+    setState(GameState::G_MENU);
 }
 
 void GameLayer::onUpdate(float deltaTime)
@@ -84,7 +161,7 @@ bool GameLayer::onKeyReleased(typewriter::KeyReleasedEvent& event)
 
 bool GameLayer::onMouseMoved(typewriter::MouseMovedEvent& event)
 {
-    mouse_position = glm::vec2{event.getX(), event.getY()};
+    mouse_position = typewriter::Window::clientToImage(event.getX(), event.getY(), static_cast<float>(screen_width), static_cast<float>(screen_height));
     return true;
 }
 
@@ -129,13 +206,6 @@ void GameLayer::renderSystem(bool ui)
 
 void GameLayer::init()
 {
-    input_system = std::make_unique<InputSystem>(scene);
-    collision_system = std::make_unique<CollisionSystem>(scene);
-    interaction_system = std::make_unique<InteractionSystem>(scene);
-    object_manager = std::make_unique<ObjectManager>(scene);
-    button_system = std::make_unique<ButtonSystem>(scene);
-    
-    food_spawner = std::make_unique<FoodSpawner>(scene);
     
     // Init Player
     player = scene.createEntity();
@@ -239,9 +309,6 @@ void GameLayer::init()
         setState(GameState::G_COMPUTER);
     });
     
-    // Game manager
-    
-    game_manager = std::make_unique<GameManager>();
     
     // Test
     
@@ -277,6 +344,10 @@ void GameLayer::exitState(GameState state)
     case GameState::G_NONE:
         break;
     case GameState::G_MENU:
+        {
+            scene.destroyEntity(start_button);
+            scene.destroyEntity(exit_menu_button);
+        }
         break;
     case GameState::G_GAME:
         break;
@@ -295,11 +366,42 @@ void GameLayer::enterState(GameState state)
     case GameState::G_NONE:
         break;
     case GameState::G_MENU:
+        {
+            auto& registry = scene.getRegistry();
+            start_button = registry.create();
+            registry.emplace<Components::Transform2D>(start_button, glm::vec2{200.0f, 200.0f}, glm::vec2{100.0f, 60.0f});
+            registry.emplace<Components::Sprite2D>(start_button, typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI(0,32,48,16)), 1, true);
+            registry.emplace<Components::Button>(start_button, [this]
+            {
+                game_manager = std::make_unique<GameManager>();
+                
+                initGameStory();
+                
+                init();
+                setState(GameState::G_GAME);
+            });
+            
+            exit_menu_button = registry.create();
+            registry.emplace<Components::Transform2D>(exit_menu_button, glm::vec2{200.0f, 300.0f}, glm::vec2{100.0f, 60.0f});
+            registry.emplace<Components::Sprite2D>(exit_menu_button, typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI(0,48,48,16)), 1, true);
+            registry.emplace<Components::Button>(exit_menu_button, [this]
+            {
+                std::exit(0);
+            });
+        }
         break;
     case GameState::G_GAME:
         break;
     case GameState::G_COMPUTER:
         enterComputerState(current_computer_state);
+        break;
+    case GameState::G_DAY_END:
+        {
+            // Remove all objects
+            scene.getRegistry().clear();
+           
+            displayed_hint = glm::linearRand(0,4);
+        }
         break;
     default:
         break;
@@ -313,6 +415,7 @@ void GameLayer::updateState(GameState state, float deltaTime)
     case GameState::G_NONE:
         break;
     case GameState::G_MENU:
+        button_system->update(deltaTime, mouse_position, mouse_down, mouse_up);
         break;
     case GameState::G_GAME:
         {
@@ -347,6 +450,10 @@ void GameLayer::updateState(GameState state, float deltaTime)
             if (scene.getRegistry().get<Components::Player>(player).sanity < 0.0f)
                 scene.getRegistry().get<Components::Player>(player).sanity = 0.0f;
             
+            game_manager->update(deltaTime);
+            
+            checkDayEnd(); 
+            
             food_order_timer += deltaTime;
             
         }
@@ -359,10 +466,27 @@ void GameLayer::updateState(GameState state, float deltaTime)
             scene.getRegistry().get<Components::Player>(player).sanity = 0.0f;
         food_order_timer += deltaTime;
         
+        game_manager->update(deltaTime);
+        
+        checkDayEnd();
+        
         button_system->update(deltaTime, mouse_position, mouse_down, mouse_up);
         
         updateComputerState(current_computer_state, deltaTime);
         break;
+    case GameState::G_DAY_END:
+        {
+            day_end_timer += deltaTime;
+            
+            if (day_end_timer >= DAY_END_TIME)
+            {
+                day_end_timer = 0.0f;
+                init();
+                game_manager->setNextDay();
+                setState(GameState::G_GAME);
+            }
+            break;
+        }
     default:
         break;
     }   
@@ -375,6 +499,7 @@ void GameLayer::renderState(GameState state)
     case GameState::G_NONE:
         break;
     case GameState::G_MENU:
+            renderSystem(false);
         break;
     case GameState::G_GAME:
         {
@@ -394,6 +519,10 @@ void GameLayer::renderState(GameState state)
             renderSystem(false);
         }
         break;
+    case GameState::G_DAY_END:
+        {
+        }
+        break;
     default:
         break;
     }   
@@ -406,10 +535,12 @@ void GameLayer::renderUIState(GameState state)
     case GameState::G_NONE:
         break;
     case GameState::G_MENU:
+            renderSystem(true);
         break;
     case GameState::G_GAME:
         {
             renderStats(); 
+            renderDayInfo();
         }
         break;
     case GameState::G_COMPUTER:
@@ -417,11 +548,21 @@ void GameLayer::renderUIState(GameState state)
             typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/Computer_Screen.png"), 50.0f, 25.0f, screen_width - 100.0f, screen_height - 50.0f);
             
             renderStats();
+            renderDayInfo();
             
             renderSystem(true);
         
             renderComputerState(current_computer_state);
     }
+        break;
+    case GameState::G_DAY_END:
+        {
+            typewriter::Renderer2D::drawRectangle(0.0f, 0.0f, screen_width, screen_height, typewriter::Color::Black);
+            auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 35);
+            std::string hint = hints[displayed_hint];
+            auto text = typewriter::ResourceManager::loadText(font, hint);
+            typewriter::Renderer2D::drawText(text.get(), 15.0f, 225.0f);
+        }
         break;
     default:
         break;

@@ -33,5 +33,12 @@ constexpr float MESSAGE_MOUSE_SCROLL = 10.0f;
 constexpr float MESSAGE_TEXT_POSITION_X = 200.0f;
 constexpr float MESSAGE_TEXT_POSITION_Y = 300.0f;
 
+// Day loop
+constexpr float DAY_MORNING_DURATION = 5.0f;
+constexpr float DAY_AFTERNOON_DURATION = 5.0f;
+constexpr float DAY_EVENING_DURATION = 5.0f;
+constexpr float DAY_TOTAL_DURATION = DAY_MORNING_DURATION + DAY_AFTERNOON_DURATION + DAY_EVENING_DURATION;
+constexpr float DAY_END_TIME = 5.0f;
+
 constexpr float INTERACT_TIME = 0.5f; // Time between interactions
 constexpr float FOOD_ORDER_TIME = 3.0f; // How often can player order food

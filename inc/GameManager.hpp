@@ -11,18 +11,7 @@ struct EventPoint
 
 struct Day
 {
-	float morning_duration = 0.0f;
-	float afternoon_duration = 0.0f;
-	float evening_duration = 0.0f;
-	
 	std::vector<EventPoint> events;
-	
-	GameDay game_day = GameDay::NONE;
-	
-	float getTotalDuration() const
-	{
-		return morning_duration + afternoon_duration + evening_duration;
-	}
 };
 
 class GameManager
@@ -32,9 +21,18 @@ public:
 	~GameManager() = default;
 
 	void update(float deltaTime);
+	
+	bool isDayEnded() const;
+	
+	int getCurrentday() const;
+	DayPhase getDayPhase() const;
+	
+	void setGameDay(int day);
+	void setNextDay();
+	void initDays(const std::vector<Day>& days);
 private:
 	float timer = 0.0f;
 	
-	GameDay current_game_day = GameDay::NONE;
+	int current_day = 0;
 	std::vector<Day> days;
 };
