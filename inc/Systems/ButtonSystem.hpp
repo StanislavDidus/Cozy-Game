@@ -18,5 +18,5 @@ public:
 private:
   typewriter::Scene& scene;
   
-  std::vector<std::function<void()>> functions;
+  std::vector<std::function<bool()>> functions;
 };

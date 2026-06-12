@@ -1,11 +1,8 @@
 #include "Systems/InteractionSystem.hpp"
 
 #include "Components.hpp"
-#include "core/ecs/Scene.hpp"
-#include "core/input/Input.hpp"
 #include "glm/glm.hpp"
-#include "graphics/Renderer2D.hpp"
-#include "graphics/ResourceManager.hpp"
+#include <typewriter/Typewriter.hpp>
 
 InteractionSystem::InteractionSystem(typewriter::Scene& scene)
     : scene(scene)
@@ -16,22 +13,19 @@ InteractionSystem::InteractionSystem(typewriter::Scene& scene)
 void InteractionSystem::update(float deltaTime, bool interact)
 {
     auto& registry = scene.getRegistry();
-    auto view = registry.view<Components::Transform2D, Components::CanInteract, Components::Player>();
+    auto view = registry.view<typewriter::Transform2D, Components::CanInteract, Components::Player>();
     
-    for (auto [entity, transform, can_interact, player] : view.each())
+    for (const auto& [entity, transform, can_interact, player] : view.each())
     {
-        auto view_ = registry.view<Components::Transform2D, Components::InteractableObject>();
+        auto view_ = registry.view<typewriter::Transform2D, Components::InteractableObject>();
         
-        for (auto [entity_, transform_, interactable_object_] : view_.each())
+        for (const auto& [entity_, transform_, interactable_object_] : view_.each())
         {
             float distance = glm::distance(transform.position, transform_.position);
             
-            if (distance < can_interact.radius)
+            if (distance < can_interact.radius && interact)
             {
-                if (interact)
-                {
-                    interactable_object_.func(entity, entity_);
-                }
+                interactable_object_.func(entity, entity_);
             }
         }
     }
@@ -40,13 +34,13 @@ void InteractionSystem::update(float deltaTime, bool interact)
 void InteractionSystem::render()
 {
     auto& registry = scene.getRegistry();
-    auto view = registry.view<Components::Transform2D, Components::CanInteract>();
+    auto view = registry.view<typewriter::Transform2D, Components::CanInteract>();
     
-    for (auto [entity, transform, can_interact] : view.each())
+    for (const auto& [entity, transform, can_interact] : view.each())
     {
-        auto view_ = registry.view<Components::Transform2D, Components::InteractableObject>();
+        auto view_ = registry.view<typewriter::Transform2D, Components::InteractableObject>();
         
-        for (auto [entity_, transform_, interactable_object_] : view_.each())
+        for (const auto& [entity_, transform_, interactable_object_] : view_.each())
         {
             float distance = glm::distance(transform.position, transform_.position);
             
