@@ -9,12 +9,6 @@
 
 namespace Components
 {
-    struct Transform2D
-    {
-        glm::vec2 position;
-        glm::vec2 size;
-    };
-    
     struct Sprite2D
     {
         typewriter::Sprite sprite;
@@ -45,12 +39,6 @@ namespace Components
         float hunger = 0.0f;
         float temperature = 0.0f;
         float sanity = 0.0f;
-    };
-    
-    struct Collider
-    {
-        glm::vec2 min;
-        glm::vec2 max;
     };
     
     struct CanInteract
@@ -90,10 +78,5 @@ namespace Components
     struct FoodPackage
     {
         int food_count = 1;    
-    };
-    
-    struct Button
-    {
-        std::function<void()> func;
     };
 }

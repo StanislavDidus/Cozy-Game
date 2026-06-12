@@ -1,9 +1,7 @@
 #include "FoodSpawner.hpp"
 
 #include "Components.hpp"
-#include "Layers.hpp"
-#include "core/ecs/Scene.hpp"
-#include "graphics/ResourceManager.hpp"
+#include <typewriter/Typewriter.hpp>
 
 using namespace typewriter;
 
@@ -27,8 +25,8 @@ void FoodSpawner::spawnFood(Entity delivery_zone)
     {
        // Create food object 
         Entity food = registry.create(); 
-        glm::vec2 delivery_position = registry.get<Components::Transform2D>(delivery_zone).position;
-        registry.emplace<Components::Transform2D>(food, glm::vec2{delivery_position.x, delivery_position.y}, glm::vec2{FOOD_WIDTH, FOOD_HEIGHT});
+        glm::vec2 delivery_position = registry.get<Transform2D>(delivery_zone).position;
+        registry.emplace<Transform2D>(food, glm::vec2{delivery_position.x, delivery_position.y}, glm::vec2{FOOD_WIDTH, FOOD_HEIGHT});
         registry.emplace<Components::Sprite2D>(food, ResourceManager::loadSprite("assets/FoodPackage.png", math::RectI(0,0,16,16)));
         registry.emplace<Components::FoodPackage>(food);
         
