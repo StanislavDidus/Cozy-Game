@@ -25,6 +25,14 @@ constexpr float SANITY_GIVE = 0.03f; // How much sanity is given per timer clock
 
 // Dialogue
 constexpr float CHARACTER_APPEAR_SPEED = 0.05f;
+constexpr float DIALOGUE_WINDOW_POS_X = 100.0f;
+constexpr float DIALOGUE_WINDOW_POS_Y = 390.0f;
+constexpr float DIALOGUE_WINDOW_SIZE_X = 700.0f;
+constexpr float DIALOGUE_WINDOW_SIZE_Y = 150.0f;
+constexpr float DIALOGUE_TEXT_POS_X = 120.0f;
+constexpr float DIALOGUE_TEXT_POS_Y = 410.0f;
+constexpr int DIALOGUE_TEXT_SIZE = 32;
+constexpr int DIALOGUE_TEXT_WRAP_WIDTH = 600;
 
 // News
 constexpr float MESSAGE_WIDTH = 500.0f;

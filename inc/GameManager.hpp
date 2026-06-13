@@ -34,6 +34,7 @@ public:
 	
 	int getCurrentday() const;
 	DayPhase getDayPhase() const;
+	float getTimer() const;
 	
 	void setPlayer(typewriter::Entity player);
 	void setWindow(typewriter::Entity window);

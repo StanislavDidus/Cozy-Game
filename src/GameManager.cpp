@@ -127,6 +127,11 @@ DayPhase GameManager::getDayPhase() const
     return DayPhase::UNDEFINED;
 }
 
+float GameManager::getTimer() const
+{
+    return timer;
+}
+
 void GameManager::setPlayer(typewriter::Entity player)
 {
     this->player = player;

@@ -11,6 +11,7 @@
 #include "Systems/ButtonSystem.hpp"
 #include "FoodSpawner.hpp"
 #include "EmailMessage.hpp"
+#include "Dialogue.hpp"
 #include "glm/gtc/random.hpp"
 
 static std::array<std::string, 5> hints = 
@@ -31,6 +32,44 @@ GameLayer::GameLayer(int screen_width, int screen_height)
 void GameLayer::showDialogue(const std::string& text)
 {
     std::cout << text << std::endl;
+    
+    dialogues.emplace_back(Dialogue{text});
+}
+
+void GameLayer::updateDialogues(float deltaTime)
+{
+   if (!dialogues.empty())
+   {
+       auto& dialogue = dialogues[0];
+       
+       dialogue.update(deltaTime);
+       
+       setState(GameState::G_DIALOGUE);
+       
+       if (interact)
+       {
+           if (!dialogue.isFinished()) 
+               dialogue.skipDialogue();
+           else
+           {
+               dialogues.erase(dialogues.begin());
+           }
+       }
+   }
+}
+
+void GameLayer::renderDialogues()
+{
+   if (!dialogues.empty())
+   {
+       typewriter::Renderer2D::drawRectangle(DIALOGUE_WINDOW_POS_X, DIALOGUE_WINDOW_POS_Y, DIALOGUE_WINDOW_SIZE_X, DIALOGUE_WINDOW_SIZE_Y, typewriter::Color::DarkGrey);
+       
+       auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", DIALOGUE_TEXT_SIZE);
+       auto text = typewriter::ResourceManager::loadText(font, dialogues[0].getCurrentText());
+       text->setWrapWidth(DIALOGUE_TEXT_WRAP_WIDTH);
+       
+       typewriter::Renderer2D::drawText(text.get(), DIALOGUE_TEXT_POS_X, DIALOGUE_TEXT_POS_Y);
+   }
 }
 
 void GameLayer::initGameStory()
@@ -51,10 +90,11 @@ void GameLayer::initGameStory()
     
             food_spawner->spawnFood(delivery_zone);
             food_spawner->spawnFood(delivery_zone);
+            can_order_food = false;
                 }, 0.0f});
         events.push_back(EventPoint{[this]
         {
-            showDialogue("We were going to hang out with Marks(Hahaha Marks) today. We are to meet in the park in 3 a.m.");
+            showDialogue("We were going to hang out with Marks today. We are to meet in the park in 3 a.m.");
         }, 3.0f});
         events.push_back(EventPoint{[this]
         {
@@ -129,6 +169,7 @@ void GameLayer::initGameStory()
         events.push_back(EventPoint{[this]
         {
             game_manager->setCanDroneAttack(true);
+            can_order_food = false;
         }, 0.0f});
         events.push_back(EventPoint{[this]
         {
@@ -145,6 +186,7 @@ void GameLayer::initGameStory()
             message.close_function = [this]
             {
                 showDialogue("Now I can order food from their webside. Lets try it.");
+                can_order_food = true;
             };
             messages.push_back(message);
             
@@ -181,7 +223,7 @@ void GameLayer::initGameStory()
                 " This 000 53162 is a 412677 The sun is 088054 dangerous."
                 " I aM 12224 the sun 14468 dangerous."
                 " I think I am going to go 721124 now to see what is happening there.\n"
-                " I will Be 45124.Marks"};
+                " I will Be 45124.\n Marks"};
             message.close_function = [this]
             {
                 showDialogue("What could he possibly mean by that? I remember that he was an engineer on some factory long ago. He never let anyone go there.");
@@ -286,7 +328,7 @@ void GameLayer::initGameStory()
     }
     
     game_manager->initDays(days);
-    game_manager->setGameDay(0);
+    game_manager->setGameDay(1);
 }
 
 void GameLayer::checkDayEnd()
@@ -697,6 +739,8 @@ void GameLayer::updateState(GameState state, float deltaTime)
             game_manager->update(deltaTime);
             checkLoseCondition();
             
+            updateDialogues(deltaTime);
+            
             // Resume progress when you eat something
             if (is_food_eaten == true && is_food_eaten_active == true)
             {
@@ -727,6 +771,8 @@ void GameLayer::updateState(GameState state, float deltaTime)
         
         checkDayEnd();
         
+        updateDialogues(deltaTime);
+        
         if (game_manager->isDroneWarning() && drone_warning_active)
         {
             showDialogue("I have kept the window open for too long. They might notice it. I need to close it as soon as possible");
@@ -750,6 +796,7 @@ void GameLayer::updateState(GameState state, float deltaTime)
             if (day_end_timer >= DAY_END_TIME)
             {
                 day_end_timer = 0.0f;
+                day_transit_timer = 0.0f;
                 // Remove all objects
                 scene.getRegistry().clear();
                 messages.clear();
@@ -767,6 +814,7 @@ void GameLayer::updateState(GameState state, float deltaTime)
             if (game_over_timer >= DAY_END_TIME)
             {
                 game_over_timer = 0.0f;
+                game_over_transit_timer = 0.0f;
                 
                 scene.getRegistry().clear();
                 
@@ -777,6 +825,16 @@ void GameLayer::updateState(GameState state, float deltaTime)
                 
                 init();
                 game_manager->restartDay();
+                setState(GameState::G_GAME);
+            }
+        }
+        break;
+    case GameState::G_DIALOGUE:
+        {
+            updateDialogues(deltaTime);
+            
+            if (dialogues.empty())
+            {
                 setState(GameState::G_GAME);
             }
         }
@@ -829,6 +887,13 @@ void GameLayer::renderState(GameState state)
             game_manager->render();
             break;
         }
+    case GameState::G_DIALOGUE:
+        {
+            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderSystem(false);
+            game_manager->render();
+            break;
+        }
     default:
         break;
     }   
@@ -841,12 +906,14 @@ void GameLayer::renderUIState(GameState state)
     case GameState::G_NONE:
         break;
     case GameState::G_MENU:
-            renderSystem(true);
+        renderSystem(true);
         break;
     case GameState::G_GAME:
         {
             renderStats(); 
             renderDayInfo();
+            renderFilter();
+            renderDialogues();
         }
         break;
     case GameState::G_COMPUTER:
@@ -857,9 +924,12 @@ void GameLayer::renderUIState(GameState state)
             renderDayInfo();
             
             renderSystem(true);
+            renderFilter();
         
             renderComputerState(current_computer_state);
-    }
+            
+            renderDialogues();
+        }
         break;
     case GameState::G_DAY_END:
         {
@@ -880,7 +950,7 @@ void GameLayer::renderUIState(GameState state)
                 typewriter::Renderer2D::drawText(text.get(), 200.0f, 225.0f);
             }
           
-        break;
+            break;
         }
     case GameState::G_GAME_OVER:
         {
@@ -900,6 +970,14 @@ void GameLayer::renderUIState(GameState state)
                 text->setWrapWidth(400);
                 typewriter::Renderer2D::drawText(text.get(), 200.0f, 225.0f);
             }
+            break;
+        }
+    case GameState::G_DIALOGUE:
+        {
+            renderStats(); 
+            renderDayInfo();
+            renderFilter(); 
+            renderDialogues();
             break;
         }
     default:
@@ -922,6 +1000,48 @@ void GameLayer::renderStats()
             
     auto text3 = typewriter::ResourceManager::loadText(font, std::format("Sanity: {}", player_component.sanity));
     typewriter::Renderer2D::drawText(text3.get(), 0.0f, 150.0f);
+}
+
+void GameLayer::renderFilter()
+{
+    float time = game_manager->getTimer();
+    typewriter::Color mix;
+    bool should_render = true;
+
+    typewriter::Color morning_color = typewriter::Color::Orange;
+    typewriter::Color afternoon_color = typewriter::Color::DarkGrey;
+    typewriter::Color evening_color = typewriter::Color::Black;
+
+    if (time >= 0.0f && time < DAY_MORNING_DURATION)
+    {
+        float w = time / DAY_MORNING_DURATION;
+        
+        mix = (typewriter::Color::Yellow * (1.0f - w)) + (morning_color * w);
+    }
+    else if (time >= DAY_MORNING_DURATION && time < DAY_AFTERNOON_DURATION)
+    {
+        float phase_duration = DAY_AFTERNOON_DURATION - DAY_MORNING_DURATION;
+        float w = (time - DAY_MORNING_DURATION) / phase_duration;
+        
+        mix = (morning_color * (1.0f - w)) + (afternoon_color * w);
+    }
+    else if (time >= DAY_AFTERNOON_DURATION && time <= DAY_EVENING_DURATION)
+    {
+        float phase_duration = DAY_EVENING_DURATION - DAY_AFTERNOON_DURATION;
+        float w = (time - DAY_AFTERNOON_DURATION) / phase_duration;
+        
+        mix = (afternoon_color * (1.0f - w)) + (evening_color * w);
+    }
+    else
+    {
+        mix = evening_color;
+    }
+
+    if (should_render)
+    {
+        mix.channels.a = 20; 
+        typewriter::Renderer2D::drawRectangle(0.0f, 0.0f, screen_width, screen_height, mix);
+    }
 }
 
 void GameLayer::initAssets()

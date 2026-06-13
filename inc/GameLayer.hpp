@@ -4,6 +4,7 @@
 
 #include "Enums.hpp"
 #include "Config.hpp"
+#include "Dialogue.hpp"
 #include "EmailMessage.hpp"
 #include "GameManager.hpp"
 
@@ -70,8 +71,7 @@ private:
     
     //----------// UI //-------------//
     void renderStats();
-    //float hunger = 0.0f;
-    float hunger_speed = 1.0f;
+    void renderFilter();  
     
     //-------// GAME MENU //----------//
     typewriter::Entity start_button = entt::null;
@@ -102,10 +102,13 @@ private:
     //--------// PC NEWS //---------//
     std::vector<EmailMessage> messages;
     int starting_point = 0;
-    std::optional<EmailMessage> reading_message = std::nullopt;
+    EmailMessage* reading_message = nullptr;
     
     //-----// STORY //-------//
     void showDialogue(const std::string& text);
+    void updateDialogues(float deltaTime);
+    void renderDialogues();
+    std::vector<Dialogue> dialogues;
     
     //---------// GAME LOOP //-----------//
     void initGameStory();
@@ -118,8 +121,7 @@ private:
     bool is_food_eaten = false;
     bool is_food_eaten_active = true;
     bool drone_warning_active = true;
-    
-    // Dialogues
+    bool can_order_food = true;
     
     //-------// DAY END TRANSITION //-----//
     float day_end_timer = 0.0f;
