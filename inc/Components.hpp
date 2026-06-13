@@ -53,7 +53,7 @@ namespace Components
     
     struct Microwave
     {
-        enum class Status
+        enum class MicrowaveStatus
         {
             EMPTY,
             COOKING,
@@ -62,7 +62,7 @@ namespace Components
         
         float heat_time;
         float heat_timer = 0.0f;
-        Status status = Status::EMPTY;
+        MicrowaveStatus status = MicrowaveStatus::EMPTY;
     };
     
     struct Window

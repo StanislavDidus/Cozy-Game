@@ -29,7 +29,7 @@ private:
     typewriter::Scene scene;
     int screen_width;
     int screen_height;
-    
+
     //--------// INPUT //----------//
     bool onKeyPressed(typewriter::KeyPressedEvent& event);
     bool onKeyReleased(typewriter::KeyReleasedEvent& event);
@@ -104,6 +104,9 @@ private:
     int starting_point = 0;
     std::optional<EmailMessage> reading_message = std::nullopt;
     
+    //-----// STORY //-------//
+    void showDialogue(const std::string& text);
+    
     //---------// GAME LOOP //-----------//
     void initGameStory();
     void checkDayEnd();
@@ -111,10 +114,20 @@ private:
     void checkLoseCondition();
     std::unique_ptr<GameManager> game_manager;
     
+    //----// GAME TRIGGERS //-----//
+    bool is_food_eaten = false;
+    bool is_food_eaten_active = true;
+    bool drone_warning_active = true;
+    
+    // Dialogues
+    
     //-------// DAY END TRANSITION //-----//
     float day_end_timer = 0.0f;
     int displayed_hint = 0;
     float day_transit_timer = 0.0f;
+    
+    float game_over_timer = 0.0f;
+    float game_over_transit_timer = 0.0f;
     
     void setComputerState(ComputerState state);
     void enterComputerState(ComputerState state);

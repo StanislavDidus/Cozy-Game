@@ -79,7 +79,15 @@ void GameLayer::enterComputerState(ComputerState state)
         {
             // If player is reading something we close the message 
             // If not we just go to menu
-            if (reading_message != std::nullopt) reading_message = std::nullopt;
+            if (reading_message != std::nullopt)
+            {
+                if (reading_message->func_active && reading_message->close_function.has_value())
+                {
+                    reading_message->close_function.value()();
+                    reading_message->func_active = false;
+                }
+                reading_message = std::nullopt;
+            }
             else setComputerState(ComputerState::G_MENU);
             return true;
         });
@@ -342,6 +350,7 @@ void GameLayer::renderComputerState(ComputerState state)
             else
             {
                 auto text = typewriter::ResourceManager::loadText(font, reading_message->text);
+                text->setWrapWidth(MESSAGE_TEXT_WRAP_WIDTH);
                 typewriter::Renderer2D::drawText(text.get(), MESSAGE_TEXT_POSITION_X, MESSAGE_POSITION_Y);
                 
                 typewriter::Renderer2D::drawRectangle(MESSAGE_POSITION_X - 20.0f, MESSAGE_POSITION_Y - 20.0f, 300.0f, 300.0f, typewriter::Color::DarkSlateGrey);

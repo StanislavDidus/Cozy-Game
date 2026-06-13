@@ -1,43 +1,93 @@
 #include "GameManager.hpp"
 
+#include "Components.hpp"
 #include "Config.hpp"
 #include "graphics/Renderer2D.hpp"
 #include "graphics/ResourceManager.hpp"
 
-void GameManager::update(float deltaTime, bool is_window_open)
+GameManager::GameManager(typewriter::Scene& scene, typewriter::Entity player, typewriter::Entity window)
+    : scene(scene)
+    , window(window)
+    , player(player)
 {
+}
+
+void GameManager::update(float deltaTime)
+{
+    if (scene.getRegistry().get<Components::Player>(player).sanity < 0.0f)
+        scene.getRegistry().get<Components::Player>(player).sanity = 0.0f; 
+    
+    if (progress_stopped) return;
+    
     timer += deltaTime;
    
-    if (current_day >= days.size()) return;
-    
-    auto& day = days[current_day];
-        
-    for (auto& event : day.events)
+    if (current_day < days.size())
     {
-        if (timer >= event.time && event.active)
+        auto& day = days[current_day];
+        
+        for (auto& event : day.events)
         {
-            event.active = false;
-            event.func();
+            if (timer >= event.time && event.active)
+            {
+                event.active = false;
+                event.func();
+            }
         }
     }
     
     // Update drones
-    if (!drones_active) return;
-    
-    if (is_window_open)
+    if (drones_active)
     {
-        window_open_timer += deltaTime;
+        if (scene.getRegistry().get<Components::Window>(window).opened)
+        {
+            window_open_timer += deltaTime;
+        }
+        else
+        {
+            window_open_timer = 0.0f;
+        }
+    }
+    
+    float hunger_up = 0.0f;
+    float heat_up = 0.0f;
+    float sanity_up = 0.0f;
+    if (current_day < days.size())
+    {
+        auto& day = days[current_day];
+        hunger_up = day.hunger_up.value_or(HUNGER_UP);
+        heat_up = day.heat_up.value_or(HEAT_UP);
+        sanity_up = day.sanity_up.value_or(SANITY_UP);
     }
     else
     {
-        window_open_timer = 0.0f;
+        hunger_up = HUNGER_UP;
+        heat_up = HEAT_UP;
+        sanity_up = SANITY_UP;
     }
+    
+    scene.getRegistry().get<Components::Player>(player).hunger += hunger_up * deltaTime;
+    scene.getRegistry().get<Components::Player>(player).sanity += sanity_up * deltaTime;
+    
+    auto& window_component = scene.getRegistry().get<Components::Window>(window);
+    auto& player_component = scene.getRegistry().get<Components::Player>(player);
+    if (window_component.opened)
+    {
+        float heat_mult = 3.0f;
+        player_component.temperature -= hunger_up * heat_mult * deltaTime;
+    }
+    else
+    {
+        player_component.temperature += heat_up * deltaTime;
+    }
+    
+    player_component.temperature = glm::clamp(player_component.temperature, 0.0f, 1.0f);
+    
 }
 
 void GameManager::render()
 {
     // Render drone attack warning    
-    if (window_open_timer >= DRONE_ATTACK_TIME - DRONE_WARNING_TIME)
+    if (window_open_timer >= DRONE_ATTACK_TIME - DRONE_WARNING_TIME && drones_active)
     {
        typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI{48, 32, 16, 16})
            ,432.0f, -25.0f, 80.0f, 80.0f);
@@ -50,9 +100,18 @@ bool GameManager::isDayEnded() const
     return timer >= DAY_TOTAL_DURATION;
 }
 
+bool GameManager::isDroneWarning() const
+{
+    if (window_open_timer >= DRONE_ATTACK_TIME - DRONE_WARNING_TIME && drones_active)
+    {
+        return true;
+    }
+    return false;
+}
+
 bool GameManager::isDroneAttack() const
 {
-    return window_open_timer >= DRONE_ATTACK_TIME;
+    return window_open_timer >= DRONE_ATTACK_TIME && drones_active;
 }
 
 int GameManager::getCurrentday() const
@@ -68,10 +127,30 @@ DayPhase GameManager::getDayPhase() const
     return DayPhase::UNDEFINED;
 }
 
+void GameManager::setPlayer(typewriter::Entity player)
+{
+    this->player = player;
+}
+
+void GameManager::setWindow(typewriter::Entity window)
+{
+    this->window = window;
+}
+
 void GameManager::setGameDay(int new_day)
 {
     this->current_day = new_day;
     timer = 0.0f;
+}
+
+void GameManager::stopProgress(bool stopped)
+{
+    progress_stopped = stopped;
+}
+
+void GameManager::setCanDroneAttack(bool value)
+{
+    drones_active = value;
 }
 
 void GameManager::setNextDay()

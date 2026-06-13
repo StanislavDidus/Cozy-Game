@@ -1,5 +1,7 @@
 #include "GameLayer.hpp"
 
+#include <X11/extensions/XInput.h>
+
 #include "Components.hpp"
 #include "Config.hpp"
 #include "Systems/InputSystem.hpp"
@@ -26,6 +28,11 @@ GameLayer::GameLayer(int screen_width, int screen_height)
 {
 }
 
+void GameLayer::showDialogue(const std::string& text)
+{
+    std::cout << text << std::endl;
+}
+
 void GameLayer::initGameStory()
 {
     std::vector<Day> days;
@@ -33,13 +40,248 @@ void GameLayer::initGameStory()
     // Day one
     {
         Day day;
+        day.hunger_up = 0.002f;
+        day.sanity_up = 0.0f;
+        day.heat_up = 0.0f;
         auto& events = day.events;
         
-        events.push_back(EventPoint{[]
+        events.push_back(EventPoint{[this]
         {
-            std::cout << "Huh. I am hungry." << std::endl;
-        }, 5.0f});
+            game_manager->setCanDroneAttack(false);
+    
+            food_spawner->spawnFood(delivery_zone);
+            food_spawner->spawnFood(delivery_zone);
+                }, 0.0f});
+        events.push_back(EventPoint{[this]
+        {
+            showDialogue("We were going to hang out with Marks(Hahaha Marks) today. We are to meet in the park in 3 a.m.");
+        }, 3.0f});
+        events.push_back(EventPoint{[this]
+        {
+            showDialogue("I need to eat something.");
+        }, 6.0f});
+        events.push_back(EventPoint{[this]
+        {
+            showDialogue("Ooh the food is already delivered.");
+            game_manager->stopProgress(true);
+        }, 7.0f});
+        events.push_back(EventPoint{[this]
+        {
+            showDialogue("Its time for me to go.");
+        }, 30.0f});
+        events.push_back(EventPoint{[this]
+        {
+            // Play siren sound
+            showDialogue("What is happening! I should check out the news");
+            
+            EmailMessage message{"The Government", 
+                "Attention citizens of the capital, We come to you with an important message from our dear leader.\n"
+                " In the last few days several people have come down with a severe case of \"sun fever\"."
+                " A highly lethal and highly contagious disease. We believe coronal mass ejections from the sun are to blame."
+                " To prevent any further spreading of the disease we are putting the area in immediate lockdown."
+                " Anyone outside of the designated necessary jobs leaving their house will be severely punished."
+                " We understand this is a lot to process, but we expect your full **compliance**.\n"
+                " Live long and die strong,\n The government"};
+            message.close_function = [this]
+            {
+                showDialogue("What is happening? What do they mean that the sun is dangerous.");
+                showDialogue("I can't even leave my house now. I need to contact my family as soon as possible..");
+            };
+            messages.push_back(message);
+                }, 35.0f});
+        events.push_back(EventPoint{[this]
+        {
+            food_spawner->spawnFood(delivery_zone);
+            showDialogue("What is this box in my doorway. Is this food?");
+            EmailMessage message{"To all residents of this complex", 
+                "Our dear leader has given us a gracious supply of food and water.\n"
+                " Enough to divide among each resident."
+                " With it they have shared with us a set of rules to get us through these trying times: First of all, you must not consume any other good except for the one delivered at your doorstep by the government."
+                " The special packaging protects the meal from the sun."
+                " Second of all, you must make sure as little sunlight as possible enters your apartment."
+                " Close the curtains and block your windows."
+                " Third of all, do not look at the sun."
+                " It has been shown to induce madness in those that see it.\n"
+                " We have full confidence in your ability to follow these simple rules.\n"
+                " Live long and die strong,\n The landlord (This message has been approved by our dear leader)"};
+            message.close_function = [this]
+            {
+            showDialogue("I guess I will have to eat it. I have no other choice.");
+            };
+            messages.push_back(message);
+        }, 70.0f});
+        events.push_back(EventPoint{[this]
+        {
+            showDialogue("I am so tired. There is nothing for me to do now. I will probably go to sleep.");
+            //End day
+        }, 110.0f});
+        days.push_back(day);
+    }
+    
+    // Day two
+    {
+        Day day;
+        day.hunger_up = 0.0035f;
+        day.sanity_up = 0.005f;
+        day.heat_up = 0.0003f;
+        auto& events = day.events;
         
+        events.push_back(EventPoint{[this]
+        {
+            game_manager->setCanDroneAttack(true);
+        }, 0.0f});
+        events.push_back(EventPoint{[this]
+        {
+            showDialogue("There is no food. I am starving.");
+        }, 3.0f});
+        events.push_back(EventPoint{[this]
+        {
+            EmailMessage message{"Dear fellows", 
+             "Tired of the governments rations? Want more than the taste of cardboard in your mouth?"
+             " Say no more! The quickest delivery in the whole capital, reasonable prices.\n"
+             " Beef, pasta, soups, anything your stomach could ever want.\n"
+             " At our shop we make sure no citizen leaves hungry!\n"
+             " So don't make that old grumbler wait! Order now!"};
+            message.close_function = [this]
+            {
+                showDialogue("Now I can order food from their webside. Lets try it.");
+            };
+            messages.push_back(message);
+            
+        }, 12.0f});
+        events.push_back(EventPoint{[this]
+        {
+            showDialogue("Umm. It is delicious. It is much better than what the government gave us yesterday."
+                         " I wonder why. The food so good cant be bad for anyone.");
+        }, 45.0f});
+        events.push_back(EventPoint{[this]
+        {
+            EmailMessage message{"I need help", 
+                "My dear son."
+                " I don't know what is happening. Some man in black suits came to our home and took your father, they also said that the sun is dangerous."
+                " They are taking every man in our neighborhood."
+                " I hope you are good son."
+                " I am so worried about him.\n"
+                " Why would they take him for and where?\n Diana"};
+            message.close_function = [this]
+            {
+                showDialogue("Omg what is going on there. Where did they take my father.");
+                showDialogue("Lets hope the government will explain it.");
+            };
+            messages.push_back(message);
+        }, 55.0f});
+        events.push_back(EventPoint{[this]
+        {
+            EmailMessage message{"Important", 
+                "I shouldn't 122215 you now but 512078 me out Because I think I 41242 what is 4081."
+                " Do you 413444 the meteorite that 901 here 5 years ago."
+                " The are 1667098.\n"
+                " When I was an engineer I was 16009 on a 778 and I was tOld that the government was 348951 big."
+                " I 9015678 the details but it is 09986 dangerous."
+                " This 000 53162 is a 412677 The sun is 088054 dangerous."
+                " I aM 12224 the sun 14468 dangerous."
+                " I think I am going to go 721124 now to see what is happening there.\n"
+                " I will Be 45124.Marks"};
+            message.close_function = [this]
+            {
+                showDialogue("What could he possibly mean by that? I remember that he was an engineer on some factory long ago. He never let anyone go there.");
+                showDialogue("He mentioned the meteorite. I just moved here when it fell. The government evacuated the area and built a factory on its place. They said it was for safety reasons.");
+                showDialogue("Why would he go outside? I am worried about him. If he gets caught they will... Its better not to thing about it.");
+            };
+            messages.push_back(message);
+        }, 85.0f});
+        events.push_back(EventPoint{[this]
+        {
+        }, 110.0f});
+        events.push_back(EventPoint{[this]
+        {
+            // Play gunshot sound
+        }, 115.0f});
+        days.push_back(day);
+    }
+    // Day three
+    {
+        Day day;
+        
+        day.hunger_up = 0.005f;
+        day.sanity_up = 0.006f;
+        day.heat_up = 0.00075f;
+        auto& events = day.events;
+        
+        events.push_back(EventPoint{[this]
+        {
+            game_manager->setCanDroneAttack(true);
+        }, 0.0f});
+        events.push_back(EventPoint{[this]
+        {
+            // Play scream sound
+        }, 3.0f});
+        events.push_back(EventPoint{[this]
+        {
+            EmailMessage message{"I don't feel good\n",
+                            "You know I always had bad health but they don't allow me to open a window.\n"
+                             " I can't handle it anymore."
+                             " Also the food they give us.\n"
+                             " My doctor's interest took me and I looked at what is inside it and I found that there are special medicines that influence muscle and brain work."
+                             " Why would they even add it? I have heard there is going to be a protest tomorrow."
+                             " I am worried of what might happen.\n I love you son, \nDiana, your mother"};
+            message.close_function = [this]
+            {
+                
+            };
+            messages.push_back(message);
+        }, 20.0f});
+        events.push_back(EventPoint{[this]
+        {
+            EmailMessage message{"WE WILL TOLERATE THIS NO LONGER", "We demand answers from the government.\n"
+                                        " They have kept us locked in our homes for days."
+                                        " They tried to make us eat some shitty food but all in vain."
+                                        " They say the sun is dangerous but we will have none of it."
+                                        " If you want to be a free man join us tomorrow morning on the main street.\n"
+                                        " We will see what they are hiding from us on the streets!"};
+            message.close_function = [this]
+            {
+                showDialogue(" A protest. But they said they would kill anyone who dares to go outside. ");
+                showDialogue(" I live too far away from the main street there is no way I can get there without being noticed. Lets hope for the best.");
+            };
+            messages.push_back(message);
+        }, 75.0f});
+        
+        events.push_back(EventPoint{ [this]
+        {
+           showDialogue("I am so worried about tomorrow day. Father, Marks, protest. They have to give answers");
+        }, 110.0f});
+        days.push_back(day);
+    } 
+    // Day four
+    {
+        Day day;
+        
+        day.hunger_up = 0.010f;
+        day.sanity_up = 0.008f;
+        day.heat_up = 0.0009f;
+        auto& events = day.events;
+        
+        events.push_back(EventPoint{[this]
+        {
+            game_manager->setCanDroneAttack(true);
+            
+            EmailMessage message{"Son", "Hi son."
+                                        " Father is back! I decided to go to that protest but as soon as I arrived to the main street the police stopped everyone."
+                                        " Before anything bad could happen they brought all people they took earlier."
+                                        " They brought your father as well."
+                                        " He wasn't very happen."
+                                        " He doesn't want to talk about it."
+                                        " He says we should all forget it."
+                                        " They also said that the sun is not dangerous anymore and we can go back to our normal lives."
+                                        " Oh I am so happy son."};
+            message.close_function = [this]
+            {
+                showDialogue("Father is alive! I am so happy. But why would they do that. And where is Marks.");
+                showDialogue("I still feel that something isn't right.");
+            };
+            messages.push_back(message);
+        }, 3.0f});
         days.push_back(day);
     }
     
@@ -93,11 +335,7 @@ void GameLayer::checkLoseCondition()
         player_stats.sanity >= 1.0f)
     {
         // Play death animation and restart the day
-        
-        day_end_timer = 0.0f;
-        init();
-        game_manager->restartDay();
-        setState(GameState::G_GAME);
+        setState(GameState::G_GAME_OVER);
     }
 }
 
@@ -226,6 +464,7 @@ void GameLayer::init()
     
     // Init Player
     player = scene.createEntity();
+    game_manager->setPlayer(player);
     typewriter::Registry& registry = scene.getRegistry();
     registry.emplace<Components::Player>(player, glm::vec2{150.0f, 150.0f}, glm::vec2{50.0f, 50.0f}, glm::vec2{0.0f}, 250.0f, 300.0f);
 
@@ -256,24 +495,25 @@ void GameLayer::init()
     registry.emplace<typewriter::Transform2D>(microwave, glm::vec2{175.0f, 125.0f}, glm::vec2{125.0f, 125.0f});
     registry.emplace<typewriter::Collision2D>(microwave, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
     registry.emplace<Components::SpriteAnimation>(microwave, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Microwave.png", 20, 21)});
-    registry.emplace<Components::InteractableObject>(microwave, [&registry](typewriter::Entity player, typewriter::Entity object)
+    registry.emplace<Components::InteractableObject>(microwave, [&registry, this](typewriter::Entity player, typewriter::Entity object)
     {
         auto& player_component = registry.get<Components::Player>(player);
         auto& microwave_component = registry.get<Components::Microwave>(object);
         
-        if (player_component.inv_food > 0 && microwave_component.status == Components::Microwave::Status::EMPTY)
+        if (player_component.inv_food > 0 && microwave_component.status == Components::Microwave::MicrowaveStatus::EMPTY)
         {
             // Cook     
             player_component.inv_food -= 1;
             //std::cout << player_component.inv_food << std::endl;
-            microwave_component.status = Components::Microwave::Status::COOKING;
+            microwave_component.status = Components::Microwave::MicrowaveStatus::COOKING;
         }
         
-        if (microwave_component.status == Components::Microwave::Status::DONE)
+        if (microwave_component.status == Components::Microwave::MicrowaveStatus::DONE)
         {
             // Eat food
-            microwave_component.status = Components::Microwave::Status::EMPTY;
+            microwave_component.status = Components::Microwave::MicrowaveStatus::EMPTY;
             player_component.hunger -= FOOD_REPLENISHMENT;
+            is_food_eaten = true;
             if (player_component.hunger < 0.0f)
             {   
                 player_component.hunger = 0.0f;
@@ -301,6 +541,7 @@ void GameLayer::init()
     // Window
 
     window = scene.createEntity();
+    game_manager->setWindow(window);
     registry.emplace<typewriter::Transform2D>(window, glm::vec2{400.0f, 50.0f}, glm::vec2{150.0f, 80.0f});
 
     registry.emplace<Components::SpriteAnimation>(window, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Window.png", 32, 22)});
@@ -328,21 +569,6 @@ void GameLayer::init()
         setState(GameState::G_COMPUTER);
     });
     
-    
-    // Test
-    
-    food_spawner->spawnFood(delivery_zone);
-    food_spawner->spawnFood(delivery_zone);
-    food_spawner->spawnFood(delivery_zone);
-    food_spawner->spawnFood(delivery_zone);
-    
-    // Test messages
-    EmailMessage message{"Introduction letter.", "This is an introduction letter."};
-    EmailMessage message1{"Test letter.", "SPAM"};
-    EmailMessage message2{"Last Message", "Last message."};
-    messages.push_back(message);
-    messages.push_back(message1);
-    messages.push_back(message2);
 }
 
 void GameLayer::setState(GameState new_state)
@@ -394,7 +620,7 @@ void GameLayer::enterState(GameState state)
             registry.emplace<Components::Sprite2D>(start_button, typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI(0,32,48,16)), 1, true);
             registry.emplace<typewriter::Clickable>(start_button, typewriter::AABB{glm::vec2{200.0f, 200.0f}, glm::vec2{300.0f, 260.0f}}, [this]
             {
-                game_manager = std::make_unique<GameManager>();
+                game_manager = std::make_unique<GameManager>(scene, player, window);
                 
                 initGameStory();
                 
@@ -421,6 +647,10 @@ void GameLayer::enterState(GameState state)
     case GameState::G_DAY_END:
         {
             displayed_hint = glm::linearRand(0,4);
+        }
+        break;
+    case GameState::G_GAME_OVER:
+        {
         }
         break;
     default:
@@ -464,14 +694,22 @@ void GameLayer::updateState(GameState state, float deltaTime)
                 camera->setPosition(new_camera_centre - half_screen);
             }
             
-            // Update stats
-            scene.getRegistry().get<Components::Player>(player).hunger += HUNGER_UP * deltaTime;
-            scene.getRegistry().get<Components::Player>(player).sanity += SANITY_UP * deltaTime;
-            if (scene.getRegistry().get<Components::Player>(player).sanity < 0.0f)
-                scene.getRegistry().get<Components::Player>(player).sanity = 0.0f;
-            
-            game_manager->update(deltaTime, scene.getRegistry().get<Components::Window>(window).opened);
+            game_manager->update(deltaTime);
             checkLoseCondition();
+            
+            // Resume progress when you eat something
+            if (is_food_eaten == true && is_food_eaten_active == true)
+            {
+                is_food_eaten_active = false;
+                game_manager->stopProgress(false);
+                showDialogue("Food was delicious. Let me play video games before I go out");
+            }
+            
+            if (game_manager->isDroneWarning() && drone_warning_active)
+            {
+                showDialogue("I have kept the window open for too long. They might notice it. I need to close it as soon as possible");
+                drone_warning_active = false;
+            }
             
             checkDayEnd(); 
             
@@ -481,17 +719,19 @@ void GameLayer::updateState(GameState state, float deltaTime)
         break;
     case GameState::G_COMPUTER:
         object_manager->update(deltaTime);
-        // Update stats
-        scene.getRegistry().get<Components::Player>(player).hunger += HUNGER_UP * deltaTime;
-        scene.getRegistry().get<Components::Player>(player).sanity += SANITY_UP * deltaTime;
-        if (scene.getRegistry().get<Components::Player>(player).sanity < 0.0f)
-            scene.getRegistry().get<Components::Player>(player).sanity = 0.0f;
+        
         food_order_timer += deltaTime;
         
-        game_manager->update(deltaTime, scene.getRegistry().get<Components::Window>(window).opened);
+        game_manager->update(deltaTime);
         checkLoseCondition();
         
         checkDayEnd();
+        
+        if (game_manager->isDroneWarning() && drone_warning_active)
+        {
+            showDialogue("I have kept the window open for too long. They might notice it. I need to close it as soon as possible");
+            drone_warning_active = false;
+        }
         
         button_system->update(deltaTime, mouse_position, mouse_down, mouse_up);
         
@@ -500,7 +740,6 @@ void GameLayer::updateState(GameState state, float deltaTime)
     case GameState::G_DAY_END:
         {
             day_end_timer += deltaTime;
-            
             day_transit_timer += deltaTime;
             
             if (day_transit_timer < DAY_TRANSIT_TIME)
@@ -513,12 +752,35 @@ void GameLayer::updateState(GameState state, float deltaTime)
                 day_end_timer = 0.0f;
                 // Remove all objects
                 scene.getRegistry().clear();
+                messages.clear();
                 init();
                 game_manager->setNextDay();
                 setState(GameState::G_GAME);
             }
             break;
         }
+    case GameState::G_GAME_OVER:
+        {
+            game_over_timer += deltaTime;
+            game_over_transit_timer += deltaTime;
+            
+            if (game_over_timer >= DAY_END_TIME)
+            {
+                game_over_timer = 0.0f;
+                
+                scene.getRegistry().clear();
+                
+                is_food_eaten = false;
+                is_food_eaten_active = true;
+                drone_warning_active = true;
+                messages.clear();
+                
+                init();
+                game_manager->restartDay();
+                setState(GameState::G_GAME);
+            }
+        }
+        break;
     default:
         break;
     }   
@@ -560,6 +822,13 @@ void GameLayer::renderState(GameState state)
             game_manager->render();
         }
         break;
+    case GameState::G_GAME_OVER:
+        {
+            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderSystem(false);
+            game_manager->render();
+            break;
+        }
     default:
         break;
     }   
@@ -611,8 +880,28 @@ void GameLayer::renderUIState(GameState state)
                 typewriter::Renderer2D::drawText(text.get(), 200.0f, 225.0f);
             }
           
-        }
         break;
+        }
+    case GameState::G_GAME_OVER:
+        {
+            if (game_over_transit_timer < DAY_TRANSIT_TIME)
+            {
+                float percentage = static_cast<float>(game_over_transit_timer) / DAY_TRANSIT_TIME;
+                uint8_t black = static_cast<uint8_t>(255.0f * percentage);
+                typewriter::Color color_black{0, 0, 0,  black};
+                typewriter::Renderer2D::drawRectangle(0.0f, 0.0f, screen_width, screen_height, color_black);
+            }
+            else
+            {
+                typewriter::Renderer2D::drawRectangle(0.0f, 0.0f, screen_width, screen_height, typewriter::Color::Black);
+                auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 35);
+                //std::string hint = hints[displayed_hint];
+                auto text = typewriter::ResourceManager::loadText(font, "GAME OVER");
+                text->setWrapWidth(400);
+                typewriter::Renderer2D::drawText(text.get(), 200.0f, 225.0f);
+            }
+            break;
+        }
     default:
         break;
     }   
