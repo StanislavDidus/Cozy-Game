@@ -10,6 +10,7 @@
 #include "FoodSpawner.hpp"
 #include "EmailMessage.hpp"
 #include "Dialogue.hpp"
+#include "Audio/Sound.hpp"
 #include "glm/gtc/random.hpp"
 #include "typewriter/Typewriter.hpp"
 
@@ -505,8 +506,10 @@ void GameLayer::playPlayerSounds()
     
     if (glm::length(player_component.velocity) >= 10.0f)
     {
+        /*
         Audio::Sound sound{"assets/Sounds/Walking.wav", Audio::Sound::Type::Sound};
         sound.play();
+    */
     }
 }
 
