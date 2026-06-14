@@ -60,6 +60,7 @@ target_include_directories(${GAME_NAME} PUBLIC inc)
 target_link_libraries(
        ${GAME_NAME} PUBLIC
         typewriter::typewriter
+        Audio::Audio
 )
 
 setup_typewriter(${GAME_NAME} "${CMAKE_SOURCE_DIR}/extern/typewriter"})

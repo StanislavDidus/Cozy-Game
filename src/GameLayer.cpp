@@ -505,10 +505,8 @@ void GameLayer::playPlayerSounds()
     
     if (glm::length(player_component.velocity) >= 10.0f)
     {
-        /*
         Audio::Sound sound{"assets/Sounds/Walking.wav", Audio::Sound::Type::Sound};
         sound.play();
-    */
     }
 }
 
