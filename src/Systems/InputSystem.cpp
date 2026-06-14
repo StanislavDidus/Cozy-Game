@@ -40,8 +40,8 @@ void InputSystem::update(float deltaTime)
             direction.x = 0;
         }
         
-        glm::vec2 velocity = direction * player.movement_speed; 
+        player.velocity = direction * player.movement_speed; 
         
-        transform.position += velocity * deltaTime;
+        transform.position += player.velocity * deltaTime;
     }
 }

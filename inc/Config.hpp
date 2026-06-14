@@ -3,10 +3,13 @@
 constexpr float PLAYER_INTERACT_RADIUS = 150.0f;
 constexpr float FOOD_REPLENISHMENT = 0.2f; // How much hunger does good decrease
 constexpr float FOOD_COOK_TIME = 5.0f;
+
+// Default settings
 constexpr float HUNGER_UP = 0.005f;
 constexpr float HEAT_UP = 0.005f;
-constexpr float HEAT_DOWN = 0.010f;
 constexpr float SANITY_UP = 0.009f; 
+
+constexpr float HEAT_DOWN = 0.010f;
 
 // Game
 constexpr float GAME_BOOT_TIME = 1.0f;
@@ -20,23 +23,35 @@ constexpr float OBSTACLE_DESTROY_POSITION = 50.0f;
 constexpr float SANITY_TIME = 1.0f;
 constexpr float SANITY_GIVE = 0.03f; // How much sanity is given per timer clock
 
+// Dialogue
+constexpr float CHARACTER_APPEAR_SPEED = 0.05f;
+constexpr float DIALOGUE_WINDOW_POS_X = 100.0f;
+constexpr float DIALOGUE_WINDOW_POS_Y = 390.0f;
+constexpr float DIALOGUE_WINDOW_SIZE_X = 700.0f;
+constexpr float DIALOGUE_WINDOW_SIZE_Y = 150.0f;
+constexpr float DIALOGUE_TEXT_POS_X = 120.0f;
+constexpr float DIALOGUE_TEXT_POS_Y = 410.0f;
+constexpr int DIALOGUE_TEXT_SIZE = 32;
+constexpr int DIALOGUE_TEXT_WRAP_WIDTH = 600;
+
 // News
 constexpr float MESSAGE_WIDTH = 500.0f;
 constexpr float MESSAGE_HEIGHT = 55.0f;
 constexpr float MESSAGE_READ_WIDTH = 65.0f;
 constexpr float MESSAGE_READ_HEIGHT = MESSAGE_HEIGHT;
-constexpr float MESSAGE_POSITION_X = 150.0f;
-constexpr float MESSAGE_POSITION_Y = 250.0f;
-constexpr int MESSAGE_TEXT_SIZE = 32;
+constexpr float MESSAGE_POSITION_X = 130.0f;
+constexpr float MESSAGE_POSITION_Y = 220.0f;
+constexpr float MESSAGE_TEXT_WRAP_WIDTH = 700.0f;
+constexpr int MESSAGE_TEXT_SIZE = 23;
 constexpr int MESSAGE_MAX_SHOWN = 4;
 constexpr float MESSAGE_MOUSE_SCROLL = 10.0f;
-constexpr float MESSAGE_TEXT_POSITION_X = 200.0f;
-constexpr float MESSAGE_TEXT_POSITION_Y = 300.0f;
+constexpr float MESSAGE_TEXT_POSITION_X = 125.0f;
+constexpr float MESSAGE_TEXT_POSITION_Y = 250.0f;
 
 // Day loop
-constexpr float DAY_MORNING_DURATION = 15.0f;
-constexpr float DAY_AFTERNOON_DURATION = 30.0f;
-constexpr float DAY_EVENING_DURATION = 15.0f;
+constexpr float DAY_MORNING_DURATION = 30.0f;
+constexpr float DAY_AFTERNOON_DURATION = 60.0f;
+constexpr float DAY_EVENING_DURATION = 30.0f;
 constexpr float DAY_TOTAL_DURATION = DAY_MORNING_DURATION + DAY_AFTERNOON_DURATION + DAY_EVENING_DURATION;
 constexpr float DAY_END_TIME = 5.0f;
 constexpr float DAY_TRANSIT_TIME = 1.0f;
@@ -47,3 +62,4 @@ constexpr float DRONE_WARNING_TIME = 5.0f;
 
 constexpr float INTERACT_TIME = 0.5f; // Time between interactions
 constexpr float FOOD_ORDER_TIME = 3.0f; // How often can player order food
+

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Enums.hpp"
+#include "core/ecs/Scene.hpp"
 
 struct EventPoint
 {
@@ -12,24 +13,34 @@ struct EventPoint
 struct Day
 {
 	std::vector<EventPoint> events;
+	
+	std::optional<float> hunger_up;
+	std::optional<float> heat_up;
+	std::optional<float> sanity_up;
 };
 
 class GameManager
 {
 public:
-    GameManager() = default;
+    GameManager(typewriter::Scene& scene, typewriter::Entity player, typewriter::Entity window);
 	~GameManager() = default;
 
-	void update(float deltaTime, bool is_window_open);
+	void update(float deltaTime);
 	void render();
 	
 	bool isDayEnded() const;
+	bool isDroneWarning() const;
 	bool isDroneAttack() const;
 	
 	int getCurrentday() const;
 	DayPhase getDayPhase() const;
+	float getTimer() const;
 	
+	void setPlayer(typewriter::Entity player);
+	void setWindow(typewriter::Entity window);
 	void setGameDay(int day);
+	void stopProgress(bool stopped);
+	void setCanDroneAttack(bool value);
 	void setNextDay();
 	void restartDay();
 	void initDays(const std::vector<Day>& days);
@@ -39,7 +50,12 @@ private:
 	int current_day = 0;
 	std::vector<Day> days;
 	
+	bool progress_stopped = false;	
 	// DRONE ATTACK SYSTEM
 	bool drones_active = true;
 	float window_open_timer = 0.0f;
+	
+	typewriter::Scene& scene;
+	typewriter::Entity player;
+	typewriter::Entity window;
 };

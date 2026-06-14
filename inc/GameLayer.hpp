@@ -4,6 +4,7 @@
 
 #include "Enums.hpp"
 #include "Config.hpp"
+#include "Dialogue.hpp"
 #include "EmailMessage.hpp"
 #include "GameManager.hpp"
 
@@ -29,7 +30,7 @@ private:
     typewriter::Scene scene;
     int screen_width;
     int screen_height;
-    
+
     //--------// INPUT //----------//
     bool onKeyPressed(typewriter::KeyPressedEvent& event);
     bool onKeyReleased(typewriter::KeyReleasedEvent& event);
@@ -41,6 +42,13 @@ private:
     bool interact = false;
     bool mouse_down = false;
     bool mouse_up = false;
+    
+    //-------// PLAYER //--------//
+    void initPlayerAnimations();
+    void playPlayerSounds();
+    void updatePlayerAnimations(float deltaTime);
+    std::unique_ptr<typewriter::SpriteAnimation> down_movement;
+    std::unique_ptr<typewriter::SpriteAnimation> top_movement;
     
     //------// SYSTEMS //----------//
     void renderSystem(bool ui);
@@ -70,8 +78,7 @@ private:
     
     //----------// UI //-------------//
     void renderStats();
-    //float hunger = 0.0f;
-    float hunger_speed = 1.0f;
+    void renderFilter();  
     
     //-------// GAME MENU //----------//
     typewriter::Entity start_button = entt::null;
@@ -102,7 +109,13 @@ private:
     //--------// PC NEWS //---------//
     std::vector<EmailMessage> messages;
     int starting_point = 0;
-    std::optional<EmailMessage> reading_message = std::nullopt;
+    EmailMessage* reading_message = nullptr;
+    
+    //-----// STORY //-------//
+    void showDialogue(const std::string& text);
+    void updateDialogues(float deltaTime);
+    void renderDialogues();
+    std::vector<Dialogue> dialogues;
     
     //---------// GAME LOOP //-----------//
     void initGameStory();
@@ -111,10 +124,19 @@ private:
     void checkLoseCondition();
     std::unique_ptr<GameManager> game_manager;
     
+    //----// GAME TRIGGERS //-----//
+    bool is_food_eaten = false;
+    bool is_food_eaten_active = true;
+    bool drone_warning_active = true;
+    bool can_order_food = true;
+    
     //-------// DAY END TRANSITION //-----//
     float day_end_timer = 0.0f;
     int displayed_hint = 0;
     float day_transit_timer = 0.0f;
+    
+    float game_over_timer = 0.0f;
+    float game_over_transit_timer = 0.0f;
     
     void setComputerState(ComputerState state);
     void enterComputerState(ComputerState state);

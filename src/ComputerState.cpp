@@ -24,7 +24,23 @@ void GameLayer::enterComputerState(ComputerState state)
     exit_button = scene.createEntity();
     registry.emplace<typewriter::Transform2D>(exit_button, glm::vec2{675.0f, 130.0f}, glm::vec2{150.0f, 70.0f});
     registry.emplace<Components::Sprite2D>(exit_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{24,0,12,5}), 1, true);
-    registry.emplace<typewriter::Clickable>(exit_button, typewriter::AABB(glm::vec2{675.0f, 130.0f}, glm::vec2{150.0f, 70.0f}), [this]{setState(GameState::G_GAME); return true;});
+    registry.emplace<typewriter::Clickable>(exit_button, typewriter::AABB(glm::vec2{675.0f, 130.0f}, glm::vec2{150.0f, 70.0f}), [this]
+    {
+        // If player is reading something we close the message 
+        // If not we just go to menu
+        if (reading_message != nullptr)
+        {
+            if (reading_message->func_active && reading_message->close_function.has_value())
+            {
+                reading_message->func_active = false;
+                reading_message->close_function.value()();
+            }
+            reading_message = nullptr;
+        }
+        else
+            setState(GameState::G_GAME);
+        return true;
+    });
     
     switch (current_computer_state)
    {
@@ -33,20 +49,23 @@ void GameLayer::enterComputerState(ComputerState state)
        break;
    case ComputerState::G_MENU:
        {
-           food_button = scene.createEntity();
-           registry.emplace<typewriter::Transform2D>(food_button, glm::vec2{100.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
-           registry.emplace<Components::Sprite2D>(food_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{0,0,8,8}), 1, true);
-           registry.emplace<typewriter::Clickable>(food_button, typewriter::AABB(glm::vec2{100.0f, 170.0f}, glm::vec2{90.0f, 90.0f}), [this]{setComputerState(ComputerState::G_FOOD); return true;});
-           
            game_button = scene.createEntity();
            registry.emplace<typewriter::Transform2D>(game_button, glm::vec2{205.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
            registry.emplace<Components::Sprite2D>(game_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{16,0,8,8}), 1, true);
            registry.emplace<typewriter::Clickable>(game_button, typewriter::AABB(glm::vec2{205.0f, 170.0f}, glm::vec2{90.0f, 90.0f}), [this]{setComputerState(ComputerState::G_GAME); return true;});
            
            news_button = scene.createEntity();
-           registry.emplace<typewriter::Transform2D>(news_button, glm::vec2{310.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
+           registry.emplace<typewriter::Transform2D>(news_button, glm::vec2{100.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
            registry.emplace<Components::Sprite2D>(news_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{8,0,8,8}), 1, true);
-           registry.emplace<typewriter::Clickable>(news_button, typewriter::AABB(glm::vec2{310.0f, 170.0f}, glm::vec2{90.0f, 90.0f}), [this]{setComputerState(ComputerState::G_NEWS); return true;});
+           registry.emplace<typewriter::Clickable>(news_button, typewriter::AABB(glm::vec2{100.0f, 170.0f}, glm::vec2{90.0f, 90.0f}), [this]{setComputerState(ComputerState::G_NEWS); return true;});
+           
+           if (can_order_food)
+           {
+               food_button = scene.createEntity();
+               registry.emplace<typewriter::Transform2D>(food_button, glm::vec2{310.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
+               registry.emplace<Components::Sprite2D>(food_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{0,0,8,8}), 1, true);
+               registry.emplace<typewriter::Clickable>(food_button, typewriter::AABB(glm::vec2{310.0f, 170.0f}, glm::vec2{90.0f, 90.0f}), [this]{setComputerState(ComputerState::G_FOOD); return true;});
+           }
            
            break;
        }
@@ -79,7 +98,15 @@ void GameLayer::enterComputerState(ComputerState state)
         {
             // If player is reading something we close the message 
             // If not we just go to menu
-            if (reading_message != std::nullopt) reading_message = std::nullopt;
+            if (reading_message != nullptr)
+            {
+                if (reading_message->func_active && reading_message->close_function.has_value())
+                {
+                    reading_message->func_active = false;
+                    reading_message->close_function.value()();
+                }
+                reading_message = nullptr;
+            }
             else setComputerState(ComputerState::G_MENU);
             return true;
         });
@@ -109,7 +136,8 @@ void GameLayer::exitComputerState(ComputerState state)
         break;
     case ComputerState::G_MENU:
         {
-            registry.destroy(food_button);
+            if (can_order_food)
+                registry.destroy(food_button);
             registry.destroy(game_button);
             registry.destroy(news_button);
         }
@@ -230,7 +258,7 @@ void GameLayer::updateComputerState(ComputerState state, float deltaTime)
     case ComputerState::G_NEWS:
         {
             // If player is reading something we don't update buttons
-            if (reading_message != std::nullopt) break;
+            if (reading_message != nullptr) break;
         
             auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", MESSAGE_TEXT_SIZE);
             int pos = 0;
@@ -246,7 +274,7 @@ void GameLayer::updateComputerState(ComputerState state, float deltaTime)
                 Button button{glm::vec2{MESSAGE_POSITION_X + MESSAGE_WIDTH, MESSAGE_POSITION_Y + offset_y,}, glm::vec2{MESSAGE_READ_WIDTH, MESSAGE_READ_HEIGHT}};
                 if (button.isPressed(mouse_position, mouse_up))
                 {
-                    reading_message = msg;
+                    reading_message = &msg;
                     msg.read = true;
                 }
                 
@@ -310,7 +338,7 @@ void GameLayer::renderComputerState(ComputerState state)
     case ComputerState::G_NEWS:
         {
             auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", MESSAGE_TEXT_SIZE);
-            if (reading_message == std::nullopt)
+            if (reading_message == nullptr)
             {
                 int pos = 0;
                 //int to_show = glm::clamp(MESSAGE_MAX_SHOWN, 0, static_cast<int>(messages.size()));
@@ -342,6 +370,7 @@ void GameLayer::renderComputerState(ComputerState state)
             else
             {
                 auto text = typewriter::ResourceManager::loadText(font, reading_message->text);
+                text->setWrapWidth(MESSAGE_TEXT_WRAP_WIDTH);
                 typewriter::Renderer2D::drawText(text.get(), MESSAGE_TEXT_POSITION_X, MESSAGE_POSITION_Y);
                 
                 typewriter::Renderer2D::drawRectangle(MESSAGE_POSITION_X - 20.0f, MESSAGE_POSITION_Y - 20.0f, 300.0f, 300.0f, typewriter::Color::DarkSlateGrey);

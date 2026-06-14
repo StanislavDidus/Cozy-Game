@@ -15,7 +15,7 @@ void ObjectManager::update(float deltaTime)
     auto view = registry.view<Components::Microwave>();
     for (auto [entity, microwave] : view.each())
     {
-        if (microwave.status == Components::Microwave::Status::COOKING)
+        if (microwave.status == Components::Microwave::MicrowaveStatus::COOKING)
         {
             microwave.heat_timer += deltaTime;
             
@@ -26,7 +26,7 @@ void ObjectManager::update(float deltaTime)
         
             if (microwave.heat_timer >= microwave.heat_time)
             {
-                microwave.status = Components::Microwave::Status::DONE;
+                microwave.status = Components::Microwave::MicrowaveStatus::DONE;
                 microwave.heat_timer = 0.0f;
                 
                 if (registry.all_of<Components::SpriteAnimation>(entity))
@@ -36,23 +36,5 @@ void ObjectManager::update(float deltaTime)
             }
         }
     }
-    
-    auto view1 = registry.view<Components::Window>();
-    for (auto [entity, window] : view1.each())
-    {
-        auto view2 = registry.view<Components::Player>();
-        for (auto [entity, player] : view2.each())
-        {
-            if (window.opened)
-            {
-                player.temperature -= HEAT_DOWN * deltaTime;
-            }
-            else
-            {
-                player.temperature += HEAT_UP * deltaTime;
-            }
-            
-            player.temperature = glm::clamp(player.temperature, 0.0f, 1.0f);
-        }
-    }
+   
 }

@@ -42,6 +42,7 @@ set(HEADER_FILES
         inc/Button.hpp
         inc/EmailMessage.hpp
         inc/GameManager.hpp
+        inc/Dialogue.hpp
 )
 
 set(ALL_FILES ${SOURCE_FILES} ${HEADER_FILES})

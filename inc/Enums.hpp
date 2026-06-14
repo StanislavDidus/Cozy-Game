@@ -7,6 +7,8 @@ enum class GameState
     G_GAME,
     G_COMPUTER,
     G_DAY_END,
+    G_GAME_OVER,
+    G_DIALOGUE,
 };
 
 enum class ComputerState
