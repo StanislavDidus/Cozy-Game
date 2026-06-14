@@ -43,6 +43,13 @@ private:
     bool mouse_down = false;
     bool mouse_up = false;
     
+    //-------// PLAYER //--------//
+    void initPlayerAnimations();
+    void playPlayerSounds();
+    void updatePlayerAnimations(float deltaTime);
+    std::unique_ptr<typewriter::SpriteAnimation> down_movement;
+    std::unique_ptr<typewriter::SpriteAnimation> top_movement;
+    
     //------// SYSTEMS //----------//
     void renderSystem(bool ui);
     std::unique_ptr<InputSystem> input_system;

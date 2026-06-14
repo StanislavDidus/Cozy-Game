@@ -13,6 +13,7 @@
 #include "EmailMessage.hpp"
 #include "Dialogue.hpp"
 #include "glm/gtc/random.hpp"
+#include "typewriter/Typewriter.hpp"
 
 static std::array<std::string, 5> hints = 
     {
@@ -328,7 +329,7 @@ void GameLayer::initGameStory()
     }
     
     game_manager->initDays(days);
-    game_manager->setGameDay(1);
+    game_manager->setGameDay(0);
 }
 
 void GameLayer::checkDayEnd()
@@ -484,6 +485,53 @@ bool GameLayer::onMouseScrolled(typewriter::MouseScrolledEvent& event)
     return true;
 }
 
+void GameLayer::initPlayerAnimations()
+{
+    {
+        std::vector<int> frames = {0,1,2,3,4,5,6,7};
+        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/Player.png", 32, 48);
+        down_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 5.0f, frames);
+    }
+    {
+        
+        std::vector<int> frames = {8,9,10,11,12,13,14,15};
+        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/Player.png", 32, 48);
+        top_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 5.0f, frames);
+    }
+}
+
+void GameLayer::playPlayerSounds()
+{
+    auto& registry = scene.getRegistry();
+    auto& player_component = registry.get<Components::Player>(player);
+    
+    if (glm::length(player_component.velocity) >= 10.0f)
+    {
+        /*
+        Audio::Sound sound{"assets/Sounds/Walking.wav", Audio::Sound::Type::Sound};
+        sound.play();
+    */
+    }
+}
+
+void GameLayer::updatePlayerAnimations(float deltaTime)
+{
+    auto& registry = scene.getRegistry();
+    auto& player_component = registry.get<Components::Player>(player);
+    auto& render_component = registry.get<Components::Sprite2D>(player);
+    
+    if (player_component.velocity.y > 0.0f)
+    {
+        down_movement->update(deltaTime);
+        render_component.sprite = *down_movement.get();
+    }
+    else if (player_component.velocity.y < 0.0f)
+    {
+        top_movement->update(deltaTime);
+        render_component.sprite = *top_movement.get();
+    }
+}
+
 void GameLayer::renderSystem(bool ui)
 {
     auto view = scene.getRegistry().view<typewriter::Transform2D, Components::Sprite2D>();
@@ -503,15 +551,14 @@ void GameLayer::renderSystem(bool ui)
 
 void GameLayer::init()
 {
-    
     // Init Player
     player = scene.createEntity();
     game_manager->setPlayer(player);
     typewriter::Registry& registry = scene.getRegistry();
     registry.emplace<Components::Player>(player, glm::vec2{150.0f, 150.0f}, glm::vec2{50.0f, 50.0f}, glm::vec2{0.0f}, 250.0f, 300.0f);
 
-    registry.emplace<typewriter::Transform2D>(player, glm::vec2{200.0f, 200.0f}, glm::vec2{40.0f,80.0f});
-    registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/Player.png"));
+    registry.emplace<typewriter::Transform2D>(player, glm::vec2{200.0f, 200.0f}, glm::vec2{50.0f,83.0f});
+    registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/Player.png", typewriter::RectI{0,0,32,48}));
     registry.emplace<typewriter::Collision2D>(player, typewriter::AABB{{}, {}}, typewriter::CollisionType::DYNAMIC);
     registry.emplace<Components::CanInteract>(player, PLAYER_INTERACT_RADIUS);
     
@@ -611,6 +658,7 @@ void GameLayer::init()
         setState(GameState::G_COMPUTER);
     });
     
+    initPlayerAnimations();
 }
 
 void GameLayer::setState(GameState new_state)
@@ -712,6 +760,10 @@ void GameLayer::updateState(GameState state, float deltaTime)
     case GameState::G_GAME:
         {
             input_system->update(deltaTime);
+            
+            updatePlayerAnimations(deltaTime);
+            playPlayerSounds();
+            
             collision_system->update(deltaTime);
             interaction_system->update(deltaTime, interact);
             object_manager->update(deltaTime);
