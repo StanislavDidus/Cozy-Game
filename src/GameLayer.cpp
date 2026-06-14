@@ -1,7 +1,5 @@
 #include "GameLayer.hpp"
 
-#include <X11/extensions/XInput.h>
-
 #include "Components.hpp"
 #include "Config.hpp"
 #include "Systems/InputSystem.hpp"
