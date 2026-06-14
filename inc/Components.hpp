@@ -27,6 +27,14 @@ namespace Components
     
     struct Player
     {
+        enum class Direction
+        {
+            G_UP,
+            G_DOWN,
+            G_LEFT,
+            G_RIGHT,
+        };
+        
         glm::vec2 acceleration;
         glm::vec2 deceleration;
         glm::vec2 velocity;
@@ -39,6 +47,8 @@ namespace Components
         float hunger = 0.0f;
         float temperature = 0.0f;
         float sanity = 0.0f;
+        
+        Direction last_direction;
     };
     
     struct CanInteract

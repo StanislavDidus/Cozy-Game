@@ -10,6 +10,7 @@
 #include "FoodSpawner.hpp"
 #include "EmailMessage.hpp"
 #include "Dialogue.hpp"
+#include "Audio/Device.hpp"
 #include "Audio/Sound.hpp"
 #include "glm/gtc/random.hpp"
 #include "typewriter/Typewriter.hpp"
@@ -486,19 +487,54 @@ bool GameLayer::onMouseScrolled(typewriter::MouseScrolledEvent& event)
 
 void GameLayer::initPlayerAnimations()
 {
+    // Walking animations
     {
         std::vector<int> frames = {0,1,2,3,4,5,6,7};
-        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/Player.png", 32, 48);
-        down_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 5.0f, frames);
+        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
+        down_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
     }
     {
         
         std::vector<int> frames = {8,9,10,11,12,13,14,15};
-        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/Player.png", 32, 48);
-        top_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 5.0f, frames);
+        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
+        top_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
+    }
+    {
+        std::vector<int> frames = {16,17,18,19,20,21,22,23};
+        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
+        right_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
+    }
+    {
+        
+        std::vector<int> frames = {24,25,26,27,28,29,30,31};
+        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
+        left_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
+    }
+    
+    // Idle animations
+    {
+        std::vector<int> frames = {0,1,2,3,4,5};
+        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
+        down_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
+    }
+    {
+        std::vector<int> frames = {6,7,8,9,10,11};
+        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
+        top_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
+    }
+    {
+        std::vector<int> frames = {12,13,14,15,16,17};
+        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
+        right_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
+    }
+    {
+        std::vector<int> frames = {18,19,20,21,22,23};
+        auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
+        left_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
     }
 }
 
+Audio::Sound sound{"assets/Sounds/Walking.mp3", Audio::Sound::Type::Sound};
 void GameLayer::playPlayerSounds()
 {
     auto& registry = scene.getRegistry();
@@ -506,10 +542,8 @@ void GameLayer::playPlayerSounds()
     
     if (glm::length(player_component.velocity) >= 10.0f)
     {
-        /*
-        Audio::Sound sound{"assets/Sounds/Walking.wav", Audio::Sound::Type::Sound};
+        Audio::Device::setMasterVolume(1.0f);
         sound.play();
-    */
     }
 }
 
@@ -519,15 +553,64 @@ void GameLayer::updatePlayerAnimations(float deltaTime)
     auto& player_component = registry.get<Components::Player>(player);
     auto& render_component = registry.get<Components::Sprite2D>(player);
     
-    if (player_component.velocity.y > 0.0f)
+    float idle_movement_length = 10.0f;
+    
+    if (player_component.velocity.x < -idle_movement_length)
     {
-        down_movement->update(deltaTime);
-        render_component.sprite = *down_movement.get();
+        left_movement->update(deltaTime);
+        render_component.sprite = *left_movement.get();
+        player_component.last_direction = Components::Player::Direction::G_LEFT;
     }
-    else if (player_component.velocity.y < 0.0f)
+    else if (player_component.velocity.x > idle_movement_length)
+    {
+        
+        right_movement->update(deltaTime);
+        render_component.sprite = *right_movement.get();
+        player_component.last_direction = Components::Player::Direction::G_RIGHT;
+    }
+    else
+    {
+        //Idle
+        if (player_component.last_direction == Components::Player::Direction::G_LEFT)
+        {
+            left_idle->update(deltaTime);
+            render_component.sprite = *left_idle.get();
+        }
+        else if (player_component.last_direction == Components::Player::Direction::G_RIGHT)
+        {
+            
+            right_idle->update(deltaTime);
+            render_component.sprite = *right_idle.get();
+        }
+    }
+    
+    
+    if (player_component.velocity.y < -idle_movement_length)
     {
         top_movement->update(deltaTime);
         render_component.sprite = *top_movement.get();
+        player_component.last_direction = Components::Player::Direction::G_UP;
+    }
+    else if (player_component.velocity.y > idle_movement_length)
+    {
+        down_movement->update(deltaTime);
+        render_component.sprite = *down_movement.get();
+        player_component.last_direction = Components::Player::Direction::G_DOWN;
+    }
+    else
+    {
+        //Idle
+        if (player_component.last_direction == Components::Player::Direction::G_UP)
+        {
+            top_idle->update(deltaTime);
+            render_component.sprite = *top_idle.get();
+        }
+        else if (player_component.last_direction == Components::Player::Direction::G_DOWN)
+        {
+        
+            down_idle->update(deltaTime);
+            render_component.sprite = *down_idle.get();
+        }
     }
 }
 

@@ -49,6 +49,13 @@ private:
     void updatePlayerAnimations(float deltaTime);
     std::unique_ptr<typewriter::SpriteAnimation> down_movement;
     std::unique_ptr<typewriter::SpriteAnimation> top_movement;
+    std::unique_ptr<typewriter::SpriteAnimation> right_movement;
+    std::unique_ptr<typewriter::SpriteAnimation> left_movement;
+    
+    std::unique_ptr<typewriter::SpriteAnimation> down_idle;
+    std::unique_ptr<typewriter::SpriteAnimation> top_idle;
+    std::unique_ptr<typewriter::SpriteAnimation> right_idle;
+    std::unique_ptr<typewriter::SpriteAnimation> left_idle;
     
     //------// SYSTEMS //----------//
     void renderSystem(bool ui);
