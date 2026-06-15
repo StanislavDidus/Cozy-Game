@@ -17,6 +17,7 @@ public:
 };
 
 int main() {
+    SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "vulkan");
     CozyGame game = CozyGame(TITLE, SCREEN_WIDTH, SCREEN_HEIGHT);
     game.pushLayer(new GameLayer(SCREEN_WIDTH, SCREEN_HEIGHT));
     game.start();
