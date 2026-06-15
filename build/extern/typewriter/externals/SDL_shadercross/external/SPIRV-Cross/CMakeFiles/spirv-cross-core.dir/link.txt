@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc libspirv-cross-core.a "CMakeFiles/spirv-cross-core.dir/spirv_cross.cpp.o" "CMakeFiles/spirv-cross-core.dir/spirv_parser.cpp.o" "CMakeFiles/spirv-cross-core.dir/spirv_cross_parsed_ir.cpp.o" "CMakeFiles/spirv-cross-core.dir/spirv_cfg.cpp.o"
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib libspirv-cross-core.a

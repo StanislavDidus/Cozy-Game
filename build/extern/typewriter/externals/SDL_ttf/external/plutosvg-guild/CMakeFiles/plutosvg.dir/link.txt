@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc libplutosvg.a CMakeFiles/plutosvg.dir/source/plutosvg.c.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib libplutosvg.a

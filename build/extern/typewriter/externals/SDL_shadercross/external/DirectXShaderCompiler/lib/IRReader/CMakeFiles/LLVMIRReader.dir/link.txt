@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMIRReader.a CMakeFiles/LLVMIRReader.dir/IRReader.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMIRReader.a

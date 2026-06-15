@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc libSDL3_shadercross.a "CMakeFiles/SDL3_shadercross-static.dir/src/SDL_shadercross.c.o"
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib libSDL3_shadercross.a

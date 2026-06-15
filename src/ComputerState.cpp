@@ -383,9 +383,8 @@ void GameLayer::renderComputerState(ComputerState state)
             {
                 auto text = typewriter::ResourceManager::loadText(font, reading_message->text);
                 text->setWrapWidth(MESSAGE_TEXT_WRAP_WIDTH);
+                typewriter::Renderer2D::drawRectangle(MESSAGE_POSITION_X - 20.0f, MESSAGE_POSITION_Y - 20.0f, 700.0f, 300.0f, typewriter::Color::DarkSlateGrey);
                 typewriter::Renderer2D::drawText(text.get(), MESSAGE_TEXT_POSITION_X, MESSAGE_POSITION_Y);
-                
-                typewriter::Renderer2D::drawRectangle(MESSAGE_POSITION_X - 20.0f, MESSAGE_POSITION_Y - 20.0f, 300.0f, 300.0f, typewriter::Color::DarkSlateGrey);
             }
         }
         break;

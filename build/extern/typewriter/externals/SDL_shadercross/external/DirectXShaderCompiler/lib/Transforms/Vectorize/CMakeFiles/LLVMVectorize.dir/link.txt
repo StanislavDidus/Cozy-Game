@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../../libLLVMVectorize.a CMakeFiles/LLVMVectorize.dir/Vectorize.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../../libLLVMVectorize.a

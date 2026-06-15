@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc libmath.a CMakeFiles/math.dir/src/Math.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib libmath.a

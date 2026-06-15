@@ -659,7 +659,7 @@ void GameLayer::init()
     registry.emplace<Components::Player>(player, glm::vec2{150.0f, 150.0f}, glm::vec2{50.0f, 50.0f}, glm::vec2{0.0f}, 250.0f, 300.0f);
 
     registry.emplace<typewriter::Transform2D>(player, glm::vec2{200.0f, 200.0f}, glm::vec2{50.0f,83.0f});
-    registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/Player.png", typewriter::RectI{0,0,32,48}), PLAYER_LAYER);
+    registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/PlayerIdle.png", typewriter::RectI{0,0,32,48}), PLAYER_LAYER);
     registry.emplace<typewriter::Collision2D>(player, typewriter::AABB{{}, {}}, typewriter::CollisionType::DYNAMIC);
     registry.emplace<Components::CanInteract>(player, PLAYER_INTERACT_RADIUS);
     

@@ -1,1 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/em++ -O3 -DNDEBUG "CMakeFiles/spirv-tools-cpp-example.dir/main.cpp.o" -o spirv-tools-cpp-example.js  ../../source/opt/libSPIRV-Tools-opt.a ../../source/libSPIRV-Tools.a

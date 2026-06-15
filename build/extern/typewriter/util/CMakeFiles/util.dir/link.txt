@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc libutil.a CMakeFiles/util.dir/src/Precompiled.cpp.o CMakeFiles/util.dir/src/Log.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib libutil.a

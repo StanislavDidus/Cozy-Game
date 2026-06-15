@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/spirv-dis.dir/link.d "CMakeFiles/spirv-dis.dir/util/flags.cpp.o" "CMakeFiles/spirv-dis.dir/dis/dis.cpp.o" "CMakeFiles/spirv-dis.dir/io.cpp.o" -o spirv-dis  ../source/libSPIRV-Tools.a -lrt

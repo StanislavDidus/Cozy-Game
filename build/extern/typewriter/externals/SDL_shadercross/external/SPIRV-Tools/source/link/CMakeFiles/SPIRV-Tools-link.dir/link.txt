@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc libSPIRV-Tools-link.a "CMakeFiles/SPIRV-Tools-link.dir/linker.cpp.o"
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib libSPIRV-Tools-link.a

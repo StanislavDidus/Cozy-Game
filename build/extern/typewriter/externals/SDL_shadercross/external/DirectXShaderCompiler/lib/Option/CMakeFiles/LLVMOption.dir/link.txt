@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMOption.a CMakeFiles/LLVMOption.dir/Arg.cpp.o CMakeFiles/LLVMOption.dir/ArgList.cpp.o CMakeFiles/LLVMOption.dir/Option.cpp.o CMakeFiles/LLVMOption.dir/OptTable.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMOption.a

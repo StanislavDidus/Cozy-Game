@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMDxilDia.a CMakeFiles/LLVMDxilDia.dir/DxcPixLiveVariables_FragmentIterator.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMDxilDia.a

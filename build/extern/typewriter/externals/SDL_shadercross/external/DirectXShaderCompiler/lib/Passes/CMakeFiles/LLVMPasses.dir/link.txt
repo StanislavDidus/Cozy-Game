@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMPasses.a CMakeFiles/LLVMPasses.dir/PassBuilder.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMPasses.a

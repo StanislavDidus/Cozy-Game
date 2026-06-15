@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc libglm.a CMakeFiles/glm.dir/detail/glm.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib libglm.a

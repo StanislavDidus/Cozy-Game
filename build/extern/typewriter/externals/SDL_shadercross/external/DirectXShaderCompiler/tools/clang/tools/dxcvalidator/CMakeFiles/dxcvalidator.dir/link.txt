@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../../../../lib/libdxcvalidator.a CMakeFiles/dxcvalidator.dir/dxcvalidator.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../../../../lib/libdxcvalidator.a

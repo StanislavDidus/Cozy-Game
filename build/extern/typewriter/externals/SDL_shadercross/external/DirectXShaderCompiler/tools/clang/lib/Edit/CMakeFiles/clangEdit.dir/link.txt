@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../../../../lib/libclangEdit.a CMakeFiles/clangEdit.dir/Commit.cpp.o CMakeFiles/clangEdit.dir/EditedSource.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../../../../lib/libclangEdit.a

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libtypewriter.a CMakeFiles/typewriter.dir/src/Typewriter.cpp.o
-/usr/bin/ranlib libtypewriter.a

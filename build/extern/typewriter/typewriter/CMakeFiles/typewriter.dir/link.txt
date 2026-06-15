@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc libtypewriter.a CMakeFiles/typewriter.dir/src/Typewriter.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib libtypewriter.a

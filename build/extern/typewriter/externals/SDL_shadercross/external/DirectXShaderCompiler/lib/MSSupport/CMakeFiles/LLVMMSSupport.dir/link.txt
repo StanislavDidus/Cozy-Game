@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMMSSupport.a CMakeFiles/LLVMMSSupport.dir/MSFileSystemImpl.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMMSSupport.a

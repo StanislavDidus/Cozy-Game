@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../../../../lib/libclangDriver.a CMakeFiles/clangDriver.dir/DriverOptions.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../../../../lib/libclangDriver.a

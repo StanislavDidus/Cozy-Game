@@ -1,1 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/em++ -O3 -DNDEBUG "CMakeFiles/spirv-as.dir/as/as.cpp.o" "CMakeFiles/spirv-as.dir/io.cpp.o" "CMakeFiles/spirv-as.dir/util/flags.cpp.o" -o spirv-as.js  ../source/libSPIRV-Tools.a

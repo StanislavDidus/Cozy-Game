@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../../libLLVMBitReader.a CMakeFiles/LLVMBitReader.dir/BitcodeReader.cpp.o CMakeFiles/LLVMBitReader.dir/BitstreamReader.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../../libLLVMBitReader.a

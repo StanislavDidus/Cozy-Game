@@ -1,2 +1,0 @@
-/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../../../../../lib/libclangToolingCore.a CMakeFiles/clangToolingCore.dir/Replacement.cpp.o
-/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../../../../../lib/libclangToolingCore.a

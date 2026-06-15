@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcore.a CMakeFiles/core.dir/src/Timer.cpp.o CMakeFiles/core.dir/src/Game.cpp.o CMakeFiles/core.dir/src/LayerStack.cpp.o CMakeFiles/core.dir/src/ImGuiLayer.cpp.o CMakeFiles/core.dir/src/Input.cpp.o CMakeFiles/core.dir/src/SDLInput.cpp.o CMakeFiles/core.dir/src/ecs/Scene.cpp.o CMakeFiles/core.dir/src/components/UI/Button.cpp.o
-/usr/bin/ranlib libcore.a
