@@ -3,6 +3,8 @@
 #include "Components.hpp"
 #include <typewriter/Typewriter.hpp>
 
+#include "SoundManager.hpp"
+
 using namespace typewriter;
 
 FoodSpawner::FoodSpawner(Scene& scene)
@@ -20,6 +22,8 @@ void FoodSpawner::spawnFood(Entity delivery_zone)
     
     auto& delivery_zone_component  = registry.get<Components::DeliveryZone>(delivery_zone);
     
+    SoundManager::get().getSound("Food-delivery").replay();
+    
     // If there is no food on the delivery zone
     if (delivery_zone_component.food == entt::null)
     {
@@ -27,7 +31,7 @@ void FoodSpawner::spawnFood(Entity delivery_zone)
         Entity food = registry.create(); 
         glm::vec2 delivery_position = registry.get<Transform2D>(delivery_zone).position;
         registry.emplace<Transform2D>(food, glm::vec2{delivery_position.x, delivery_position.y}, glm::vec2{FOOD_WIDTH, FOOD_HEIGHT});
-        registry.emplace<Components::Sprite2D>(food, ResourceManager::loadSprite("assets/FoodPackage.png", math::RectI(0,0,16,16)));
+        registry.emplace<Components::Sprite2D>(food, ResourceManager::loadSprite("assets/FoodPackage.png", math::RectI(0,0,16,16)), ITEM_LAYER);
         registry.emplace<Components::FoodPackage>(food);
         
         // Assign food to delivery zone

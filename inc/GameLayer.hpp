@@ -88,8 +88,8 @@ private:
     void renderFilter();  
     
     //-------// GAME MENU //----------//
-    typewriter::Entity start_button = entt::null;
-    typewriter::Entity exit_menu_button = entt::null;
+    float text_position_y = 425.0f;
+    float text_position_timer = 0.0f;
     
     //------// COMPUTER SCREEN //-------//
     typewriter::Entity exit_button = entt::null;
