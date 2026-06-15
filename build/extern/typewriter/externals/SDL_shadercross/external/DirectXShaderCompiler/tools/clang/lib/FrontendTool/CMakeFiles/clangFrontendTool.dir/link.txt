@@ -1,0 +1,2 @@
+/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../../../../lib/libclangFrontendTool.a CMakeFiles/clangFrontendTool.dir/ExecuteCompilerInvocation.cpp.o
+/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../../../../lib/libclangFrontendTool.a

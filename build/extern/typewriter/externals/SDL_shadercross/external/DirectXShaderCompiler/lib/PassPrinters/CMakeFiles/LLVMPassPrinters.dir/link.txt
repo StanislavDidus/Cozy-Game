@@ -1,0 +1,2 @@
+/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMPassPrinters.a CMakeFiles/LLVMPassPrinters.dir/PassPrinters.cpp.o
+/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMPassPrinters.a

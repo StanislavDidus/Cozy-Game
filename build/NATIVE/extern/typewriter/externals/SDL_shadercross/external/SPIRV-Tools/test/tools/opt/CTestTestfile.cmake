@@ -1,0 +1,8 @@
+# CMake generated Testfile for 
+# Source directory: /home/stasd/Work/GitHub-Projects/Cozy-Game/extern/typewriter/externals/SDL_shadercross/external/SPIRV-Tools/test/tools/opt
+# Build directory: /home/stasd/Work/GitHub-Projects/Cozy-Game/build/NATIVE/extern/typewriter/externals/SDL_shadercross/external/SPIRV-Tools/test/tools/opt
+# 
+# This file includes the relevant testing commands required for 
+# testing this directory and lists subdirectories to be tested as well.
+add_test([=[spirv_opt_cli_tools_tests]=] "/usr/bin/python3.14" "/home/stasd/Work/GitHub-Projects/Cozy-Game/extern/typewriter/externals/SDL_shadercross/external/SPIRV-Tools/test/tools/opt/../spirv_test_framework.py" "/home/stasd/Work/GitHub-Projects/Cozy-Game/build/NATIVE/extern/typewriter/externals/SDL_shadercross/external/SPIRV-Tools/tools/spirv-opt" "/home/stasd/Work/GitHub-Projects/Cozy-Game/build/NATIVE/extern/typewriter/externals/SDL_shadercross/external/SPIRV-Tools/tools/spirv-as" "/home/stasd/Work/GitHub-Projects/Cozy-Game/build/NATIVE/extern/typewriter/externals/SDL_shadercross/external/SPIRV-Tools/tools/spirv-dis" "--test-dir" "/home/stasd/Work/GitHub-Projects/Cozy-Game/extern/typewriter/externals/SDL_shadercross/external/SPIRV-Tools/test/tools/opt")
+set_tests_properties([=[spirv_opt_cli_tools_tests]=] PROPERTIES  _BACKTRACE_TRIPLES "/home/stasd/Work/GitHub-Projects/Cozy-Game/extern/typewriter/externals/SDL_shadercross/external/SPIRV-Tools/test/tools/opt/CMakeLists.txt;17;add_test;/home/stasd/Work/GitHub-Projects/Cozy-Game/extern/typewriter/externals/SDL_shadercross/external/SPIRV-Tools/test/tools/opt/CMakeLists.txt;0;")

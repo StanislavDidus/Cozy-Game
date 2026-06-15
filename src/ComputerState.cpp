@@ -3,6 +3,7 @@
 #include "Config.hpp"
 #include "FoodSpawner.hpp"
 #include "GameLayer.hpp"
+#include "SoundManager.hpp"
 
 #include "Systems/InteractionSystem.hpp"
 
@@ -71,6 +72,7 @@ void GameLayer::enterComputerState(ComputerState state)
        }
    case ComputerState::G_FOOD:
        {
+           SoundManager::get().getSound("Laptop-app-opened").replay();
            food_order_button = scene.createEntity();
            registry.emplace<typewriter::Transform2D>(food_order_button, glm::vec2{400.0f, 325.0f}, glm::vec2{190.0f, 100.0f});
            registry.emplace<Components::Sprite2D>(food_order_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{0,8,22,7}), 1, true);
@@ -78,6 +80,7 @@ void GameLayer::enterComputerState(ComputerState state)
            {
                if (food_order_timer >= FOOD_ORDER_TIME)
                {
+                   SoundManager::get().getSound("Food-buy").replay();
                    food_spawner->spawnFood(delivery_zone);
                    food_order_timer = 0.0f;
                }
@@ -91,6 +94,7 @@ void GameLayer::enterComputerState(ComputerState state)
            break;
        }
     case ComputerState::G_NEWS:
+        SoundManager::get().getSound("Laptop-app-opened").replay();
         return_button = scene.createEntity();
         registry.emplace<typewriter::Transform2D>(return_button, glm::vec2{570.0f, 130.0f}, glm::vec2{70.0f, 70.0f});
         registry.emplace<Components::Sprite2D>(return_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{24,5,5,5}), 1, true);
@@ -113,6 +117,8 @@ void GameLayer::enterComputerState(ComputerState state)
         break;
     case ComputerState::G_GAME:
         {
+            SoundManager::get().getSound("Laptop-app-opened").replay();
+            SoundManager::get().getSound("MinigameMusic").replay();
             return_button = scene.createEntity();
             registry.emplace<typewriter::Transform2D>(return_button, glm::vec2{570.0f, 130.0f}, glm::vec2{70.0f, 70.0f});
             registry.emplace<Components::Sprite2D>(return_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{24,5,5,5}), 1, true);
@@ -144,16 +150,20 @@ void GameLayer::exitComputerState(ComputerState state)
         break;
     case ComputerState::G_FOOD:
         {
+            SoundManager::get().getSound("Laptop-app-close").replay();
             registry.destroy(food_order_button);
             registry.destroy(return_button);
         }
         break;
     case ComputerState::G_NEWS:
         {
+            SoundManager::get().getSound("Laptop-app-close").replay();
             registry.destroy(return_button);
         }
         break;
     case ComputerState::G_GAME:
+        SoundManager::get().getSound("MinigameMusic").stop();
+        SoundManager::get().getSound("Laptop-app-close").replay();
         game_boot_timer = 0.0f;
         obstacle_spawn_timer = 0.0f;
         registry.destroy(return_button);
@@ -166,6 +176,8 @@ void GameLayer::exitComputerState(ComputerState state)
 
 void GameLayer::updateComputerState(ComputerState state, float deltaTime)
 {
+    if (mouse_up)
+        SoundManager::get().getSound("MouseClick").replay();
     switch (current_computer_state)
     {
     case ComputerState::G_NONE:

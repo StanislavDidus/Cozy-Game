@@ -2,6 +2,7 @@
 
 #include "Components.hpp"
 #include "Config.hpp"
+#include "SoundManager.hpp"
 #include "graphics/Renderer2D.hpp"
 #include "graphics/ResourceManager.hpp"
 
@@ -92,6 +93,11 @@ void GameManager::render()
        typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI{48, 32, 16, 16})
            ,432.0f, -25.0f, 80.0f, 80.0f);
         
+        SoundManager::get().getSound("Warning").play();
+    }
+    else
+    {
+        SoundManager::get().getSound("Warning").stop();
     }
 }
 

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libinput_SDL3.a CMakeFiles/input_SDL3.dir/src/Gamepad.cpp.o CMakeFiles/input_SDL3.dir/src/Input.cpp.o CMakeFiles/input_SDL3.dir/src/Keyboard.cpp.o CMakeFiles/input_SDL3.dir/src/Mouse.cpp.o CMakeFiles/input_SDL3.dir/src/Touch.cpp.o CMakeFiles/input_SDL3.dir/src/backends/SDL3/GamepadSDL3.cpp.o CMakeFiles/input_SDL3.dir/src/backends/SDL3/KeyboardSDL3.cpp.o CMakeFiles/input_SDL3.dir/src/backends/SDL3/MouseSDL3.cpp.o CMakeFiles/input_SDL3.dir/src/backends/SDL3/TouchSDL3.cpp.o
+/usr/bin/ranlib libinput_SDL3.a

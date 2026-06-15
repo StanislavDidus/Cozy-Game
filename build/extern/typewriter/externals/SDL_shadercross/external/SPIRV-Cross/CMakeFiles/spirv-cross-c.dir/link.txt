@@ -1,0 +1,2 @@
+/home/stasd/Tools/emsdk/upstream/emscripten/emar qc libspirv-cross-c.a "CMakeFiles/spirv-cross-c.dir/spirv_cross_c.cpp.o"
+/home/stasd/Tools/emsdk/upstream/emscripten/emranlib libspirv-cross-c.a

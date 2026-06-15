@@ -1,0 +1,2 @@
+/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMDxilCompression.a CMakeFiles/LLVMDxilCompression.dir/DxilCompression.cpp.o CMakeFiles/LLVMDxilCompression.dir/miniz.c.o
+/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMDxilCompression.a

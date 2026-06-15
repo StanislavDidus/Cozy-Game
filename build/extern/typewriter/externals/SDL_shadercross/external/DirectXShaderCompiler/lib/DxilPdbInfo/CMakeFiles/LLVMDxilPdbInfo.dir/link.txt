@@ -1,0 +1,2 @@
+/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMDxilPdbInfo.a CMakeFiles/LLVMDxilPdbInfo.dir/DxilPdbInfoWriter.cpp.o
+/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMDxilPdbInfo.a

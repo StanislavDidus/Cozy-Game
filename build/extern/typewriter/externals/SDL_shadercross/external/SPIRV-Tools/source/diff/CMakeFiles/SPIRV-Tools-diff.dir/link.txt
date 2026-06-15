@@ -1,0 +1,2 @@
+/home/stasd/Tools/emsdk/upstream/emscripten/emar qc libSPIRV-Tools-diff.a "CMakeFiles/SPIRV-Tools-diff.dir/diff.cpp.o"
+/home/stasd/Tools/emsdk/upstream/emscripten/emranlib libSPIRV-Tools-diff.a

@@ -1,0 +1,2 @@
+/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../../../../lib/libdxil.a CMakeFiles/dxildll.dir/dxildll.cpp.o CMakeFiles/dxildll.dir/dxcvalidator.cpp.o
+/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../../../../lib/libdxil.a

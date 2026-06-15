@@ -1,0 +1,2 @@
+/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMLinker.a CMakeFiles/LLVMLinker.dir/LinkModules.cpp.o
+/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMLinker.a

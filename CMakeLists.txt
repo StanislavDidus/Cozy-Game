@@ -43,6 +43,7 @@ set(HEADER_FILES
         inc/EmailMessage.hpp
         inc/GameManager.hpp
         inc/Dialogue.hpp
+        inc/SoundManager.hpp
 )
 
 set(ALL_FILES ${SOURCE_FILES} ${HEADER_FILES})

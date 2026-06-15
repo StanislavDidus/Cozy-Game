@@ -1,0 +1,2 @@
+/usr/bin/ar qc libAudio.a CMakeFiles/Audio.dir/src/Device.cpp.o CMakeFiles/Audio.dir/src/Listener.cpp.o CMakeFiles/Audio.dir/src/ListenerImpl.cpp.o CMakeFiles/Audio.dir/src/miniaudio.c.o CMakeFiles/Audio.dir/src/Sound.cpp.o CMakeFiles/Audio.dir/src/SoundImpl.cpp.o CMakeFiles/Audio.dir/src/Waveform.cpp.o CMakeFiles/Audio.dir/src/WaveformImpl.cpp.o CMakeFiles/Audio.dir/src/stb_vorbis.c.o
+/usr/bin/ranlib libAudio.a

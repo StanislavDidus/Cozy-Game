@@ -1,0 +1,2 @@
+/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMDxcBindingTable.a CMakeFiles/LLVMDxcBindingTable.dir/DxcBindingTable.cpp.o
+/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMDxcBindingTable.a

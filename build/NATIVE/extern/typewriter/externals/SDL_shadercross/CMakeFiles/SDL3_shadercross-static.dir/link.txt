@@ -1,0 +1,2 @@
+/usr/bin/ar qc libSDL3_shadercross.a "CMakeFiles/SDL3_shadercross-static.dir/src/SDL_shadercross.c.o"
+/usr/bin/ranlib libSDL3_shadercross.a

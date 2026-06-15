@@ -1,0 +1,2 @@
+/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMDxrFallback.a CMakeFiles/LLVMDxrFallback.dir/DxrFallbackCompiler.cpp.o CMakeFiles/LLVMDxrFallback.dir/LiveValues.cpp.o CMakeFiles/LLVMDxrFallback.dir/LLVMUtils.cpp.o CMakeFiles/LLVMDxrFallback.dir/Reducibility.cpp.o CMakeFiles/LLVMDxrFallback.dir/StateFunctionTransform.cpp.o
+/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMDxrFallback.a

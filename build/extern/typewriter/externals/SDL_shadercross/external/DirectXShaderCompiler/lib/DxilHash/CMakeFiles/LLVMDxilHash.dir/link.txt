@@ -1,0 +1,2 @@
+/home/stasd/Tools/emsdk/upstream/emscripten/emar qc ../libLLVMDxilHash.a CMakeFiles/LLVMDxilHash.dir/DxilHash.cpp.o
+/home/stasd/Tools/emsdk/upstream/emscripten/emranlib ../libLLVMDxilHash.a
