@@ -43,6 +43,7 @@ set(HEADER_FILES
         inc/EmailMessage.hpp
         inc/GameManager.hpp
         inc/Dialogue.hpp
+        inc/SoundManager.hpp
 )
 
 set(ALL_FILES ${SOURCE_FILES} ${HEADER_FILES})
@@ -63,6 +64,6 @@ target_link_libraries(
         Audio::Audio
 )
 
-setup_typewriter(${GAME_NAME} "${CMAKE_SOURCE_DIR}/extern/typewriter"})
+setup_typewriter(${GAME_NAME} ${CMAKE_SOURCE_DIR}/extern/typewriter ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 
 target_compile_features(${GAME_NAME} PUBLIC cxx_std_23)

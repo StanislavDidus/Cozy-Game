@@ -10,6 +10,8 @@
 #include "FoodSpawner.hpp"
 #include "EmailMessage.hpp"
 #include "Dialogue.hpp"
+#include "imgui_internal.h"
+#include "SoundManager.hpp"
 #include "Audio/Device.hpp"
 #include "Audio/Sound.hpp"
 #include "glm/gtc/random.hpp"
@@ -128,6 +130,7 @@ void GameLayer::initGameStory()
                 showDialogue("What is happening? What do they mean that the sun is dangerous.");
                 showDialogue("I can't even leave my house now. I need to contact my family as soon as possible..");
             };
+            SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
                 }, 35.0f});
         events.push_back(EventPoint{[this]
@@ -149,6 +152,7 @@ void GameLayer::initGameStory()
             {
             showDialogue("I guess I will have to eat it. I have no other choice.");
             };
+            SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
         }, 70.0f});
         events.push_back(EventPoint{[this]
@@ -189,6 +193,7 @@ void GameLayer::initGameStory()
                 showDialogue("Now I can order food from their webside. Lets try it.");
                 can_order_food = true;
             };
+            SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
             
         }, 12.0f});
@@ -211,6 +216,7 @@ void GameLayer::initGameStory()
                 showDialogue("Omg what is going on there. Where did they take my father.");
                 showDialogue("Lets hope the government will explain it.");
             };
+            SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
         }, 55.0f});
         events.push_back(EventPoint{[this]
@@ -231,6 +237,7 @@ void GameLayer::initGameStory()
                 showDialogue("He mentioned the meteorite. I just moved here when it fell. The government evacuated the area and built a factory on its place. They said it was for safety reasons.");
                 showDialogue("Why would he go outside? I am worried about him. If he gets caught they will... Its better not to thing about it.");
             };
+            SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
         }, 85.0f});
         events.push_back(EventPoint{[this]
@@ -329,7 +336,7 @@ void GameLayer::initGameStory()
     }
     
     game_manager->initDays(days);
-    game_manager->setGameDay(0);
+    game_manager->setGameDay(2);
 }
 
 void GameLayer::checkDayEnd()
@@ -534,7 +541,6 @@ void GameLayer::initPlayerAnimations()
     }
 }
 
-Audio::Sound sound{"assets/Sounds/Walking.mp3", Audio::Sound::Type::Sound};
 void GameLayer::playPlayerSounds()
 {
     auto& registry = scene.getRegistry();
@@ -542,9 +548,9 @@ void GameLayer::playPlayerSounds()
     
     if (glm::length(player_component.velocity) >= 10.0f)
     {
-        Audio::Device::setMasterVolume(1.0f);
-        sound.play();
+        SoundManager::get().getSound("Walking").play();
     }
+    SoundManager::get().getSound("Breathing").play();
 }
 
 void GameLayer::updatePlayerAnimations(float deltaTime)
@@ -616,18 +622,31 @@ void GameLayer::updatePlayerAnimations(float deltaTime)
 
 void GameLayer::renderSystem(bool ui)
 {
+    using SpriteRect = std::pair<typewriter::Sprite, typewriter::RectF>;
+    using RenderCommand = std::pair<int, SpriteRect>;
+    std::vector<RenderCommand> commands;
+    
     auto view = scene.getRegistry().view<typewriter::Transform2D, Components::Sprite2D>();
     for (const auto& [entity, transform, sprite] : view.each())
     {
         if ((ui && sprite.ui) || (!ui && !sprite.ui))
-            typewriter::Renderer2D::drawSprite(sprite.sprite, transform.position.x, transform.position.y, transform.size.x, transform.size.y);
+            commands.push_back(RenderCommand{sprite.layer, SpriteRect{sprite.sprite, {transform.position.x, transform.position.y, transform.size.x, transform.size.y}}});
     }
             
     auto view1 = scene.getRegistry().view<typewriter::Transform2D, Components::SpriteAnimation>();
     for (const auto& [entity, transform, sprite_animation] : view1.each())
     {
         if ((ui && sprite_animation.ui) || (!ui && !sprite_animation.ui))
-            typewriter::Renderer2D::drawSprite(sprite_animation.sprite_animation[sprite_animation.frame], transform.position.x, transform.position.y, transform.size.x, transform.size.y);
+            commands.push_back(RenderCommand{sprite_animation.layer, SpriteRect{sprite_animation.sprite_animation[sprite_animation.frame], {transform.position.x, transform.position.y, transform.size.x, transform.size.y}}});
+    }
+
+    std::stable_sort(commands.begin(), commands.end(), [](const auto& a, const auto& b) {
+       return a.first < b.first;
+   });   
+    
+    for (const auto& sprite : commands | std::views::values)
+    {
+        typewriter::Renderer2D::drawSprite(sprite.first, sprite.second.left, sprite.second.top, sprite.second.width, sprite.second.height);
     }
 }
 
@@ -640,7 +659,7 @@ void GameLayer::init()
     registry.emplace<Components::Player>(player, glm::vec2{150.0f, 150.0f}, glm::vec2{50.0f, 50.0f}, glm::vec2{0.0f}, 250.0f, 300.0f);
 
     registry.emplace<typewriter::Transform2D>(player, glm::vec2{200.0f, 200.0f}, glm::vec2{50.0f,83.0f});
-    registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/Player.png", typewriter::RectI{0,0,32,48}));
+    registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/PlayerIdle.png", typewriter::RectI{0,0,32,48}), PLAYER_LAYER);
     registry.emplace<typewriter::Collision2D>(player, typewriter::AABB{{}, {}}, typewriter::CollisionType::DYNAMIC);
     registry.emplace<Components::CanInteract>(player, PLAYER_INTERACT_RADIUS);
     
@@ -677,6 +696,9 @@ void GameLayer::init()
             player_component.inv_food -= 1;
             //std::cout << player_component.inv_food << std::endl;
             microwave_component.status = Components::Microwave::MicrowaveStatus::COOKING;
+            
+            SoundManager::get().getSound("Microwave-started").play();
+            SoundManager::get().getSound("Microwave-cooking").play();
         }
         
         if (microwave_component.status == Components::Microwave::MicrowaveStatus::DONE)
@@ -720,6 +742,15 @@ void GameLayer::init()
     registry.emplace<Components::InteractableObject>(window, [&registry](typewriter::Entity player, typewriter::Entity object)
     {
            registry.get<Components::Window>(object).opened = !registry.get<Components::Window>(object).opened;
+        
+            if (registry.get<Components::Window>(object).opened)
+            {
+                SoundManager::get().getSound("Window-open").replay();
+            }
+            else
+            {
+                SoundManager::get().getSound("Window-close").replay();
+            }
 
            registry.get<Components::SpriteAnimation>(object).frame = registry.get<Components::Window>(object).opened;
     });
@@ -741,6 +772,9 @@ void GameLayer::init()
     });
     
     initPlayerAnimations();
+    
+    SoundManager::get().getSound("Ambient").replay();
+    SoundManager::get().getSound("Yawn").replay();
 }
 
 void GameLayer::setState(GameState new_state)
@@ -762,13 +796,13 @@ void GameLayer::exitState(GameState state)
         break;
     case GameState::G_MENU:
         {
-            scene.destroyEntity(start_button);
-            scene.destroyEntity(exit_menu_button);
+            SoundManager::get().getSound("MenuMusic").stop();
         }
         break;
     case GameState::G_GAME:
         break;
     case GameState::G_COMPUTER:
+        SoundManager::get().getSound("Laptop-close");
         exitComputerState(current_computer_state);
         break;
     case GameState::G_DAY_END:
@@ -786,34 +820,14 @@ void GameLayer::enterState(GameState state)
         break;
     case GameState::G_MENU:
         {
-            auto& registry = scene.getRegistry();
-            start_button = registry.create();
-            registry.emplace<typewriter::Transform2D>(start_button, glm::vec2{200.0f, 200.0f}, glm::vec2{100.0f, 60.0f});
-            registry.emplace<Components::Sprite2D>(start_button, typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI(0,32,48,16)), 1, true);
-            registry.emplace<typewriter::Clickable>(start_button, typewriter::AABB{glm::vec2{200.0f, 200.0f}, glm::vec2{300.0f, 260.0f}}, [this]
-            {
-                game_manager = std::make_unique<GameManager>(scene, player, window);
-                
-                initGameStory();
-                
-                init();
-                setState(GameState::G_GAME);
-                return true;
-            });
             
-            exit_menu_button = registry.create();
-            registry.emplace<typewriter::Transform2D>(exit_menu_button, glm::vec2{200.0f, 300.0f}, glm::vec2{100.0f, 60.0f});
-            registry.emplace<Components::Sprite2D>(exit_menu_button, typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI(0,48,48,16)), 1, true);
-            registry.emplace<typewriter::Clickable>(exit_menu_button, typewriter::AABB{glm::vec2{200.0f, 300.0f}, glm::vec2{300.0f, 360.0f}}, [this]
-            {
-                std::exit(0);
-                return true;
-            });
+            SoundManager::get().getSound("MenuMusic").play();
         }
         break;
     case GameState::G_GAME:
         break;
     case GameState::G_COMPUTER:
+        SoundManager::get().getSound("Laptop-open").replay();
         enterComputerState(current_computer_state);
         break;
     case GameState::G_DAY_END:
@@ -837,6 +851,18 @@ void GameLayer::updateState(GameState state, float deltaTime)
     case GameState::G_NONE:
         break;
     case GameState::G_MENU:
+        
+        text_position_timer += deltaTime;
+        if(typewriter::Input::isKeyPressed(typewriter::SCANCODE_SPACE))
+        {
+            game_manager = std::make_unique<GameManager>(scene, player, window);
+                
+            initGameStory();
+                
+            init();
+            setState(GameState::G_GAME);
+        }
+            
         button_system->update(deltaTime, mouse_position, mouse_down, mouse_up);
         break;
     case GameState::G_GAME:
@@ -985,7 +1011,15 @@ void GameLayer::renderState(GameState state)
     case GameState::G_NONE:
         break;
     case GameState::G_MENU:
+        {   
+            auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 40);
+            auto text = typewriter::ResourceManager::loadText(font, "Press (SPACE)");
+            
+            float floating_value = 30.0f;
+            float to_move = std::sin(text_position_timer) * floating_value;
+            typewriter::Renderer2D::drawText(text.get(), 400.0f, text_position_y + to_move);
             renderSystem(false);
+        }
         break;
     case GameState::G_GAME:
         {
@@ -1181,4 +1215,39 @@ void GameLayer::renderFilter()
 void GameLayer::initAssets()
 {
     level_sprite = typewriter::ResourceManager::loadSprite("assets/Level.png");
+    
+    // Sounds
+    
+    SoundManager::get().loadSound("Walking", "assets/Sounds/Walking.mp3");
+    
+    SoundManager::get().loadSound("Breathing", "assets/Sounds/Breathing.mp3");
+    SoundManager::get().getSound("Breathing").setVolume(0.5f);
+    
+    SoundManager::get().loadSound("Ambient", "assets/Sounds/Ambient.mp3");
+    SoundManager::get().getSound("Ambient").setLooping(true);
+    SoundManager::get().getSound("Ambient").setVolume(0.15f);
+    
+    SoundManager::get().loadSound("Food-buy", "assets/Sounds/Food-buy.mp3");
+    SoundManager::get().loadSound("Food-delivery", "assets/Sounds/Food-delivery.mp3");
+    SoundManager::get().loadSound("Laptop-app-close", "assets/Sounds/Laptop-app-close.mp3");
+    SoundManager::get().loadSound("Laptop-app-opened", "assets/Sounds/Laptop-app-opened.mp3");
+    SoundManager::get().loadSound("Laptop-close", "assets/Sounds/Laptop-close.mp3");
+    SoundManager::get().loadSound("Laptop-message", "assets/Sounds/Laptop-message.mp3");
+    SoundManager::get().loadSound("Laptop-open", "assets/Sounds/Laptop-open.mp3");
+    SoundManager::get().loadSound("Microwave-cooking", "assets/Sounds/Microwave-cooking.mp3");
+    SoundManager::get().loadSound("Microwave-finished", "assets/Sounds/Microwave-finished.mp3");
+    SoundManager::get().loadSound("Microwave-started", "assets/Sounds/Microwave-started.mp3");
+    SoundManager::get().loadSound("MinigameMusic", "assets/Sounds/MinigameMusic.mp3");
+    SoundManager::get().loadSound("MouseClick", "assets/Sounds/MouseClick.mp3");
+    SoundManager::get().loadSound("Window-close", "assets/Sounds/Window-close.mp3");
+    SoundManager::get().loadSound("Window-open", "assets/Sounds/Window-open.mp3");
+    
+    SoundManager::get().loadSound("Yawn", "assets/Sounds/Yawn.mp3");
+    SoundManager::get().getSound("Yawn").setVolume(0.3f);
+     
+    SoundManager::get().loadSound("Warning", "assets/Sounds/Warning.mp3");
+    SoundManager::get().getSound("Warning").setVolume(0.7f);
+    
+    SoundManager::get().loadSound("MenuMusic", "assets/Sounds/MenuMusic.mp3");
+    SoundManager::get().getSound("MenuMusic").setVolume(0.7f);
 }

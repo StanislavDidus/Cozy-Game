@@ -2,6 +2,7 @@
 
 #include "Components.hpp"
 #include "Config.hpp"
+#include "SoundManager.hpp"
 #include "core/ecs/Scene.hpp"
 
 ObjectManager::ObjectManager(typewriter::Scene& scene)
@@ -26,6 +27,9 @@ void ObjectManager::update(float deltaTime)
         
             if (microwave.heat_timer >= microwave.heat_time)
             {
+                SoundManager::get().getSound("Microwave-finished").play();
+                SoundManager::get().getSound("Microwave-cooking").stop();
+                
                 microwave.status = Components::Microwave::MicrowaveStatus::DONE;
                 microwave.heat_timer = 0.0f;
                 
