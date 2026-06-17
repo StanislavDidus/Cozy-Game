@@ -91,7 +91,7 @@ void GameManager::render()
     if (window_open_timer >= DRONE_ATTACK_TIME - DRONE_WARNING_TIME && drones_active)
     {
        typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI{48, 32, 16, 16})
-           ,432.0f, -25.0f, 80.0f, 80.0f);
+           ,145.0f, 125.0f, 80.0f, 80.0f);
         
         SoundManager::get().getSound("Warning").play();
     }

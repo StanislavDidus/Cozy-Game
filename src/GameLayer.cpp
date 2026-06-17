@@ -93,7 +93,9 @@ void GameLayer::initGameStory()
     
             food_spawner->spawnFood(delivery_zone);
             food_spawner->spawnFood(delivery_zone);
-            can_order_food = false;
+            door_light_anim->reset();
+            door_dark_anim->reset();
+     can_order_food = false;
                 }, 0.0f});
         events.push_back(EventPoint{[this]
         {
@@ -672,7 +674,7 @@ void GameLayer::init()
     microwave = scene.createEntity();
     registry.emplace<typewriter::Transform2D>(microwave, glm::vec2{650.0f, 420.0f}, glm::vec2{100.0f, 100.0f});
     registry.emplace<typewriter::Collision2D>(microwave, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
-    registry.emplace<Components::Sprite2D>(microwave, Components::Sprite2D{typewriter::ResourceManager::loadSprite("assets/MicrowaveLight.png", typewriter::RectI{288,51,48,51})});
+    //registry.emplace<Components::Sprite2D>(microwave, Components::Sprite2D{typewriter::ResourceManager::loadSprite("assets/MicrowaveLight.png", typewriter::RectI{288,51,48,51})});
     registry.emplace<Components::InteractableObject>(microwave, [&registry, this](typewriter::Entity player, typewriter::Entity object)
     {
         auto& player_component = registry.get<Components::Player>(player);
@@ -698,8 +700,6 @@ void GameLayer::init()
             microwave_component.status = Components::Microwave::MicrowaveStatus::EMPTY;
             player_component.hunger -= FOOD_REPLENISHMENT;
             is_food_eaten = true;
-            microwave_open_light->reset();
-            microwave_open_dark->reset();
             if (player_component.hunger < 0.0f)
             {   
                 player_component.hunger = 0.0f;
@@ -719,9 +719,12 @@ void GameLayer::init()
     //registry.emplace<Components::Sprite2D>(microwave, typewriter::ResourceManager::loadSprite("assets/Microwave.png", typewriter::RectI(0,0,20,7)));
     registry.emplace<Components::Microwave>(microwave, FOOD_COOK_TIME);
     
+    door = scene.createEntity();
+    registry.emplace<typewriter::Transform2D>(door, glm::vec2{559.0f, 26.0f}, glm::vec2{77.0f, 163.0f});
+    //registry.emplace<Components::Sprite2D>(door, typewriter::ResourceManager::loadSprite("assets/DoorLight.png", typewriter::RectI{0,0, 32, 67}));
+    
     delivery_zone = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(delivery_zone, glm::vec2{566.0f, 175.0f}, glm::vec2{65.0f, 65.0f});
-    registry.emplace<Components::Sprite2D>(delivery_zone, typewriter::ResourceManager::loadSprite("assets/Carpet.png"));
+    registry.emplace<typewriter::Transform2D>(delivery_zone, glm::vec2{567.0f, 176.0f}, glm::vec2{77.0f, 163.0f});
     registry.emplace<Components::DeliveryZone>(delivery_zone);
     
     initWindowAnimations();
@@ -872,10 +875,17 @@ void GameLayer::updateState(GameState state, float deltaTime)
             updateObjects(deltaTime);
             updateLevel(deltaTime);
             updateWindowAnimations(deltaTime);
+            food_spawner->update(deltaTime);
             
             collision_system->update(deltaTime);
             interaction_system->update(deltaTime, interact);
-            object_manager->update(deltaTime);
+            
+            // This is by far the hackiest thing I have ever done
+            if (object_manager->update(deltaTime))
+            {
+                microwave_done_light->reset();
+                microwave_done_dark->reset();
+            }
             button_system->update(deltaTime, mouse_position, mouse_down, mouse_up);
         
             // Make camera follow the player
@@ -923,7 +933,12 @@ void GameLayer::updateState(GameState state, float deltaTime)
         }
         break;
     case GameState::G_COMPUTER:
-        object_manager->update(deltaTime);
+        // This is by far the hackiest thing I have ever done
+        if (object_manager->update(deltaTime))
+        {
+            microwave_done_light->reset();
+            microwave_done_dark->reset();
+        }
         
         food_order_timer += deltaTime;
         
@@ -932,6 +947,7 @@ void GameLayer::updateState(GameState state, float deltaTime)
         updateObjects(deltaTime);
         updateLevel(deltaTime);
         updateWindowAnimations(deltaTime);
+        food_spawner->update(deltaTime);
         
         checkDayEnd();
         
@@ -1029,8 +1045,8 @@ void GameLayer::renderState(GameState state)
         {
             renderLevel();
         
-            renderSystem(false);
             renderObjects();
+            renderSystem(false);
             game_manager->render();
             
             interaction_system->render();
@@ -1040,8 +1056,8 @@ void GameLayer::renderState(GameState state)
         {
             renderLevel();
             
-            renderSystem(false);
             renderObjects();
+            renderSystem(false);
             game_manager->render();
         }
         break;
@@ -1063,6 +1079,7 @@ void GameLayer::renderState(GameState state)
         {
             renderLevel();
             renderSystem(false);
+            renderObjects();
             game_manager->render();
             break;
         }
@@ -1247,28 +1264,55 @@ void GameLayer::initObjectsAnimation()
     
     // Close light
     {
-        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/MicrowaveLight.png", 48, 51);
-        std::vector<int> frames = {0,1,2,3,4,5,6};
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveLightClose.png", 48, 53);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7};
         microwave_close_light = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
     }
     // Close Dark
     {
-        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/MicrowaveDark.png", 48, 51);
-        std::vector<int> frames = {0,1,2,3,4,5,6};
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveDarkClose.png", 48, 53);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7};
         microwave_close_dark = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
     }
     
-    //  Open Light
+    //  Cooking Light
     {
-        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/MicrowaveLight.png", 48, 51);
-        std::vector<int> frames = {7,8,9,10,11,12,13};
-        microwave_open_light = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveLightCooking.png", 48, 55);
+        std::vector<int> frames = {0,1,2,3,4,5,6};
+        microwave_cooking_light = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, true, frames);
     }
-    // Open Dark
+    // Cooking Dark
     {
-        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/MicrowaveDark.png", 48, 51);
-        std::vector<int> frames = {7,8,9,10,11,12,13};
-        microwave_open_dark = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveDarkCooking.png", 48, 55);
+        std::vector<int> frames = {0,1,2,3,4,5,6};
+        microwave_cooking_dark = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, true, frames);
+    }
+    
+    //  Done Light
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveLightDone.png", 48, 53);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7,8,};
+        microwave_done_light = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+    }
+    // Done Dark
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveDarkDone.png", 48, 53);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7,8};
+        microwave_done_dark = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+    }
+    
+    // Door animations
+    //  Anim light
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/DoorLight.png", 32, 67);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7,8,9,10,11,12,13};
+        door_light_anim = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 14.0f, false, frames);
+    }
+    // Anim dark
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/DoorDark.png", 32, 67);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7,8,9,10,11,12,13};
+        door_dark_anim = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 14.0f, false, frames);
     }
 }
 
@@ -1291,10 +1335,15 @@ void GameLayer::updateLevel(float deltaTime)
 
 void GameLayer::updateObjects(float deltaTime)
 {
-   microwave_close_light->update(deltaTime);
+    microwave_close_light->update(deltaTime);
     microwave_close_dark->update(deltaTime);
-    microwave_open_light->update(deltaTime);
-    microwave_open_dark->update(deltaTime);
+    microwave_cooking_light->update(deltaTime);
+    microwave_cooking_dark->update(deltaTime);
+    microwave_done_light->update(deltaTime);
+    microwave_done_dark->update(deltaTime);
+    
+    door_light_anim->update(deltaTime);
+    door_dark_anim->update(deltaTime);
 }
 
 void GameLayer::renderLevel()
@@ -1317,18 +1366,9 @@ void GameLayer::renderObjects()
     if (microwave != entt::null)
     {
         const auto& ts = registry.get<typewriter::Transform2D>(microwave);
-        auto& rn = registry.get<Components::Sprite2D>(microwave);
         
-        if(microwave_open_light->isDone() == false || microwave_open_dark->isDone() == false)
-        {
-            typewriter::Sprite sprite1 = *microwave_open_light.get();
-            sprite1.setColor({255,255,255,day});
-            typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
-            typewriter::Sprite sprite2 = *microwave_open_dark.get();
-            sprite2.setColor({255,255,255,night});
-            typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
-        }
-        else if (microwave_close_light->isDone() == false || microwave_close_dark->isDone() == false)
+        // If started cooking
+        if(microwave_close_light->isDone() == false || microwave_close_dark->isDone() == false)
         {
             typewriter::Sprite sprite1 = *microwave_close_light.get();
             sprite1.setColor({255,255,255,day});
@@ -1337,28 +1377,75 @@ void GameLayer::renderObjects()
             sprite2.setColor({255,255,255,night});
             typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
         }
+        // Else if cooking
+        else if (registry.get<Components::Microwave>(microwave).status == Components::Microwave::MicrowaveStatus::COOKING)
+        {
+            typewriter::Sprite sprite1 = *microwave_cooking_light.get();
+            std::cout << "play cooking animation" << std::endl;
+            sprite1.setColor({255,255,255,day});
+            typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            typewriter::Sprite sprite2 = *microwave_cooking_dark.get();
+            sprite2.setColor({255,255,255,night});
+            typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+        }
+        // Else if done cooking
+        else if(microwave_done_light->isDone() == false || microwave_done_dark->isDone() == false)
+        {
+            typewriter::Sprite sprite1 = *microwave_done_light.get();
+            sprite1.setColor({255,255,255,day});
+            typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            typewriter::Sprite sprite2 = *microwave_done_dark.get();
+            sprite2.setColor({255,255,255,night});
+            typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+        }
+        // Else draw common microwave
         else
         {
-            // If empty
-            if (registry.get<Components::Microwave>(microwave).status == Components::Microwave::MicrowaveStatus::EMPTY)
+            if (registry.get<Components::Microwave>(microwave).status == Components::Microwave::MicrowaveStatus::DONE)
             {
-                
-                typewriter::Sprite sprite1 = typewriter::ResourceManager::loadSprite("assets/MicrowaveLight.png", typewriter::RectI{288, 51, 48, 51});
+                typewriter::Sprite sprite1 = (*microwave_done_light)[8];
                 sprite1.setColor({255,255,255,day});
                 typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
-                typewriter::Sprite sprite2 = typewriter::ResourceManager::loadSprite("assets/MicrowaveDark.png", typewriter::RectI{288, 51, 48, 51});
+                typewriter::Sprite sprite2 = (*microwave_done_dark)[8];
                 sprite2.setColor({255,255,255,night});
                 typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
             }
-            else if (registry.get<Components::Microwave>(microwave).status == Components::Microwave::MicrowaveStatus::DONE)
+            else
             {
-                typewriter::Sprite sprite1 = typewriter::ResourceManager::loadSprite("assets/MicrowaveLight.png", typewriter::RectI{288, 0, 48, 51});
+                typewriter::Sprite sprite1 = (*microwave_close_light)[0];
                 sprite1.setColor({255,255,255,day});
                 typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
-                typewriter::Sprite sprite2 = typewriter::ResourceManager::loadSprite("assets/MicrowaveDark.png", typewriter::RectI{288, 0, 48, 51});
+                typewriter::Sprite sprite2 = (*microwave_close_dark)[0];
                 sprite2.setColor({255,255,255,night});
                 typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
             }
+        }
+    }
+    
+    // door
+    
+    if (door != entt::null)
+    {
+        const auto& ts = registry.get<typewriter::Transform2D>(door);
+        
+        // If animation is playing
+        if (!door_dark_anim->isDone() || !door_light_anim->isDone())
+        {
+            typewriter::Sprite sp_l = *door_light_anim.get(); 
+            sp_l.setColor({255,255,255,day});
+            typewriter::Sprite sp_d = *door_dark_anim.get(); 
+            sp_d.setColor({255,255,255,night});
+            typewriter::Renderer2D::drawSprite(sp_l, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            typewriter::Renderer2D::drawSprite(sp_d, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+        }
+        else
+        {
+            typewriter::Sprite sp_l = (*door_light_anim)[0]; 
+            sp_l.setColor({255,255,255,day});
+            typewriter::Sprite sp_d = (*door_dark_anim)[0]; 
+            sp_d.setColor({255,255,255,night});
+            typewriter::Renderer2D::drawSprite(sp_l, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            typewriter::Renderer2D::drawSprite(sp_d, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
         }
     }
 }
@@ -1367,17 +1454,26 @@ void GameLayer::renderStats()
 {
     auto& player_component = scene.getRegistry().get<Components::Player>(player);
     auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 35);
-    auto text = typewriter::ResourceManager::loadText(font, std::format("Hunger: {}", player_component.hunger));
-    typewriter::Renderer2D::drawText(text.get(), 0.0f, 0.0f);
+    
+    // Hunger
+    auto text = typewriter::ResourceManager::loadText(font, std::format("{}%", static_cast<int>(player_component.hunger * 100.0f)));
+    typewriter::Renderer2D::drawText(text.get(), 70.0f, 15.0f);
+    typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/Icons.png", typewriter::RectI{0,0,16,16}), 0.0f, 0.0f, 70.0f, 70.0f);
             
+    /*
     auto text1 = typewriter::ResourceManager::loadText(font, std::format("Food: {}", player_component.inv_food));
-    typewriter::Renderer2D::drawText(text1.get(), 0.0f, 50.0f);
+    typewriter::Renderer2D::drawText(text1.get(), 60.0f, 85.0f);
+    */
             
-    auto text2 = typewriter::ResourceManager::loadText(font, std::format("Temperature: {}", player_component.temperature));
-    typewriter::Renderer2D::drawText(text2.get(), 0.0f, 100.0f);
+    // Temperature
+    auto text2 = typewriter::ResourceManager::loadText(font, std::format("{}%", static_cast<int>(player_component.temperature * 100.0f)));
+    typewriter::Renderer2D::drawText(text2.get(), 70.0f, 95.0f);
+    typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/Icons.png", typewriter::RectI{16,0,16,16}), 0.0f, 80.0f, 70.0f, 70.0f);
             
-    auto text3 = typewriter::ResourceManager::loadText(font, std::format("Sanity: {}", player_component.sanity));
-    typewriter::Renderer2D::drawText(text3.get(), 0.0f, 150.0f);
+    // Sanity
+    auto text3 = typewriter::ResourceManager::loadText(font, std::format("{}%", static_cast<int>(player_component.sanity * 100.0f)));
+    typewriter::Renderer2D::drawText(text3.get(), 70.0f, 185.0f);
+    typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/Icons.png", typewriter::RectI{32,0,16,16}), 0.0f, 160.0f, 70.0f, 70.0f);
 }
 
 void GameLayer::renderFilter()

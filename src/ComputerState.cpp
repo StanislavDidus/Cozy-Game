@@ -83,6 +83,9 @@ void GameLayer::enterComputerState(ComputerState state)
                    SoundManager::get().getSound("Food-buy").replay();
                    food_spawner->spawnFood(delivery_zone);
                    food_order_timer = 0.0f;
+                   
+                   door_light_anim->reset();
+                   door_dark_anim->reset();
                }
                return true;
            });

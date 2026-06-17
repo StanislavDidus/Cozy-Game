@@ -74,6 +74,7 @@ private:
     typewriter::Entity window = entt::null;
     typewriter::Entity window_view = entt::null;
     typewriter::Entity microwave = entt::null;
+    typewriter::Entity door = entt::null;
     
     //----------// STATE MACHINE //-----------//
     void init();
@@ -105,11 +106,17 @@ private:
     uint8_t day = 255;
     uint8_t night = 0;
     
+    // door
+    std::unique_ptr<typewriter::SpriteAnimation> door_light_anim = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> door_dark_anim = nullptr;
+    
     // microwave
-    std::unique_ptr<typewriter::SpriteAnimation> microwave_open_light = nullptr;
     std::unique_ptr<typewriter::SpriteAnimation> microwave_close_light = nullptr;
-    std::unique_ptr<typewriter::SpriteAnimation> microwave_open_dark = nullptr;
     std::unique_ptr<typewriter::SpriteAnimation> microwave_close_dark = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> microwave_cooking_light = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> microwave_cooking_dark = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> microwave_done_light = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> microwave_done_dark = nullptr;
     
     //----------// UI //-------------//
     void renderStats();

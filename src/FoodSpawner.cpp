@@ -16,7 +16,32 @@ FoodSpawner::FoodSpawner(Scene& scene)
 constexpr int MAX_FOOD = 3;
 constexpr float FOOD_WIDTH = 70.0f;
 constexpr float FOOD_HEIGHT = 70.0f;
+
+void FoodSpawner::update(float deltaTime)
+{
+    if (spawn)
+    {
+        spawn_timer += deltaTime;
+        
+        if (spawn_timer >= spawn_time)
+        {
+            spawn = false;
+            spawn_timer = 0.0f;
+            
+            spawnFoodObject();
+            
+            delivery_zone = entt::null;
+        }
+    }
+}
+
 void FoodSpawner::spawnFood(Entity delivery_zone)
+{
+    spawn = true;
+    this->delivery_zone = delivery_zone;
+}
+
+void FoodSpawner::spawnFoodObject()
 {
     auto& registry = scene.getRegistry();
     
