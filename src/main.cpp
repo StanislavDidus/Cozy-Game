@@ -20,6 +20,7 @@ int main() {
 #ifdef WIN32
     SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "vulkan");
 #endif
+    //SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "x11");
     CozyGame game = CozyGame(TITLE, SCREEN_WIDTH, SCREEN_HEIGHT);
     game.pushLayer(new GameLayer(SCREEN_WIDTH, SCREEN_HEIGHT));
     game.start();

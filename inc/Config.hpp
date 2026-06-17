@@ -34,6 +34,9 @@ constexpr float DIALOGUE_TEXT_POS_Y = 410.0f;
 constexpr int DIALOGUE_TEXT_SIZE = 32;
 constexpr int DIALOGUE_TEXT_WRAP_WIDTH = 600;
 
+// World color change
+constexpr float WORLD_THEME_TRANSIT_TIME = 0.4f;
+
 // News
 constexpr float MESSAGE_WIDTH = 500.0f;
 constexpr float MESSAGE_HEIGHT = 55.0f;

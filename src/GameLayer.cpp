@@ -426,9 +426,11 @@ void GameLayer::onRender()
 {
     Layer::onRender();
     
-    typewriter::Renderer2D::setClearColor(typewriter::Color{215, 178, 143, 255}); // Color of the walls
+    typewriter::Renderer2D::setClearColor(typewriter::Color{0}); // Color of the walls
     typewriter::Renderer2D::startScene(camera);
     
+    typewriter::Renderer2D::drawRectangle(-1000.0f, -1000.0f, 10000.0f, 10000.0f, typewriter::Color{215,178,143,day});
+    typewriter::Renderer2D::drawRectangle(-1000.0f, -1000.0f, 10000.0f, 10000.0f, typewriter::Color{93,37,71,night});
     renderState(current_state);
     
     typewriter::Renderer2D::endScene();
@@ -498,46 +500,46 @@ void GameLayer::initPlayerAnimations()
     {
         std::vector<int> frames = {0,1,2,3,4,5,6,7};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
-        down_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
+        down_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, true, frames);
     }
     {
         
         std::vector<int> frames = {8,9,10,11,12,13,14,15};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
-        top_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
+        top_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, true, frames);
     }
     {
         std::vector<int> frames = {16,17,18,19,20,21,22,23};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
-        right_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
+        right_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, true, frames);
     }
     {
         
         std::vector<int> frames = {24,25,26,27,28,29,30,31};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
-        left_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
+        left_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, true, frames);
     }
     
     // Idle animations
     {
         std::vector<int> frames = {0,1,2,3,4,5};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
-        down_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
+        down_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, true, frames);
     }
     {
         std::vector<int> frames = {6,7,8,9,10,11};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
-        top_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
+        top_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, true, frames);
     }
     {
         std::vector<int> frames = {12,13,14,15,16,17};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
-        right_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
+        right_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, true, frames);
     }
     {
         std::vector<int> frames = {18,19,20,21,22,23};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
-        left_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
+        left_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, true, frames);
     }
 }
 
@@ -658,33 +660,19 @@ void GameLayer::init()
     typewriter::Registry& registry = scene.getRegistry();
     registry.emplace<Components::Player>(player, glm::vec2{150.0f, 150.0f}, glm::vec2{50.0f, 50.0f}, glm::vec2{0.0f}, 250.0f, 300.0f);
 
-    registry.emplace<typewriter::Transform2D>(player, glm::vec2{200.0f, 200.0f}, glm::vec2{50.0f,83.0f});
+    registry.emplace<typewriter::Transform2D>(player, glm::vec2{200.0f, 325.0f}, glm::vec2{60.0f,93.0f});
     registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/PlayerIdle.png", typewriter::RectI{0,0,32,48}), PLAYER_LAYER);
-    registry.emplace<typewriter::Collision2D>(player, typewriter::AABB{{}, {}}, typewriter::CollisionType::DYNAMIC);
+    registry.emplace<typewriter::Collision2D>(player, typewriter::AABB{{10.0f, 60.0f}, {-10.0f, 0.0f}}, typewriter::CollisionType::DYNAMIC);
     registry.emplace<Components::CanInteract>(player, PLAYER_INTERACT_RADIUS);
     
-    // Init colliders
-    typewriter::Entity west_wall = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(west_wall, glm::vec2{0.0f, 0.0f}, glm::vec2{125.0f, 540.0f});
-    registry.emplace<typewriter::Collision2D>(west_wall, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
-    
-    typewriter::Entity east_wall = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(east_wall, glm::vec2{870.0f, 0.0f}, glm::vec2{90.0f, 540.0f});
-    registry.emplace<typewriter::Collision2D>(east_wall, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
-    
-    typewriter::Entity north_wall = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(north_wall, glm::vec2{0.0f, 0.0f}, glm::vec2{960.0f, 150.0f});
-    registry.emplace<typewriter::Collision2D>(north_wall, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
-    
-    typewriter::Entity south_wall = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(south_wall, glm::vec2{0.0f,540.0f}, glm::vec2{960.0f, 550.0f});
-    registry.emplace<typewriter::Collision2D>(south_wall, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    initColliders();
+    initObjectsAnimation();
     
     // Init interactable object
-    typewriter::Entity microwave = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(microwave, glm::vec2{175.0f, 125.0f}, glm::vec2{125.0f, 125.0f});
+    microwave = scene.createEntity();
+    registry.emplace<typewriter::Transform2D>(microwave, glm::vec2{650.0f, 420.0f}, glm::vec2{100.0f, 100.0f});
     registry.emplace<typewriter::Collision2D>(microwave, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
-    registry.emplace<Components::SpriteAnimation>(microwave, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Microwave.png", 20, 21)});
+    registry.emplace<Components::Sprite2D>(microwave, Components::Sprite2D{typewriter::ResourceManager::loadSprite("assets/MicrowaveLight.png", typewriter::RectI{288,51,48,51})});
     registry.emplace<Components::InteractableObject>(microwave, [&registry, this](typewriter::Entity player, typewriter::Entity object)
     {
         auto& player_component = registry.get<Components::Player>(player);
@@ -699,6 +687,9 @@ void GameLayer::init()
             
             SoundManager::get().getSound("Microwave-started").play();
             SoundManager::get().getSound("Microwave-cooking").play();
+            
+            microwave_close_light->reset();
+            microwave_close_dark->reset();
         }
         
         if (microwave_component.status == Components::Microwave::MicrowaveStatus::DONE)
@@ -707,6 +698,8 @@ void GameLayer::init()
             microwave_component.status = Components::Microwave::MicrowaveStatus::EMPTY;
             player_component.hunger -= FOOD_REPLENISHMENT;
             is_food_eaten = true;
+            microwave_open_light->reset();
+            microwave_open_dark->reset();
             if (player_component.hunger < 0.0f)
             {   
                 player_component.hunger = 0.0f;
@@ -727,43 +720,48 @@ void GameLayer::init()
     registry.emplace<Components::Microwave>(microwave, FOOD_COOK_TIME);
     
     delivery_zone = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(delivery_zone, glm::vec2{170.0f, 430.0f}, glm::vec2{80.0f, 80.0f});
+    registry.emplace<typewriter::Transform2D>(delivery_zone, glm::vec2{566.0f, 175.0f}, glm::vec2{65.0f, 65.0f});
     registry.emplace<Components::Sprite2D>(delivery_zone, typewriter::ResourceManager::loadSprite("assets/Carpet.png"));
     registry.emplace<Components::DeliveryZone>(delivery_zone);
     
+    initWindowAnimations();
+    // Window view    
+    window_view = scene.createEntity();
+    registry.emplace<typewriter::Transform2D>(window_view, glm::vec2{120.0f, 150.0f}, glm::vec2{115.0f, 60.0f});
+    registry.emplace<Components::Sprite2D>(window_view, typewriter::ResourceManager::loadSprite("assets/Windowview.png", typewriter::RectI{0,0,46,25}));
+    
     // Window
-
     window = scene.createEntity();
     game_manager->setWindow(window);
-    registry.emplace<typewriter::Transform2D>(window, glm::vec2{400.0f, 50.0f}, glm::vec2{150.0f, 80.0f});
+    registry.emplace<typewriter::Transform2D>(window, glm::vec2{105.0f, 140.0f}, glm::vec2{150.0f, 80.0f});
 
-    registry.emplace<Components::SpriteAnimation>(window, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Window.png", 32, 22)});
-    registry.emplace<Components::Window>(window, false);
-    registry.emplace<Components::InteractableObject>(window, [&registry](typewriter::Entity player, typewriter::Entity object)
+    registry.emplace<Components::Sprite2D>(window, typewriter::ResourceManager::loadSprite("assets/Window.png", typewriter::RectI{0,0,64,32}));
+    registry.emplace<Components::Window>(window, true);
+    registry.emplace<Components::InteractableObject>(window, [&registry, this](typewriter::Entity player, typewriter::Entity object)
     {
            registry.get<Components::Window>(object).opened = !registry.get<Components::Window>(object).opened;
         
             if (registry.get<Components::Window>(object).opened)
             {
                 SoundManager::get().getSound("Window-open").replay();
+                window_open_animation->reset();
             }
             else
             {
                 SoundManager::get().getSound("Window-close").replay();
+                window_close_animation->reset();
             }
-
-           registry.get<Components::SpriteAnimation>(object).frame = registry.get<Components::Window>(object).opened;
     });
     
     // Bed
     typewriter::Entity bed = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(bed, glm::vec2{740.0f, 150.0f}, glm::vec2{100.0f, 120.0f});
-    registry.emplace<Components::SpriteAnimation>(bed, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Bed.png", 24, 24)});
+    registry.emplace<typewriter::Transform2D>(bed, glm::vec2{400.0f, 250.0f}, glm::vec2{150.0f, 75.0f});
+    registry.emplace<Components::SpriteAnimation>(bed, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Bed.png")});
     registry.emplace<typewriter::Collision2D>(bed, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
     
     // Computer
     typewriter::Entity computer = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(computer, glm::vec2{750.0f, 430.0f}, glm::vec2{90.0f, 90.0f});
+    registry.emplace<typewriter::Transform2D>(computer, glm::vec2{50.0f, 400.0f}, glm::vec2{80.0f, 80.0f});
     registry.emplace<Components::SpriteAnimation>(computer, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Computer.png", 16, 16)});
     registry.emplace<typewriter::Collision2D>(computer, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
     registry.emplace<Components::InteractableObject>(computer, [&registry, this](typewriter::Entity player, typewriter::Entity object)
@@ -871,6 +869,9 @@ void GameLayer::updateState(GameState state, float deltaTime)
             
             updatePlayerAnimations(deltaTime);
             playPlayerSounds();
+            updateObjects(deltaTime);
+            updateLevel(deltaTime);
+            updateWindowAnimations(deltaTime);
             
             collision_system->update(deltaTime);
             interaction_system->update(deltaTime, interact);
@@ -928,6 +929,9 @@ void GameLayer::updateState(GameState state, float deltaTime)
         
         game_manager->update(deltaTime);
         checkLoseCondition();
+        updateObjects(deltaTime);
+        updateLevel(deltaTime);
+        updateWindowAnimations(deltaTime);
         
         checkDayEnd();
         
@@ -1023,9 +1027,10 @@ void GameLayer::renderState(GameState state)
         break;
     case GameState::G_GAME:
         {
-            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderLevel();
         
             renderSystem(false);
+            renderObjects();
             game_manager->render();
             
             interaction_system->render();
@@ -1033,11 +1038,10 @@ void GameLayer::renderState(GameState state)
         break;
     case GameState::G_COMPUTER:
         {
-            // Render main level and game objects
-            // PC UI is rendered in renderUIState
-            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderLevel();
             
             renderSystem(false);
+            renderObjects();
             game_manager->render();
         }
         break;
@@ -1057,7 +1061,7 @@ void GameLayer::renderState(GameState state)
         }
     case GameState::G_DIALOGUE:
         {
-            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderLevel();
             renderSystem(false);
             game_manager->render();
             break;
@@ -1151,6 +1155,212 @@ void GameLayer::renderUIState(GameState state)
     default:
         break;
     }   
+}
+
+void GameLayer::initWindowAnimations()
+{
+    {
+        std::vector<int> frames = {0,1,2,3,4,5,6,7};
+        window_close_animation = std::make_unique<typewriter::SpriteAnimation>(typewriter::ResourceManager::loadSpriteSheet("assets/Window.png", 64, 32), 14.0f, false, frames);
+    }
+    
+    {
+        std::vector<int> frames = {8,9,10,11,12,13,14,15};
+        window_open_animation = std::make_unique<typewriter::SpriteAnimation>(typewriter::ResourceManager::loadSpriteSheet("assets/Window.png", 64, 32), 14.0f, false, frames);
+    }
+    
+    {
+        std::vector<int> frames = {0,1,2,3,4,5};
+        window_view_animation = std::make_unique<typewriter::SpriteAnimation>(typewriter::ResourceManager::loadSpriteSheet("assets/Windowview.png", 46, 25), 7.0f, true, frames);
+    }
+}
+
+void GameLayer::updateWindowAnimations(float deltaTime)
+{
+    window_close_animation->update(deltaTime);
+    window_open_animation->update(deltaTime);
+    window_view_animation->update(deltaTime);
+    
+    scene.getRegistry().get<Components::Sprite2D>(window_view).sprite = *window_view_animation.get();
+    
+    if (window_open_animation->isDone() == false)
+        scene.getRegistry().get<Components::Sprite2D>(window).sprite = *window_open_animation.get();
+    else if (window_close_animation->isDone() == false)
+        scene.getRegistry().get<Components::Sprite2D>(window).sprite = *window_close_animation.get();
+    
+    scene.getRegistry().get<Components::Sprite2D>(window).layer = WINDOW_LAYER;
+}
+
+void GameLayer::initColliders()
+{
+    auto& registry = scene.getRegistry();
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{0.0f, 0.0f}, glm::vec2{560.0f, 245.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{322.0f, 249.0f}, glm::vec2{80.0f, 81.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{561.0f, 3.0f}, glm::vec2{84.0f, 163.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{643.0f, 0.0f}, glm::vec2{158.0f, 244.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{1.0f, 490.0f}, glm::vec2{320.0f, 83.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{0.0f, 83.0f}, glm::vec2{28.0f, 405.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{294.0f, 557.0f}, glm::vec2{26.0f, 84.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{320.0f, 542.0f}, glm::vec2{482.0f, 30.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{768.0f, 83.0f}, glm::vec2{33.0f, 489.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+}
+
+void GameLayer::initObjectsAnimation()
+{
+    //Microwave animations
+    
+    // Close light
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/MicrowaveLight.png", 48, 51);
+        std::vector<int> frames = {0,1,2,3,4,5,6};
+        microwave_close_light = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+    }
+    // Close Dark
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/MicrowaveDark.png", 48, 51);
+        std::vector<int> frames = {0,1,2,3,4,5,6};
+        microwave_close_dark = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+    }
+    
+    //  Open Light
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/MicrowaveLight.png", 48, 51);
+        std::vector<int> frames = {7,8,9,10,11,12,13};
+        microwave_open_light = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+    }
+    // Open Dark
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/MicrowaveDark.png", 48, 51);
+        std::vector<int> frames = {7,8,9,10,11,12,13};
+        microwave_open_dark = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+    }
+}
+
+void GameLayer::updateLevel(float deltaTime)
+{
+    world_theme_transit_timer += deltaTime;
+    
+    if (world_theme_transit_timer >= WORLD_THEME_TRANSIT_TIME)
+        world_theme_transit_timer = WORLD_THEME_TRANSIT_TIME;
+    
+    if (was_day != scene.getRegistry().get<Components::Window>(window).opened)
+        world_theme_transit_timer = 0.0f;
+    
+    was_day = scene.getRegistry().get<Components::Window>(window).opened;
+    
+    uint8_t alpha = static_cast<uint8_t>(world_theme_transit_timer / WORLD_THEME_TRANSIT_TIME * 255.0f);
+    day = was_day ? alpha : 255 - alpha;
+    night = was_day ? 255 - alpha : alpha;
+}
+
+void GameLayer::updateObjects(float deltaTime)
+{
+   microwave_close_light->update(deltaTime);
+    microwave_close_dark->update(deltaTime);
+    microwave_open_light->update(deltaTime);
+    microwave_open_dark->update(deltaTime);
+}
+
+void GameLayer::renderLevel()
+{
+    float level_width = 800.0f;
+    float level_height = level_width / 1.4f;
+    
+    auto house_light_sprite = typewriter::ResourceManager::loadSprite("assets/HouseLight.png");
+    house_light_sprite.setColor(typewriter::Color{255,255,255,day});
+    typewriter::Renderer2D::drawSprite(house_light_sprite, 0.0f, 0.0f, level_width, level_height);
+    
+    auto house_dark_sprite = typewriter::ResourceManager::loadSprite("assets/HouseDark.png");
+    house_dark_sprite.setColor(typewriter::Color{255,255,255,night});
+    typewriter::Renderer2D::drawSprite(house_dark_sprite, 0.0f, 0.0f, level_width, level_height);
+}
+
+void GameLayer::renderObjects()
+{
+    auto& registry = scene.getRegistry();
+    if (microwave != entt::null)
+    {
+        const auto& ts = registry.get<typewriter::Transform2D>(microwave);
+        auto& rn = registry.get<Components::Sprite2D>(microwave);
+        
+        if(microwave_open_light->isDone() == false || microwave_open_dark->isDone() == false)
+        {
+            typewriter::Sprite sprite1 = *microwave_open_light.get();
+            sprite1.setColor({255,255,255,day});
+            typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            typewriter::Sprite sprite2 = *microwave_open_dark.get();
+            sprite2.setColor({255,255,255,night});
+            typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+        }
+        else if (microwave_close_light->isDone() == false || microwave_close_dark->isDone() == false)
+        {
+            typewriter::Sprite sprite1 = *microwave_close_light.get();
+            sprite1.setColor({255,255,255,day});
+            typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            typewriter::Sprite sprite2 = *microwave_close_dark.get();
+            sprite2.setColor({255,255,255,night});
+            typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+        }
+        else
+        {
+            // If empty
+            if (registry.get<Components::Microwave>(microwave).status == Components::Microwave::MicrowaveStatus::EMPTY)
+            {
+                
+                typewriter::Sprite sprite1 = typewriter::ResourceManager::loadSprite("assets/MicrowaveLight.png", typewriter::RectI{288, 51, 48, 51});
+                sprite1.setColor({255,255,255,day});
+                typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+                typewriter::Sprite sprite2 = typewriter::ResourceManager::loadSprite("assets/MicrowaveDark.png", typewriter::RectI{288, 51, 48, 51});
+                sprite2.setColor({255,255,255,night});
+                typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            }
+            else if (registry.get<Components::Microwave>(microwave).status == Components::Microwave::MicrowaveStatus::DONE)
+            {
+                typewriter::Sprite sprite1 = typewriter::ResourceManager::loadSprite("assets/MicrowaveLight.png", typewriter::RectI{288, 0, 48, 51});
+                sprite1.setColor({255,255,255,day});
+                typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+                typewriter::Sprite sprite2 = typewriter::ResourceManager::loadSprite("assets/MicrowaveDark.png", typewriter::RectI{288, 0, 48, 51});
+                sprite2.setColor({255,255,255,night});
+                typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            }
+        }
+    }
 }
 
 void GameLayer::renderStats()
