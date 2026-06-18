@@ -82,9 +82,10 @@ void GameLayer::initGameStory()
     // Day one
     {
         Day day;
-        day.hunger_up = 0.002f;
-        day.sanity_up = 0.0f;
-        day.heat_up = 0.0f;
+        day.hunger_up = 0.004f;
+        day.sanity_up = 0.005f;
+        day.heat_up = 0.000f;
+        
         auto& events = day.events;
         
         events.push_back(EventPoint{[this]
@@ -116,6 +117,10 @@ void GameLayer::initGameStory()
         }, 30.0f});
         events.push_back(EventPoint{[this]
         {
+            SoundManager::get().getSound("Siren").replay();
+        }, 32.0f});
+        events.push_back(EventPoint{[this]
+        {
             // Play siren sound
             showDialogue("What is happening! I should check out the news");
             
@@ -135,6 +140,10 @@ void GameLayer::initGameStory()
             SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
                 }, 35.0f});
+        events.push_back(EventPoint{[this]
+        {
+            SoundManager::get().getSound("Siren").stop();
+        }, 37.0f});
         events.push_back(EventPoint{[this]
         {
             food_spawner->spawnFood(delivery_zone);
@@ -168,9 +177,10 @@ void GameLayer::initGameStory()
     // Day two
     {
         Day day;
-        day.hunger_up = 0.0035f;
-        day.sanity_up = 0.005f;
-        day.heat_up = 0.0003f;
+        day.hunger_up = 0.0065f;
+        day.sanity_up = 0.006f;
+        day.heat_up = 0.010f;
+        
         auto& events = day.events;
         
         events.push_back(EventPoint{[this]
@@ -248,6 +258,7 @@ void GameLayer::initGameStory()
         events.push_back(EventPoint{[this]
         {
             // Play gunshot sound
+            SoundManager::get().getSound("Shot1").replay();
         }, 115.0f});
         days.push_back(day);
     }
@@ -255,9 +266,9 @@ void GameLayer::initGameStory()
     {
         Day day;
         
-        day.hunger_up = 0.005f;
-        day.sanity_up = 0.006f;
-        day.heat_up = 0.00075f;
+        day.hunger_up = 0.008f;
+        day.sanity_up = 0.007f;
+        day.heat_up = 0.012f;
         auto& events = day.events;
         
         events.push_back(EventPoint{[this]
@@ -267,6 +278,7 @@ void GameLayer::initGameStory()
         events.push_back(EventPoint{[this]
         {
             // Play scream sound
+            SoundManager::get().getSound("Scream1").replay();
         }, 3.0f});
         events.push_back(EventPoint{[this]
         {
@@ -281,8 +293,14 @@ void GameLayer::initGameStory()
             {
                 
             };
+            SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
         }, 20.0f});
+        events.push_back(EventPoint{[this]
+        {
+            // Play scream sound
+            SoundManager::get().getSound("Shot2").replay();
+        }, 30.0f});
         events.push_back(EventPoint{[this]
         {
             EmailMessage message{"WE WILL TOLERATE THIS NO LONGER", "We demand answers from the government.\n"
@@ -296,8 +314,15 @@ void GameLayer::initGameStory()
                 showDialogue(" A protest. But they said they would kill anyone who dares to go outside. ");
                 showDialogue(" I live too far away from the main street there is no way I can get there without being noticed. Lets hope for the best.");
             };
+            SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
         }, 75.0f});
+        
+        events.push_back(EventPoint{[this]
+        {
+            // Play scream sound
+            SoundManager::get().getSound("Scream2").replay();
+        }, 90.0f});
         
         events.push_back(EventPoint{ [this]
         {
@@ -309,9 +334,9 @@ void GameLayer::initGameStory()
     {
         Day day;
         
-        day.hunger_up = 0.010f;
+        day.hunger_up = 0.01f;
         day.sanity_up = 0.008f;
-        day.heat_up = 0.0009f;
+        day.heat_up = 0.03f;
         auto& events = day.events;
         
         events.push_back(EventPoint{[this]
@@ -332,13 +357,14 @@ void GameLayer::initGameStory()
                 showDialogue("Father is alive! I am so happy. But why would they do that. And where is Marks.");
                 showDialogue("I still feel that something isn't right.");
             };
+            SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
         }, 3.0f});
         days.push_back(day);
     }
     
     game_manager->initDays(days);
-    game_manager->setGameDay(2);
+    game_manager->setGameDay(0);
 }
 
 void GameLayer::checkDayEnd()
@@ -838,6 +864,8 @@ void GameLayer::enterState(GameState state)
         break;
     case GameState::G_GAME_OVER:
         {
+            game_manager->resetTimer();
+            game_manager->resetDroneTimer();
         }
         break;
     default:
@@ -1038,7 +1066,20 @@ void GameLayer::renderState(GameState state)
             float floating_value = 30.0f;
             float to_move = std::sin(text_position_timer) * floating_value;
             typewriter::Renderer2D::drawText(text.get(), 400.0f, text_position_y + to_move);
-            renderSystem(false);
+            
+            auto font1 = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 28);
+            auto text1 = typewriter::ResourceManager::loadText(font1, 
+                "Welcome to our game Compliance!\n"
+                         "The rules in the game are simple.\n"
+                         "* Pick up food packages and cook them in a microwave to remove hunger.\n"
+                         " * Play videogames on your PC to improve your well being.\n"
+                         " * Finally, if it gets too hot in a room open a window, but not for long because the government might notice!\n"
+                         "Enjoy our game.\n"
+                         "Infinite Monkey Theorem Team\n");
+            text1->setWrapWidth(500);
+            typewriter::Renderer2D::drawText(text1.get(), 500.0f, 25.0f);
+            
+            typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/Icon.jpg"), 25.0f, 25.0f, 435.0f, 280.0f);
         }
         break;
     case GameState::G_GAME:
@@ -1046,6 +1087,7 @@ void GameLayer::renderState(GameState state)
             renderLevel();
         
             renderObjects();
+            food_spawner->render(day, night);
             renderSystem(false);
             game_manager->render();
             
@@ -1057,21 +1099,26 @@ void GameLayer::renderState(GameState state)
             renderLevel();
             
             renderObjects();
+            food_spawner->render(day, night);
             renderSystem(false);
             game_manager->render();
         }
         break;
     case GameState::G_DAY_END:
         {
-            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderLevel();
             renderSystem(false);
+            renderObjects();
+            food_spawner->render(day, night);
             game_manager->render();
         }
         break;
     case GameState::G_GAME_OVER:
         {
-            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderLevel();
             renderSystem(false);
+            renderObjects();
+            food_spawner->render(day, night);
             game_manager->render();
             break;
         }
@@ -1080,6 +1127,7 @@ void GameLayer::renderState(GameState state)
             renderLevel();
             renderSystem(false);
             renderObjects();
+            food_spawner->render(day, night);
             game_manager->render();
             break;
         }
@@ -1538,7 +1586,13 @@ void GameLayer::initAssets()
     SoundManager::get().loadSound("Laptop-app-close", "assets/Sounds/Laptop-app-close.mp3");
     SoundManager::get().loadSound("Laptop-app-opened", "assets/Sounds/Laptop-app-opened.mp3");
     SoundManager::get().loadSound("Laptop-close", "assets/Sounds/Laptop-close.mp3");
+    
     SoundManager::get().loadSound("Laptop-message", "assets/Sounds/Laptop-message.mp3");
+    SoundManager::get().getSound("Laptop-message").setVolume(0.4f);
+    
+    SoundManager::get().loadSound("Siren", "assets/Sounds/Siren.mp3");
+    SoundManager::get().getSound("Siren").setVolume(0.4f);
+    
     SoundManager::get().loadSound("Laptop-open", "assets/Sounds/Laptop-open.mp3");
     SoundManager::get().loadSound("Microwave-cooking", "assets/Sounds/Microwave-cooking.mp3");
     SoundManager::get().loadSound("Microwave-finished", "assets/Sounds/Microwave-finished.mp3");
@@ -1553,6 +1607,16 @@ void GameLayer::initAssets()
      
     SoundManager::get().loadSound("Warning", "assets/Sounds/Warning.mp3");
     SoundManager::get().getSound("Warning").setVolume(0.7f);
+    
+    SoundManager::get().loadSound("Scream1", "assets/Sounds/Scream2.mp3");
+    SoundManager::get().getSound("Scream1").setVolume(0.5f);
+    SoundManager::get().loadSound("Scream2", "assets/Sounds/Scream2.mp3");
+    SoundManager::get().getSound("Scream2").setVolume(0.5f);
+    
+    SoundManager::get().loadSound("Shot1", "assets/Sounds/Shot1.mp3");
+    SoundManager::get().getSound("Shot1").setVolume(0.5f);
+    SoundManager::get().loadSound("Shot2", "assets/Sounds/Shot2.mp3");
+    SoundManager::get().getSound("Shot2").setVolume(0.5f);
     
     SoundManager::get().loadSound("MenuMusic", "assets/Sounds/MenuMusic.mp3");
     SoundManager::get().getSound("MenuMusic").setVolume(0.7f);

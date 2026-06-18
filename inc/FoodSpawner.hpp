@@ -17,6 +17,8 @@ public:
     
     void update(float deltaTime);
     void spawnFood(typewriter::Entity delivery_zone);
+    
+    void render(uint8_t day, uint8_t night);
 private:
     void spawnFoodObject();
     typewriter::Scene& scene;

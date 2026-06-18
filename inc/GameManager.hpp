@@ -43,6 +43,8 @@ public:
 	void setCanDroneAttack(bool value);
 	void setNextDay();
 	void restartDay();
+	void resetTimer();
+	void resetDroneTimer();
 	void initDays(const std::vector<Day>& days);
 private:
 	float timer = 0.0f;

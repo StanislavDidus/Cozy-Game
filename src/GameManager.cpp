@@ -73,7 +73,7 @@ void GameManager::update(float deltaTime)
     auto& player_component = scene.getRegistry().get<Components::Player>(player);
     if (window_component.opened)
     {
-        float heat_mult = 3.0f;
+        float heat_mult = 1.5f;
         player_component.temperature -= hunger_up * heat_mult * deltaTime;
     }
     else
@@ -151,7 +151,7 @@ void GameManager::setWindow(typewriter::Entity window)
 void GameManager::setGameDay(int new_day)
 {
     this->current_day = new_day;
-    timer = 0.0f;
+    resetTimer();
 }
 
 void GameManager::stopProgress(bool stopped)
@@ -172,6 +172,16 @@ void GameManager::setNextDay()
 void GameManager::restartDay()
 {
     setGameDay(current_day);
+}
+
+void GameManager::resetTimer()
+{
+    timer = 0.0f;
+}
+
+void GameManager::resetDroneTimer()
+{
+    window_open_timer = 0.0f;
 }
 
 void GameManager::initDays(const std::vector<Day>& days)

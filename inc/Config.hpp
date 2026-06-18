@@ -5,10 +5,9 @@ constexpr float FOOD_REPLENISHMENT = 0.2f; // How much hunger does good decrease
 constexpr float FOOD_COOK_TIME = 5.0f;
 
 // Default settings
-constexpr float HUNGER_UP = 0.005f;
-constexpr float HEAT_UP = 0.005f;
-constexpr float SANITY_UP = 0.009f; 
-
+constexpr float HUNGER_UP = 0.012f;
+constexpr float HEAT_UP = 0.032f;
+constexpr float SANITY_UP = 0.0082f; 
 constexpr float HEAT_DOWN = 0.010f;
 
 // Game
@@ -56,8 +55,8 @@ constexpr float DAY_MORNING_DURATION = 30.0f;
 constexpr float DAY_AFTERNOON_DURATION = 60.0f;
 constexpr float DAY_EVENING_DURATION = 30.0f;
 constexpr float DAY_TOTAL_DURATION = DAY_MORNING_DURATION + DAY_AFTERNOON_DURATION + DAY_EVENING_DURATION;
-constexpr float DAY_END_TIME = 5.0f;
-constexpr float DAY_TRANSIT_TIME = 1.0f;
+constexpr float DAY_END_TIME = 3.0f;
+constexpr float DAY_TRANSIT_TIME = 0.75f;
 
 // Drone system
 constexpr float DRONE_ATTACK_TIME = 12.0f;
