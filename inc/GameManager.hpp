@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Components.hpp"
 #include "Enums.hpp"
 #include "core/ecs/Scene.hpp"
 
@@ -60,4 +61,6 @@ private:
 	typewriter::Scene& scene;
 	typewriter::Entity player;
 	typewriter::Entity window;
+	
+	std::unique_ptr<typewriter::SpriteAnimation> eye_animation = nullptr;
 };

@@ -18,7 +18,7 @@ constexpr float OBSTACLE_SPAWN_POSITION_Y = 340.0f;
 constexpr float OBSTACLE_SPAWN_WIDTH = 40.0f;
 constexpr float OBSTACLE_SPAWN_HEIGHT = 60.0f;
 constexpr float OBSTACLE_MOVEMENT_SPEED = 200.0f;
-constexpr float OBSTACLE_DESTROY_POSITION = 50.0f;
+constexpr float OBSTACLE_DESTROY_POSITION = 80.0f;
 constexpr float SANITY_TIME = 1.0f;
 constexpr float SANITY_GIVE = 0.03f; // How much sanity is given per timer clock
 
@@ -63,5 +63,5 @@ constexpr float DRONE_ATTACK_TIME = 12.0f;
 constexpr float DRONE_WARNING_TIME = 5.0f;
 
 constexpr float INTERACT_TIME = 0.5f; // Time between interactions
-constexpr float FOOD_ORDER_TIME = 3.0f; // How often can player order food
+constexpr float FOOD_ORDER_TIME = 7.5f; // How often can player order food
 

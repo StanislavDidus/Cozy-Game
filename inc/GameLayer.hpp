@@ -73,6 +73,7 @@ private:
     typewriter::Entity delivery_zone = entt::null;
     typewriter::Entity window = entt::null;
     typewriter::Entity window_view = entt::null;
+    typewriter::Entity computer = entt::null;
     typewriter::Entity microwave = entt::null;
     typewriter::Entity door = entt::null;
     
@@ -117,6 +118,10 @@ private:
     std::unique_ptr<typewriter::SpriteAnimation> microwave_cooking_dark = nullptr;
     std::unique_ptr<typewriter::SpriteAnimation> microwave_done_light = nullptr;
     std::unique_ptr<typewriter::SpriteAnimation> microwave_done_dark = nullptr;
+    
+    // pc 
+    std::unique_ptr<typewriter::SpriteAnimation> laptop_light_anim = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> laptop_dark_anim = nullptr;
     
     //----------// UI //-------------//
     void renderStats();

@@ -11,6 +11,8 @@ GameManager::GameManager(typewriter::Scene& scene, typewriter::Entity player, ty
     , window(window)
     , player(player)
 {
+    std::vector<int> frames = {0,1,2,3,4,5,6,7,8,9,10,11,12,13};
+    eye_animation = std::make_unique<typewriter::SpriteAnimation>(typewriter::ResourceManager::loadSpriteSheet("assets/Eye.png", 32,16), 14.0f, true, frames);
 }
 
 void GameManager::update(float deltaTime)
@@ -21,6 +23,8 @@ void GameManager::update(float deltaTime)
     if (progress_stopped) return;
     
     timer += deltaTime;
+    
+    eye_animation->update(deltaTime);
    
     if (current_day < days.size())
     {
@@ -90,8 +94,8 @@ void GameManager::render()
     // Render drone attack warning    
     if (window_open_timer >= DRONE_ATTACK_TIME - DRONE_WARNING_TIME && drones_active)
     {
-       typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI{48, 32, 16, 16})
-           ,145.0f, 125.0f, 80.0f, 80.0f);
+       typewriter::Renderer2D::drawSprite(*eye_animation.get()
+           ,130.0f, 150.0f, 100.0f, 65.0f);
         
         SoundManager::get().getSound("Warning").play();
     }
