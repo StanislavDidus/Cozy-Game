@@ -97,6 +97,7 @@ void GameLayer::enterComputerState(ComputerState state)
            break;
        }
     case ComputerState::G_NEWS:
+        game_manager->stopProgress(true);
         SoundManager::get().getSound("Laptop-app-opened").replay();
         return_button = scene.createEntity();
         registry.emplace<typewriter::Transform2D>(return_button, glm::vec2{830.0f - 50.0f, 45.0f}, glm::vec2{40.0f, 40.0f});
@@ -160,6 +161,7 @@ void GameLayer::exitComputerState(ComputerState state)
         break;
     case ComputerState::G_NEWS:
         {
+            game_manager->stopProgress(false);
             SoundManager::get().getSound("Laptop-app-close").replay();
             registry.destroy(return_button);
         }

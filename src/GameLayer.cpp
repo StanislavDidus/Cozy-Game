@@ -22,7 +22,7 @@ static std::array<std::string, 4> hints =
         "Try to think of your plans ahead."
         "You cannot have more then three food packages by your door. EAT them.",
         "Always check your laptop for new story details.",
-        "Try to have fun."
+        "Video games help improve your mental state."
 };
 
 GameLayer::GameLayer(int screen_width, int screen_height)
@@ -1653,7 +1653,10 @@ void GameLayer::initAssets()
     SoundManager::get().loadSound("Microwave-cooking", "assets/Sounds/Microwave-cooking.mp3");
     SoundManager::get().loadSound("Microwave-finished", "assets/Sounds/Microwave-finished.mp3");
     SoundManager::get().loadSound("Microwave-started", "assets/Sounds/Microwave-started.mp3");
+    
     SoundManager::get().loadSound("MinigameMusic", "assets/Sounds/MinigameMusic.mp3");
+    SoundManager::get().getSound("MinigameMusic").setVolume(0.6f);
+    
     SoundManager::get().loadSound("MouseClick", "assets/Sounds/MouseClick.mp3");
     SoundManager::get().loadSound("Window-close", "assets/Sounds/Window-close.mp3");
     SoundManager::get().loadSound("Window-open", "assets/Sounds/Window-open.mp3");
