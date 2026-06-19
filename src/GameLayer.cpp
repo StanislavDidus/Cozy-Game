@@ -19,9 +19,9 @@
 
 static std::array<std::string, 4> hints = 
     {
-        "Try to think in the future on what you are going to need.",
+        "Try to think of your plans ahead."
         "You cannot have more then three food packages by your door. EAT them.",
-        "Always check your mailbox for new story details.",
+        "Always check your laptop for new story details.",
         "Try to have fun."
 };
 
@@ -104,10 +104,10 @@ void GameLayer::initGameStory()
         events.push_back(EventPoint{[this]
         {
             showDialogue("I need to eat something.");
+            showDialogue("Ooh the food is already delivered.");
         }, 6.0f});
         events.push_back(EventPoint{[this]
         {
-            showDialogue("Ooh the food is already delivered.");
             game_manager->stopProgress(true);
         }, 7.0f});
         events.push_back(EventPoint{[this]
@@ -363,6 +363,7 @@ void GameLayer::initGameStory()
                                                "Kind regards,\n"
                                                 "Infinite Monkey Theorem Team"
                 };
+                SoundManager::get().getSound("Laptop-message").replay();
                 messages.push_back(msg);
             };
             SoundManager::get().getSound("Laptop-message").replay();
@@ -810,6 +811,23 @@ void GameLayer::init()
     
     SoundManager::get().getSound("Ambient").replay();
     SoundManager::get().getSound("Yawn").replay();
+    
+    if (game_manager->getCurrentday() == 1)
+    {
+        SoundManager::get().getSound("MusicDay2").replay();
+    }
+    else
+    {
+        SoundManager::get().getSound("MusicDay2").stop();
+    }
+    if (game_manager->getCurrentday() == 2)
+    {
+        SoundManager::get().getSound("MusicDay3").replay();
+    }
+    else
+    {
+        SoundManager::get().getSound("MusicDay3").stop();
+    }
 }
 
 void GameLayer::setState(GameState new_state)
@@ -1658,4 +1676,12 @@ void GameLayer::initAssets()
     
     SoundManager::get().loadSound("MenuMusic", "assets/Sounds/MenuMusic.mp3");
     SoundManager::get().getSound("MenuMusic").setVolume(0.7f);
+    
+    SoundManager::get().loadSound("MusicDay2", "assets/Sounds/MusicDay2.mp3");
+    SoundManager::get().getSound("MusicDay2").setVolume(0.7f);
+    SoundManager::get().getSound("MusicDay2").setLooping(true);
+    
+    SoundManager::get().loadSound("MusicDay3", "assets/Sounds/MusicDay3.mp3");
+    SoundManager::get().getSound("MusicDay3").setVolume(0.7f);
+    SoundManager::get().getSound("MusicDay3").setLooping(true);
 }
