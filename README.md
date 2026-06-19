@@ -43,7 +43,7 @@ Solariouse - Main 2D artist, came up with the idea of the game and helped with b
 Matty - Helped with art, made the main menu song for the game. [ArtStation](https://www.artstation.com/matty_arts) 
 
 ## How to build the game
-
+  
 - clone the repository
 - configure and build by using CMake \
   ` cmake --preset {configure-preset}` \
@@ -52,3 +52,5 @@ Matty - Helped with art, made the main menu song for the game. [ArtStation](http
   `cmake --list-presets`
 - then go to `/out/{configure-preset-name}` and run `COZY_GAME` \
   If configuring with Visual Studio you might also need to go the directory of the chosen configuration (Debug, Release, or RelWithDebInfo)
+
+P.S. Currenly it is not possible to clone this GitHub repository because one of the dependencies is a private repo. I believe it will be fixed in the future.
