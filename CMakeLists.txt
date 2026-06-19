@@ -64,6 +64,6 @@ target_link_libraries(
         Audio::Audio
 )
 
-setup_typewriter(${GAME_NAME} ${CMAKE_SOURCE_DIR}/extern/typewriter ${CMAKE_CURRENT_SOURCE_DIR}/assets)
+setup_typewriter(${GAME_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/extern/typewriter ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 
 target_compile_features(${GAME_NAME} PUBLIC cxx_std_23)

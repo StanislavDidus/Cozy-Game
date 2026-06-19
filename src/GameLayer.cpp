@@ -33,7 +33,7 @@ GameLayer::GameLayer(int screen_width, int screen_height)
 
 void GameLayer::showDialogue(const std::string& text)
 {
-    std::cout << text << std::endl;
+    //std::cout << text << std::endl;
     
     dialogues.emplace_back(Dialogue{text});
 }
@@ -1470,7 +1470,7 @@ void GameLayer::renderObjects()
         else if (registry.get<Components::Microwave>(microwave).status == Components::Microwave::MicrowaveStatus::COOKING)
         {
             typewriter::Sprite sprite1 = *microwave_cooking_light.get();
-            std::cout << "play cooking animation" << std::endl;
+            //std::cout << "play cooking animation" << std::endl;
             sprite1.setColor({255,255,255,day});
             typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
             typewriter::Sprite sprite2 = *microwave_cooking_dark.get();
