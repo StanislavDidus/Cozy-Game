@@ -10,7 +10,7 @@ ObjectManager::ObjectManager(typewriter::Scene& scene)
 {
 }
 
-void ObjectManager::update(float deltaTime)
+bool ObjectManager::update(float deltaTime)
 {
     auto& registry = scene.getRegistry();
     auto view = registry.view<Components::Microwave>();
@@ -37,8 +37,11 @@ void ObjectManager::update(float deltaTime)
                 {
                     registry.get<Components::SpriteAnimation>(entity).frame = 2;
                 }
+                
+                return true;
             }
         }
     }
    
+    return false;
 }

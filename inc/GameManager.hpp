@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Components.hpp"
 #include "Enums.hpp"
 #include "core/ecs/Scene.hpp"
 
@@ -43,6 +44,8 @@ public:
 	void setCanDroneAttack(bool value);
 	void setNextDay();
 	void restartDay();
+	void resetTimer();
+	void resetDroneTimer();
 	void initDays(const std::vector<Day>& days);
 private:
 	float timer = 0.0f;
@@ -58,4 +61,6 @@ private:
 	typewriter::Scene& scene;
 	typewriter::Entity player;
 	typewriter::Entity window;
+	
+	std::unique_ptr<typewriter::SpriteAnimation> eye_animation = nullptr;
 };

@@ -27,3 +27,10 @@ enum class DayPhase
     AFTERNOON,
     EVENING,
 };
+
+enum class WindowAnimationType
+{
+    NONE,
+    OPEN,
+    CLOSE,
+};

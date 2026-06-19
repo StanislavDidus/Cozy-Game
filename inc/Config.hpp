@@ -5,10 +5,9 @@ constexpr float FOOD_REPLENISHMENT = 0.2f; // How much hunger does good decrease
 constexpr float FOOD_COOK_TIME = 5.0f;
 
 // Default settings
-constexpr float HUNGER_UP = 0.005f;
-constexpr float HEAT_UP = 0.005f;
-constexpr float SANITY_UP = 0.009f; 
-
+constexpr float HUNGER_UP = 0.012f;
+constexpr float HEAT_UP = 0.032f;
+constexpr float SANITY_UP = 0.0082f; 
 constexpr float HEAT_DOWN = 0.010f;
 
 // Game
@@ -19,7 +18,7 @@ constexpr float OBSTACLE_SPAWN_POSITION_Y = 340.0f;
 constexpr float OBSTACLE_SPAWN_WIDTH = 40.0f;
 constexpr float OBSTACLE_SPAWN_HEIGHT = 60.0f;
 constexpr float OBSTACLE_MOVEMENT_SPEED = 200.0f;
-constexpr float OBSTACLE_DESTROY_POSITION = 50.0f;
+constexpr float OBSTACLE_DESTROY_POSITION = 80.0f;
 constexpr float SANITY_TIME = 1.0f;
 constexpr float SANITY_GIVE = 0.03f; // How much sanity is given per timer clock
 
@@ -33,6 +32,9 @@ constexpr float DIALOGUE_TEXT_POS_X = 120.0f;
 constexpr float DIALOGUE_TEXT_POS_Y = 410.0f;
 constexpr int DIALOGUE_TEXT_SIZE = 32;
 constexpr int DIALOGUE_TEXT_WRAP_WIDTH = 600;
+
+// World color change
+constexpr float WORLD_THEME_TRANSIT_TIME = 0.4f;
 
 // News
 constexpr float MESSAGE_WIDTH = 500.0f;
@@ -53,13 +55,13 @@ constexpr float DAY_MORNING_DURATION = 30.0f;
 constexpr float DAY_AFTERNOON_DURATION = 60.0f;
 constexpr float DAY_EVENING_DURATION = 30.0f;
 constexpr float DAY_TOTAL_DURATION = DAY_MORNING_DURATION + DAY_AFTERNOON_DURATION + DAY_EVENING_DURATION;
-constexpr float DAY_END_TIME = 5.0f;
-constexpr float DAY_TRANSIT_TIME = 1.0f;
+constexpr float DAY_END_TIME = 3.0f;
+constexpr float DAY_TRANSIT_TIME = 0.75f;
 
 // Drone system
 constexpr float DRONE_ATTACK_TIME = 12.0f;
 constexpr float DRONE_WARNING_TIME = 5.0f;
 
 constexpr float INTERACT_TIME = 0.5f; // Time between interactions
-constexpr float FOOD_ORDER_TIME = 3.0f; // How often can player order food
+constexpr float FOOD_ORDER_TIME = 7.5f; // How often can player order food
 

@@ -72,6 +72,10 @@ private:
     typewriter::Entity player = entt::null;
     typewriter::Entity delivery_zone = entt::null;
     typewriter::Entity window = entt::null;
+    typewriter::Entity window_view = entt::null;
+    typewriter::Entity computer = entt::null;
+    typewriter::Entity microwave = entt::null;
+    typewriter::Entity door = entt::null;
     
     //----------// STATE MACHINE //-----------//
     void init();
@@ -82,6 +86,42 @@ private:
     void updateState(GameState state, float deltaTime);
     void renderState(GameState state);
     void renderUIState(GameState state);
+    
+    //-----// WINDOW ANIMATION //------/
+    void initWindowAnimations();
+    void updateWindowAnimations(float deltaTime);
+    WindowAnimationType window_animation_type;
+    std::unique_ptr<typewriter::SpriteAnimation> window_view_animation;
+    std::unique_ptr<typewriter::SpriteAnimation> window_open_animation;
+    std::unique_ptr<typewriter::SpriteAnimation> window_close_animation;
+    
+    //-------// WORLD //---------//
+    void initColliders();
+    void initObjectsAnimation();
+    void updateLevel(float deltaTime);
+    void updateObjects(float deltaTime);
+    void renderLevel();
+    void renderObjects();
+    float world_theme_transit_timer = 0.0f;
+    bool was_day = true;
+    uint8_t day = 255;
+    uint8_t night = 0;
+    
+    // door
+    std::unique_ptr<typewriter::SpriteAnimation> door_light_anim = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> door_dark_anim = nullptr;
+    
+    // microwave
+    std::unique_ptr<typewriter::SpriteAnimation> microwave_close_light = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> microwave_close_dark = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> microwave_cooking_light = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> microwave_cooking_dark = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> microwave_done_light = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> microwave_done_dark = nullptr;
+    
+    // pc 
+    std::unique_ptr<typewriter::SpriteAnimation> laptop_light_anim = nullptr;
+    std::unique_ptr<typewriter::SpriteAnimation> laptop_dark_anim = nullptr;
     
     //----------// UI //-------------//
     void renderStats();

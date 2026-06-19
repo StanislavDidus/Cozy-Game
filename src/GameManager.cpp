@@ -11,6 +11,8 @@ GameManager::GameManager(typewriter::Scene& scene, typewriter::Entity player, ty
     , window(window)
     , player(player)
 {
+    std::vector<int> frames = {0,1,2,3,4,5,6,7,8,9,10,11,12,13};
+    eye_animation = std::make_unique<typewriter::SpriteAnimation>(typewriter::ResourceManager::loadSpriteSheet("assets/Eye.png", 32,16), 14.0f, true, frames);
 }
 
 void GameManager::update(float deltaTime)
@@ -21,6 +23,8 @@ void GameManager::update(float deltaTime)
     if (progress_stopped) return;
     
     timer += deltaTime;
+    
+    eye_animation->update(deltaTime);
    
     if (current_day < days.size())
     {
@@ -73,7 +77,7 @@ void GameManager::update(float deltaTime)
     auto& player_component = scene.getRegistry().get<Components::Player>(player);
     if (window_component.opened)
     {
-        float heat_mult = 3.0f;
+        float heat_mult = 1.5f;
         player_component.temperature -= hunger_up * heat_mult * deltaTime;
     }
     else
@@ -90,8 +94,8 @@ void GameManager::render()
     // Render drone attack warning    
     if (window_open_timer >= DRONE_ATTACK_TIME - DRONE_WARNING_TIME && drones_active)
     {
-       typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI{48, 32, 16, 16})
-           ,432.0f, -25.0f, 80.0f, 80.0f);
+       typewriter::Renderer2D::drawSprite(*eye_animation.get()
+           ,130.0f, 150.0f, 100.0f, 65.0f);
         
         SoundManager::get().getSound("Warning").play();
     }
@@ -151,7 +155,7 @@ void GameManager::setWindow(typewriter::Entity window)
 void GameManager::setGameDay(int new_day)
 {
     this->current_day = new_day;
-    timer = 0.0f;
+    resetTimer();
 }
 
 void GameManager::stopProgress(bool stopped)
@@ -172,6 +176,16 @@ void GameManager::setNextDay()
 void GameManager::restartDay()
 {
     setGameDay(current_day);
+}
+
+void GameManager::resetTimer()
+{
+    timer = 0.0f;
+}
+
+void GameManager::resetDroneTimer()
+{
+    window_open_timer = 0.0f;
 }
 
 void GameManager::initDays(const std::vector<Day>& days)

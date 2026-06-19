@@ -13,8 +13,9 @@ class ObjectManager
 public:
    ObjectManager(typewriter::Scene& scene);
    ~ObjectManager() = default;
-   
-   void update(float deltaTime);
+
+   // Returns true if microwave has finished cooking
+   bool update(float deltaTime);
 private:
    typewriter::Scene& scene;
 };

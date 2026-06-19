@@ -23,9 +23,9 @@ void GameLayer::enterComputerState(ComputerState state)
 {
     auto& registry = scene.getRegistry();
     exit_button = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(exit_button, glm::vec2{675.0f, 130.0f}, glm::vec2{150.0f, 70.0f});
-    registry.emplace<Components::Sprite2D>(exit_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{24,0,12,5}), 1, true);
-    registry.emplace<typewriter::Clickable>(exit_button, typewriter::AABB(glm::vec2{675.0f, 130.0f}, glm::vec2{150.0f, 70.0f}), [this]
+    registry.emplace<typewriter::Transform2D>(exit_button, glm::vec2{830.0f, 45.0f}, glm::vec2{40.0f, 40.0f});
+    registry.emplace<Components::Sprite2D>(exit_button, typewriter::ResourceManager::loadSprite("assets/PCUI.png", typewriter::RectI{1,1,8,8}), 1, true);
+    registry.emplace<typewriter::Clickable>(exit_button, typewriter::AABB(glm::vec2{830.0f, 45.0f}, glm::vec2{870.0f, 85.0f}), [this]
     {
         // If player is reading something we close the message 
         // If not we just go to menu
@@ -51,21 +51,21 @@ void GameLayer::enterComputerState(ComputerState state)
    case ComputerState::G_MENU:
        {
            game_button = scene.createEntity();
-           registry.emplace<typewriter::Transform2D>(game_button, glm::vec2{205.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
-           registry.emplace<Components::Sprite2D>(game_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{16,0,8,8}), 1, true);
-           registry.emplace<typewriter::Clickable>(game_button, typewriter::AABB(glm::vec2{205.0f, 170.0f}, glm::vec2{90.0f, 90.0f}), [this]{setComputerState(ComputerState::G_GAME); return true;});
+           registry.emplace<typewriter::Transform2D>(game_button, glm::vec2{110.0f, 240.0f}, glm::vec2{100.0f, 100.0f});
+           registry.emplace<Components::Sprite2D>(game_button, typewriter::ResourceManager::loadSprite("assets/PCUI.png", typewriter::RectI{50,1,29,29}), 1, true);
+           registry.emplace<typewriter::Clickable>(game_button, typewriter::AABB(glm::vec2{110.0f, 240.0f}, glm::vec2{110.0f + 100.0f, 240.0f + 100.0f}), [this]{setComputerState(ComputerState::G_GAME); return true;});
            
            news_button = scene.createEntity();
-           registry.emplace<typewriter::Transform2D>(news_button, glm::vec2{100.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
-           registry.emplace<Components::Sprite2D>(news_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{8,0,8,8}), 1, true);
-           registry.emplace<typewriter::Clickable>(news_button, typewriter::AABB(glm::vec2{100.0f, 170.0f}, glm::vec2{90.0f, 90.0f}), [this]{setComputerState(ComputerState::G_NEWS); return true;});
+           registry.emplace<typewriter::Transform2D>(news_button, glm::vec2{110.0f, 130.0f}, glm::vec2{100.0f, 100.0f});
+           registry.emplace<Components::Sprite2D>(news_button, typewriter::ResourceManager::loadSprite("assets/PCUI.png", typewriter::RectI{20,1,29,29}), 1, true);
+           registry.emplace<typewriter::Clickable>(news_button, typewriter::AABB(glm::vec2{110.0f, 130.0f}, glm::vec2{110.0f + 100.0f, 130.0f + 100.0f}), [this]{setComputerState(ComputerState::G_NEWS); return true;});
            
            if (can_order_food)
            {
                food_button = scene.createEntity();
-               registry.emplace<typewriter::Transform2D>(food_button, glm::vec2{310.0f, 170.0f}, glm::vec2{90.0f, 90.0f});
-               registry.emplace<Components::Sprite2D>(food_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{0,0,8,8}), 1, true);
-               registry.emplace<typewriter::Clickable>(food_button, typewriter::AABB(glm::vec2{310.0f, 170.0f}, glm::vec2{90.0f, 90.0f}), [this]{setComputerState(ComputerState::G_FOOD); return true;});
+               registry.emplace<typewriter::Transform2D>(food_button, glm::vec2{110.0f, 350.0f}, glm::vec2{100.0f, 100.0f});
+               registry.emplace<Components::Sprite2D>(food_button, typewriter::ResourceManager::loadSprite("assets/PCUI.png", typewriter::RectI{80,1,29,29}), 1, true);
+               registry.emplace<typewriter::Clickable>(food_button, typewriter::AABB(glm::vec2{110.0f, 350.0f}, glm::vec2{110.0f + 100.0f, 350.0f + 100.0f}), [this]{setComputerState(ComputerState::G_FOOD); return true;});
            }
            
            break;
@@ -74,31 +74,34 @@ void GameLayer::enterComputerState(ComputerState state)
        {
            SoundManager::get().getSound("Laptop-app-opened").replay();
            food_order_button = scene.createEntity();
-           registry.emplace<typewriter::Transform2D>(food_order_button, glm::vec2{400.0f, 325.0f}, glm::vec2{190.0f, 100.0f});
-           registry.emplace<Components::Sprite2D>(food_order_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{0,8,22,7}), 1, true);
-           registry.emplace<typewriter::Clickable>(food_order_button, typewriter::AABB(glm::vec2{400.0f, 325.0f}, glm::vec2{190.0f, 100.0f}), [this]
+           registry.emplace<typewriter::Transform2D>(food_order_button, glm::vec2{385.0f, 325.0f}, glm::vec2{230.0f, 100.0f});
+           registry.emplace<Components::Sprite2D>(food_order_button, typewriter::ResourceManager::loadSprite("assets/ORDER.png"), 1, true);
+           registry.emplace<typewriter::Clickable>(food_order_button, typewriter::AABB(glm::vec2{400.0f, 325.0f}, glm::vec2{400.0f + 190.0f, 325.0f + 100.0f}), [this]
            {
                if (food_order_timer >= FOOD_ORDER_TIME)
                {
                    SoundManager::get().getSound("Food-buy").replay();
                    food_spawner->spawnFood(delivery_zone);
                    food_order_timer = 0.0f;
+                   
+                   door_light_anim->reset();
+                   door_dark_anim->reset();
                }
                return true;
            });
            
            return_button = scene.createEntity();
-           registry.emplace<typewriter::Transform2D>(return_button, glm::vec2{570.0f, 130.0f}, glm::vec2{70.0f, 70.0f});
-           registry.emplace<Components::Sprite2D>(return_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{24,5,5,5}), 1, true);
-           registry.emplace<typewriter::Clickable>(return_button, typewriter::AABB(glm::vec2{570.0f, 130.0f}, glm::vec2{70.0f, 70.0f}), [this]{setComputerState(ComputerState::G_MENU); return true;});
+           registry.emplace<typewriter::Transform2D>(return_button, glm::vec2{830.0f - 50.0f, 45.0f}, glm::vec2{40.0f, 40.0f});
+           registry.emplace<Components::Sprite2D>(return_button, typewriter::ResourceManager::loadSprite("assets/PCUI.png", typewriter::RectI{11,1,8,8}), 1, true);
+           registry.emplace<typewriter::Clickable>(return_button, typewriter::AABB(glm::vec2{830.0f - 50.0f, 45.0f}, glm::vec2{870.0f - 50.0f,  85.0f}), [this]{setComputerState(ComputerState::G_MENU); return true;});
            break;
        }
     case ComputerState::G_NEWS:
         SoundManager::get().getSound("Laptop-app-opened").replay();
         return_button = scene.createEntity();
-        registry.emplace<typewriter::Transform2D>(return_button, glm::vec2{570.0f, 130.0f}, glm::vec2{70.0f, 70.0f});
-        registry.emplace<Components::Sprite2D>(return_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{24,5,5,5}), 1, true);
-        registry.emplace<typewriter::Clickable>(return_button, typewriter::AABB(glm::vec2{570.0f, 130.0f}, glm::vec2{70.0f, 70.0f}), [this]
+        registry.emplace<typewriter::Transform2D>(return_button, glm::vec2{830.0f - 50.0f, 45.0f}, glm::vec2{40.0f, 40.0f});
+        registry.emplace<Components::Sprite2D>(return_button, typewriter::ResourceManager::loadSprite("assets/PCUI.png", typewriter::RectI{11,1,8,8}), 1, true);
+        registry.emplace<typewriter::Clickable>(return_button, typewriter::AABB(glm::vec2{830.0f - 50.0f, 45.0f}, glm::vec2{870.0f - 50.0f, 85.0f}), [this]
         {
             // If player is reading something we close the message 
             // If not we just go to menu
@@ -120,9 +123,9 @@ void GameLayer::enterComputerState(ComputerState state)
             SoundManager::get().getSound("Laptop-app-opened").replay();
             SoundManager::get().getSound("MinigameMusic").replay();
             return_button = scene.createEntity();
-            registry.emplace<typewriter::Transform2D>(return_button, glm::vec2{570.0f, 130.0f}, glm::vec2{70.0f, 70.0f});
-            registry.emplace<Components::Sprite2D>(return_button, typewriter::ResourceManager::loadSprite("assets/Buttons.png", typewriter::RectI{24,5,5,5}), 1, true);
-            registry.emplace<typewriter::Clickable>(return_button, typewriter::AABB(glm::vec2{570.0f, 130.0f}, glm::vec2{70.0f, 70.0f}), [this]{setComputerState(ComputerState::G_MENU); return true;});
+            registry.emplace<typewriter::Transform2D>(return_button, glm::vec2{830.0f - 50.0f, 45.0f}, glm::vec2{40.0f, 40.0f});
+            registry.emplace<Components::Sprite2D>(return_button, typewriter::ResourceManager::loadSprite("assets/PCUI.png", typewriter::RectI{11,1,8,8}), 1, true);
+            registry.emplace<typewriter::Clickable>(return_button, typewriter::AABB(glm::vec2{830.0f - 50.0f, 45.0f}, glm::vec2{870.0f - 50.0f, 85.0f}), [this]{setComputerState(ComputerState::G_MENU); return true;});
             
             break;
         }
@@ -222,7 +225,7 @@ void GameLayer::updateComputerState(ComputerState state, float deltaTime)
                 {
                     obstacle_spawn_timer = 0.0f;     
                     
-                    typewriter::AABB obstacle{glm::vec2{OBSTACLE_SPAWN_POSITION_X, OBSTACLE_SPAWN_POSITION_Y}, glm::vec2{OBSTACLE_SPAWN_WIDTH, OBSTACLE_SPAWN_HEIGHT}};
+                    typewriter::AABB obstacle{glm::vec2{OBSTACLE_SPAWN_POSITION_X, OBSTACLE_SPAWN_POSITION_Y}, glm::vec2{OBSTACLE_SPAWN_POSITION_X + OBSTACLE_SPAWN_WIDTH, OBSTACLE_SPAWN_POSITION_Y + OBSTACLE_SPAWN_HEIGHT}};
                     obstacles.push_back(obstacle);
                 }
                 
@@ -240,7 +243,7 @@ void GameLayer::updateComputerState(ComputerState state, float deltaTime)
                     float y = 320.0f + player_y_pos;
                     float width = 40.0f;
                     float height = 70.0f;
-                    typewriter::AABB a{glm::vec2{x, y}, glm::vec2{width, height}};
+                    typewriter::AABB a{glm::vec2{x, y}, glm::vec2{x + width, y + height}};
                     if (a.overlap(obstacle))
                     {
                         setComputerState(ComputerState::G_MENU);
@@ -315,13 +318,14 @@ void GameLayer::renderComputerState(ComputerState state)
             {
                 auto text = typewriter::ResourceManager::loadText(font, std::format("You can order food"));
                 text->setColor(typewriter::Color::Green);
-                typewriter::Renderer2D::drawText(text.get(), 400.0f, 200.0f);
+                typewriter::Renderer2D::drawText(text.get(), 400.0f, 250.0f);
             }
             else
             {
                 float time_left = FOOD_ORDER_TIME -  food_order_timer;
+                time_left = std::floor(time_left);
                 auto text = typewriter::ResourceManager::loadText(font, std::format("Wait {} to order.", time_left));
-                typewriter::Renderer2D::drawText(text.get(), 400.0f, 200.0f);
+                typewriter::Renderer2D::drawText(text.get(), 400.0f, 250.0f);
             }
             break;
         }
@@ -343,7 +347,7 @@ void GameLayer::renderComputerState(ComputerState state)
             }
             else
             {
-                typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI{0,0,16,16}), 400.0f, 300.0f, 100.0f, 100.0f);
+                typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/UI.png", typewriter::RectI{0,0,16,16}), 430.0f, 250.0f, 100.0f, 100.0f);
             }
         }
         break;
@@ -383,7 +387,7 @@ void GameLayer::renderComputerState(ComputerState state)
             {
                 auto text = typewriter::ResourceManager::loadText(font, reading_message->text);
                 text->setWrapWidth(MESSAGE_TEXT_WRAP_WIDTH);
-                typewriter::Renderer2D::drawRectangle(MESSAGE_POSITION_X - 20.0f, MESSAGE_POSITION_Y - 20.0f, 700.0f, 300.0f, typewriter::Color::DarkSlateGrey);
+                //typewriter::Renderer2D::drawRectangle(MESSAGE_POSITION_X - 20.0f, MESSAGE_POSITION_Y - 20.0f, 700.0f, 300.0f, typewriter::Color::DarkSlateGrey);
                 typewriter::Renderer2D::drawText(text.get(), MESSAGE_TEXT_POSITION_X, MESSAGE_POSITION_Y);
             }
         }

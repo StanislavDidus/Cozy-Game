@@ -17,12 +17,11 @@
 #include "glm/gtc/random.hpp"
 #include "typewriter/Typewriter.hpp"
 
-static std::array<std::string, 5> hints = 
+static std::array<std::string, 4> hints = 
     {
-    "Press on microwave while cooking to speed up the process.",
-        "Try to think in the future on what you are going to need.",
+        "Try to think of your plans ahead."
         "You cannot have more then three food packages by your door. EAT them.",
-        "Always check your mailbox for new story details.",
+        "Always check your laptop for new story details.",
         "Try to have fun."
 };
 
@@ -82,9 +81,10 @@ void GameLayer::initGameStory()
     // Day one
     {
         Day day;
-        day.hunger_up = 0.002f;
-        day.sanity_up = 0.0f;
-        day.heat_up = 0.0f;
+        day.hunger_up = 0.004f;
+        day.sanity_up = 0.005f;
+        day.heat_up = 0.000f;
+        
         auto& events = day.events;
         
         events.push_back(EventPoint{[this]
@@ -93,7 +93,9 @@ void GameLayer::initGameStory()
     
             food_spawner->spawnFood(delivery_zone);
             food_spawner->spawnFood(delivery_zone);
-            can_order_food = false;
+            door_light_anim->reset();
+            door_dark_anim->reset();
+     can_order_food = false;
                 }, 0.0f});
         events.push_back(EventPoint{[this]
         {
@@ -102,16 +104,20 @@ void GameLayer::initGameStory()
         events.push_back(EventPoint{[this]
         {
             showDialogue("I need to eat something.");
+            showDialogue("Ooh the food is already delivered.");
         }, 6.0f});
         events.push_back(EventPoint{[this]
         {
-            showDialogue("Ooh the food is already delivered.");
             game_manager->stopProgress(true);
         }, 7.0f});
         events.push_back(EventPoint{[this]
         {
             showDialogue("Its time for me to go.");
         }, 30.0f});
+        events.push_back(EventPoint{[this]
+        {
+            SoundManager::get().getSound("Siren").replay();
+        }, 32.0f});
         events.push_back(EventPoint{[this]
         {
             // Play siren sound
@@ -128,11 +134,15 @@ void GameLayer::initGameStory()
             message.close_function = [this]
             {
                 showDialogue("What is happening? What do they mean that the sun is dangerous.");
-                showDialogue("I can't even leave my house now. I need to contact my family as soon as possible..");
+                showDialogue("I can't even leave my house now.");
             };
             SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
                 }, 35.0f});
+        events.push_back(EventPoint{[this]
+        {
+            SoundManager::get().getSound("Siren").stop();
+        }, 37.0f});
         events.push_back(EventPoint{[this]
         {
             food_spawner->spawnFood(delivery_zone);
@@ -140,7 +150,7 @@ void GameLayer::initGameStory()
             EmailMessage message{"To all residents of this complex", 
                 "Our dear leader has given us a gracious supply of food and water.\n"
                 " Enough to divide among each resident."
-                " With it they have shared with us a set of rules to get us through these trying times: First of all, you must not consume any other good except for the one delivered at your doorstep by the government."
+                " With it they have shared with us a set of rules to get us through these trying times: First of all, you must not consume any other food except for the one delivered at your doorstep by the government."
                 " The special packaging protects the meal from the sun."
                 " Second of all, you must make sure as little sunlight as possible enters your apartment."
                 " Close the curtains and block your windows."
@@ -166,9 +176,10 @@ void GameLayer::initGameStory()
     // Day two
     {
         Day day;
-        day.hunger_up = 0.0035f;
-        day.sanity_up = 0.005f;
-        day.heat_up = 0.0003f;
+        day.hunger_up = 0.0065f;
+        day.sanity_up = 0.006f;
+        day.heat_up = 0.010f;
+        
         auto& events = day.events;
         
         events.push_back(EventPoint{[this]
@@ -246,6 +257,8 @@ void GameLayer::initGameStory()
         events.push_back(EventPoint{[this]
         {
             // Play gunshot sound
+            SoundManager::get().getSound("Shot1").replay();
+                showDialogue("A gunshot? What the hell is this supposed to mean?");
         }, 115.0f});
         days.push_back(day);
     }
@@ -253,9 +266,9 @@ void GameLayer::initGameStory()
     {
         Day day;
         
-        day.hunger_up = 0.005f;
-        day.sanity_up = 0.006f;
-        day.heat_up = 0.00075f;
+        day.hunger_up = 0.008f;
+        day.sanity_up = 0.007f;
+        day.heat_up = 0.012f;
         auto& events = day.events;
         
         events.push_back(EventPoint{[this]
@@ -265,6 +278,7 @@ void GameLayer::initGameStory()
         events.push_back(EventPoint{[this]
         {
             // Play scream sound
+            SoundManager::get().getSound("Scream1").replay();
         }, 3.0f});
         events.push_back(EventPoint{[this]
         {
@@ -279,8 +293,14 @@ void GameLayer::initGameStory()
             {
                 
             };
+            SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
         }, 20.0f});
+        events.push_back(EventPoint{[this]
+        {
+            // Play scream sound
+            SoundManager::get().getSound("Shot2").replay();
+        }, 30.0f});
         events.push_back(EventPoint{[this]
         {
             EmailMessage message{"WE WILL TOLERATE THIS NO LONGER", "We demand answers from the government.\n"
@@ -294,8 +314,15 @@ void GameLayer::initGameStory()
                 showDialogue(" A protest. But they said they would kill anyone who dares to go outside. ");
                 showDialogue(" I live too far away from the main street there is no way I can get there without being noticed. Lets hope for the best.");
             };
+            SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
         }, 75.0f});
+        
+        events.push_back(EventPoint{[this]
+        {
+            // Play scream sound
+            SoundManager::get().getSound("Scream2").replay();
+        }, 90.0f});
         
         events.push_back(EventPoint{ [this]
         {
@@ -307,9 +334,9 @@ void GameLayer::initGameStory()
     {
         Day day;
         
-        day.hunger_up = 0.010f;
+        day.hunger_up = 0.01f;
         day.sanity_up = 0.008f;
-        day.heat_up = 0.0009f;
+        day.heat_up = 0.03f;
         auto& events = day.events;
         
         events.push_back(EventPoint{[this]
@@ -329,14 +356,24 @@ void GameLayer::initGameStory()
             {
                 showDialogue("Father is alive! I am so happy. But why would they do that. And where is Marks.");
                 showDialogue("I still feel that something isn't right.");
+                
+                EmailMessage msg{"Thank you!", "Thank you for playing our game.\n"
+                                               "You have finished the main story but if you want you can still continue playing in a free mode!\n"
+                                               "We hope you enjoyed this game and please leave a comment on the itch.io page.\n"
+                                               "Kind regards,\n"
+                                                "Infinite Monkey Theorem Team"
+                };
+                SoundManager::get().getSound("Laptop-message").replay();
+                messages.push_back(msg);
             };
+            SoundManager::get().getSound("Laptop-message").replay();
             messages.push_back(message);
         }, 3.0f});
         days.push_back(day);
     }
     
     game_manager->initDays(days);
-    game_manager->setGameDay(2);
+    game_manager->setGameDay(0);
 }
 
 void GameLayer::checkDayEnd()
@@ -426,9 +463,11 @@ void GameLayer::onRender()
 {
     Layer::onRender();
     
-    typewriter::Renderer2D::setClearColor(typewriter::Color{215, 178, 143, 255}); // Color of the walls
+    typewriter::Renderer2D::setClearColor(typewriter::Color{0}); // Color of the walls
     typewriter::Renderer2D::startScene(camera);
     
+    typewriter::Renderer2D::drawRectangle(-1000.0f, -1000.0f, 10000.0f, 10000.0f, typewriter::Color{215,178,143,day});
+    typewriter::Renderer2D::drawRectangle(-1000.0f, -1000.0f, 10000.0f, 10000.0f, typewriter::Color{93,37,71,night});
     renderState(current_state);
     
     typewriter::Renderer2D::endScene();
@@ -498,46 +537,46 @@ void GameLayer::initPlayerAnimations()
     {
         std::vector<int> frames = {0,1,2,3,4,5,6,7};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
-        down_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
+        down_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, true, frames);
     }
     {
         
         std::vector<int> frames = {8,9,10,11,12,13,14,15};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
-        top_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
+        top_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, true, frames);
     }
     {
         std::vector<int> frames = {16,17,18,19,20,21,22,23};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
-        right_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
+        right_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, true, frames);
     }
     {
         
         std::vector<int> frames = {24,25,26,27,28,29,30,31};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerWalking.png", 32, 48);
-        left_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, frames);
+        left_movement = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 8.0f, true, frames);
     }
     
     // Idle animations
     {
         std::vector<int> frames = {0,1,2,3,4,5};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
-        down_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
+        down_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, true, frames);
     }
     {
         std::vector<int> frames = {6,7,8,9,10,11};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
-        top_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
+        top_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, true, frames);
     }
     {
         std::vector<int> frames = {12,13,14,15,16,17};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
-        right_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
+        right_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, true, frames);
     }
     {
         std::vector<int> frames = {18,19,20,21,22,23};
         auto sprite_sheet = typewriter::ResourceManager::loadSpriteSheet("assets/PlayerIdle.png", 32, 48);
-        left_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, frames);
+        left_idle = std::make_unique<typewriter::SpriteAnimation>(sprite_sheet, 6.0f, true, frames);
     }
 }
 
@@ -658,33 +697,19 @@ void GameLayer::init()
     typewriter::Registry& registry = scene.getRegistry();
     registry.emplace<Components::Player>(player, glm::vec2{150.0f, 150.0f}, glm::vec2{50.0f, 50.0f}, glm::vec2{0.0f}, 250.0f, 300.0f);
 
-    registry.emplace<typewriter::Transform2D>(player, glm::vec2{200.0f, 200.0f}, glm::vec2{50.0f,83.0f});
+    registry.emplace<typewriter::Transform2D>(player, glm::vec2{200.0f, 325.0f}, glm::vec2{60.0f,93.0f});
     registry.emplace<Components::Sprite2D>(player, typewriter::ResourceManager::loadSprite("assets/PlayerIdle.png", typewriter::RectI{0,0,32,48}), PLAYER_LAYER);
-    registry.emplace<typewriter::Collision2D>(player, typewriter::AABB{{}, {}}, typewriter::CollisionType::DYNAMIC);
+    registry.emplace<typewriter::Collision2D>(player, typewriter::AABB{{10.0f, 60.0f}, {-10.0f, 0.0f}}, typewriter::CollisionType::DYNAMIC);
     registry.emplace<Components::CanInteract>(player, PLAYER_INTERACT_RADIUS);
     
-    // Init colliders
-    typewriter::Entity west_wall = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(west_wall, glm::vec2{0.0f, 0.0f}, glm::vec2{125.0f, 540.0f});
-    registry.emplace<typewriter::Collision2D>(west_wall, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
-    
-    typewriter::Entity east_wall = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(east_wall, glm::vec2{870.0f, 0.0f}, glm::vec2{90.0f, 540.0f});
-    registry.emplace<typewriter::Collision2D>(east_wall, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
-    
-    typewriter::Entity north_wall = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(north_wall, glm::vec2{0.0f, 0.0f}, glm::vec2{960.0f, 150.0f});
-    registry.emplace<typewriter::Collision2D>(north_wall, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
-    
-    typewriter::Entity south_wall = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(south_wall, glm::vec2{0.0f,540.0f}, glm::vec2{960.0f, 550.0f});
-    registry.emplace<typewriter::Collision2D>(south_wall, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    initColliders();
+    initObjectsAnimation();
     
     // Init interactable object
-    typewriter::Entity microwave = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(microwave, glm::vec2{175.0f, 125.0f}, glm::vec2{125.0f, 125.0f});
+    microwave = scene.createEntity();
+    registry.emplace<typewriter::Transform2D>(microwave, glm::vec2{650.0f, 420.0f}, glm::vec2{100.0f, 100.0f});
     registry.emplace<typewriter::Collision2D>(microwave, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
-    registry.emplace<Components::SpriteAnimation>(microwave, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Microwave.png", 20, 21)});
+    //registry.emplace<Components::Sprite2D>(microwave, Components::Sprite2D{typewriter::ResourceManager::loadSprite("assets/MicrowaveLight.png", typewriter::RectI{288,51,48,51})});
     registry.emplace<Components::InteractableObject>(microwave, [&registry, this](typewriter::Entity player, typewriter::Entity object)
     {
         auto& player_component = registry.get<Components::Player>(player);
@@ -699,6 +724,9 @@ void GameLayer::init()
             
             SoundManager::get().getSound("Microwave-started").play();
             SoundManager::get().getSound("Microwave-cooking").play();
+            
+            microwave_close_light->reset();
+            microwave_close_dark->reset();
         }
         
         if (microwave_component.status == Components::Microwave::MicrowaveStatus::DONE)
@@ -726,45 +754,53 @@ void GameLayer::init()
     //registry.emplace<Components::Sprite2D>(microwave, typewriter::ResourceManager::loadSprite("assets/Microwave.png", typewriter::RectI(0,0,20,7)));
     registry.emplace<Components::Microwave>(microwave, FOOD_COOK_TIME);
     
+    door = scene.createEntity();
+    registry.emplace<typewriter::Transform2D>(door, glm::vec2{559.0f, 26.0f}, glm::vec2{77.0f, 163.0f});
+    //registry.emplace<Components::Sprite2D>(door, typewriter::ResourceManager::loadSprite("assets/DoorLight.png", typewriter::RectI{0,0, 32, 67}));
+    
     delivery_zone = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(delivery_zone, glm::vec2{170.0f, 430.0f}, glm::vec2{80.0f, 80.0f});
-    registry.emplace<Components::Sprite2D>(delivery_zone, typewriter::ResourceManager::loadSprite("assets/Carpet.png"));
+    registry.emplace<typewriter::Transform2D>(delivery_zone, glm::vec2{567.0f, 176.0f}, glm::vec2{77.0f, 163.0f});
     registry.emplace<Components::DeliveryZone>(delivery_zone);
     
+    initWindowAnimations();
+    // Window view    
+    window_view = scene.createEntity();
+    registry.emplace<typewriter::Transform2D>(window_view, glm::vec2{120.0f, 150.0f}, glm::vec2{115.0f, 60.0f});
+    registry.emplace<Components::Sprite2D>(window_view, typewriter::ResourceManager::loadSprite("assets/Windowview.png", typewriter::RectI{0,0,46,25}));
+    
     // Window
-
     window = scene.createEntity();
     game_manager->setWindow(window);
-    registry.emplace<typewriter::Transform2D>(window, glm::vec2{400.0f, 50.0f}, glm::vec2{150.0f, 80.0f});
+    registry.emplace<typewriter::Transform2D>(window, glm::vec2{105.0f, 140.0f}, glm::vec2{150.0f, 80.0f});
 
-    registry.emplace<Components::SpriteAnimation>(window, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Window.png", 32, 22)});
-    registry.emplace<Components::Window>(window, false);
-    registry.emplace<Components::InteractableObject>(window, [&registry](typewriter::Entity player, typewriter::Entity object)
+    registry.emplace<Components::Sprite2D>(window, typewriter::ResourceManager::loadSprite("assets/Window.png", typewriter::RectI{0,0,64,32}));
+    registry.emplace<Components::Window>(window, true);
+    registry.emplace<Components::InteractableObject>(window, [&registry, this](typewriter::Entity player, typewriter::Entity object)
     {
            registry.get<Components::Window>(object).opened = !registry.get<Components::Window>(object).opened;
         
             if (registry.get<Components::Window>(object).opened)
             {
                 SoundManager::get().getSound("Window-open").replay();
+                window_open_animation->reset();
             }
             else
             {
                 SoundManager::get().getSound("Window-close").replay();
+                window_close_animation->reset();
             }
-
-           registry.get<Components::SpriteAnimation>(object).frame = registry.get<Components::Window>(object).opened;
     });
     
     // Bed
     typewriter::Entity bed = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(bed, glm::vec2{740.0f, 150.0f}, glm::vec2{100.0f, 120.0f});
-    registry.emplace<Components::SpriteAnimation>(bed, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Bed.png", 24, 24)});
+    registry.emplace<typewriter::Transform2D>(bed, glm::vec2{400.0f, 250.0f}, glm::vec2{150.0f, 75.0f});
+    //registry.emplace<Components::SpriteAnimation>(bed, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Bed.png")});
     registry.emplace<typewriter::Collision2D>(bed, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
     
     // Computer
-    typewriter::Entity computer = scene.createEntity();
-    registry.emplace<typewriter::Transform2D>(computer, glm::vec2{750.0f, 430.0f}, glm::vec2{90.0f, 90.0f});
-    registry.emplace<Components::SpriteAnimation>(computer, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Computer.png", 16, 16)});
+    computer = scene.createEntity();
+    registry.emplace<typewriter::Transform2D>(computer, glm::vec2{50.0f, 400.0f}, glm::vec2{80.0f, 80.0f});
+    //registry.emplace<Components::SpriteAnimation>(computer, typewriter::SpriteAnimation{typewriter::ResourceManager::loadSpriteSheet("assets/Computer.png", 16, 16)});
     registry.emplace<typewriter::Collision2D>(computer, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
     registry.emplace<Components::InteractableObject>(computer, [&registry, this](typewriter::Entity player, typewriter::Entity object)
     {
@@ -775,6 +811,23 @@ void GameLayer::init()
     
     SoundManager::get().getSound("Ambient").replay();
     SoundManager::get().getSound("Yawn").replay();
+    
+    if (game_manager->getCurrentday() == 1)
+    {
+        SoundManager::get().getSound("MusicDay2").replay();
+    }
+    else
+    {
+        SoundManager::get().getSound("MusicDay2").stop();
+    }
+    if (game_manager->getCurrentday() == 2)
+    {
+        SoundManager::get().getSound("MusicDay3").replay();
+    }
+    else
+    {
+        SoundManager::get().getSound("MusicDay3").stop();
+    }
 }
 
 void GameLayer::setState(GameState new_state)
@@ -832,11 +885,13 @@ void GameLayer::enterState(GameState state)
         break;
     case GameState::G_DAY_END:
         {
-            displayed_hint = glm::linearRand(0,4);
+            displayed_hint = glm::linearRand(0,3);
         }
         break;
     case GameState::G_GAME_OVER:
         {
+            game_manager->resetTimer();
+            game_manager->resetDroneTimer();
         }
         break;
     default:
@@ -871,10 +926,20 @@ void GameLayer::updateState(GameState state, float deltaTime)
             
             updatePlayerAnimations(deltaTime);
             playPlayerSounds();
+            updateObjects(deltaTime);
+            updateLevel(deltaTime);
+            updateWindowAnimations(deltaTime);
+            food_spawner->update(deltaTime);
             
             collision_system->update(deltaTime);
             interaction_system->update(deltaTime, interact);
-            object_manager->update(deltaTime);
+            
+            // This is by far the hackiest thing I have ever done
+            if (object_manager->update(deltaTime))
+            {
+                microwave_done_light->reset();
+                microwave_done_dark->reset();
+            }
             button_system->update(deltaTime, mouse_position, mouse_down, mouse_up);
         
             // Make camera follow the player
@@ -922,12 +987,21 @@ void GameLayer::updateState(GameState state, float deltaTime)
         }
         break;
     case GameState::G_COMPUTER:
-        object_manager->update(deltaTime);
+        // This is by far the hackiest thing I have ever done
+        if (object_manager->update(deltaTime))
+        {
+            microwave_done_light->reset();
+            microwave_done_dark->reset();
+        }
         
         food_order_timer += deltaTime;
         
         game_manager->update(deltaTime);
         checkLoseCondition();
+        updateObjects(deltaTime);
+        updateLevel(deltaTime);
+        updateWindowAnimations(deltaTime);
+        food_spawner->update(deltaTime);
         
         checkDayEnd();
         
@@ -1018,13 +1092,28 @@ void GameLayer::renderState(GameState state)
             float floating_value = 30.0f;
             float to_move = std::sin(text_position_timer) * floating_value;
             typewriter::Renderer2D::drawText(text.get(), 400.0f, text_position_y + to_move);
-            renderSystem(false);
+            
+            auto font1 = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 28);
+            auto text1 = typewriter::ResourceManager::loadText(font1, 
+                "Welcome to our game Compliance!\n"
+                         "The rules in the game are simple.\n"
+                         "* Pick up food packages and cook them in a microwave to remove hunger.\n"
+                         " * Play videogames on your PC to improve your well being.\n"
+                         " * Finally, if it gets too hot in a room open a window, but not for long because the government might notice!\n"
+                         "Enjoy our game.\n"
+                         "Infinite Monkey Theorem Team\n");
+            text1->setWrapWidth(500);
+            typewriter::Renderer2D::drawText(text1.get(), 500.0f, 25.0f);
+            
+            typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/Icon.jpg"), 25.0f, 25.0f, 435.0f, 280.0f);
         }
         break;
     case GameState::G_GAME:
         {
-            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderLevel();
         
+            renderObjects();
+            food_spawner->render(day, night);
             renderSystem(false);
             game_manager->render();
             
@@ -1033,32 +1122,38 @@ void GameLayer::renderState(GameState state)
         break;
     case GameState::G_COMPUTER:
         {
-            // Render main level and game objects
-            // PC UI is rendered in renderUIState
-            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderLevel();
             
+            renderObjects();
+            food_spawner->render(day, night);
             renderSystem(false);
             game_manager->render();
         }
         break;
     case GameState::G_DAY_END:
         {
-            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderLevel();
             renderSystem(false);
+            renderObjects();
+            food_spawner->render(day, night);
             game_manager->render();
         }
         break;
     case GameState::G_GAME_OVER:
         {
-            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderLevel();
             renderSystem(false);
+            renderObjects();
+            food_spawner->render(day, night);
             game_manager->render();
             break;
         }
     case GameState::G_DIALOGUE:
         {
-            typewriter::Renderer2D::drawSprite(level_sprite, 0, 0, screen_width, screen_height);
+            renderLevel();
             renderSystem(false);
+            renderObjects();
+            food_spawner->render(day, night);
             game_manager->render();
             break;
         }
@@ -1078,17 +1173,16 @@ void GameLayer::renderUIState(GameState state)
         break;
     case GameState::G_GAME:
         {
-            renderStats(); 
             renderDayInfo();
             renderFilter();
+            renderStats(); 
             renderDialogues();
         }
         break;
     case GameState::G_COMPUTER:
         {
-            typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/Computer_Screen.png"), 50.0f, 25.0f, screen_width - 100.0f, screen_height - 50.0f);
+            typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/PCUI.png", typewriter::RectI{2,31, 240, 135}), 50.0f, 31.0f, screen_width - 100.0f, screen_height - 50.0f);
             
-            renderStats();
             renderDayInfo();
             
             renderSystem(true);
@@ -1096,6 +1190,7 @@ void GameLayer::renderUIState(GameState state)
         
             renderComputerState(current_computer_state);
             
+            renderStats();
             renderDialogues();
         }
         break;
@@ -1153,21 +1248,336 @@ void GameLayer::renderUIState(GameState state)
     }   
 }
 
+void GameLayer::initWindowAnimations()
+{
+    {
+        std::vector<int> frames = {0,1,2,3,4,5,6,7};
+        window_close_animation = std::make_unique<typewriter::SpriteAnimation>(typewriter::ResourceManager::loadSpriteSheet("assets/Window.png", 64, 32), 14.0f, false, frames);
+    }
+    
+    {
+        std::vector<int> frames = {8,9,10,11,12,13,14,15};
+        window_open_animation = std::make_unique<typewriter::SpriteAnimation>(typewriter::ResourceManager::loadSpriteSheet("assets/Window.png", 64, 32), 14.0f, false, frames);
+    }
+    
+    {
+        std::vector<int> frames = {0,1,2,3,4,5};
+        window_view_animation = std::make_unique<typewriter::SpriteAnimation>(typewriter::ResourceManager::loadSpriteSheet("assets/Windowview.png", 46, 25), 7.0f, true, frames);
+    }
+}
+
+void GameLayer::updateWindowAnimations(float deltaTime)
+{
+    window_close_animation->update(deltaTime);
+    window_open_animation->update(deltaTime);
+    window_view_animation->update(deltaTime);
+    
+    scene.getRegistry().get<Components::Sprite2D>(window_view).sprite = *window_view_animation.get();
+    
+    if (window_open_animation->isDone() == false)
+        scene.getRegistry().get<Components::Sprite2D>(window).sprite = *window_open_animation.get();
+    else if (window_close_animation->isDone() == false)
+        scene.getRegistry().get<Components::Sprite2D>(window).sprite = *window_close_animation.get();
+    
+    scene.getRegistry().get<Components::Sprite2D>(window).layer = WINDOW_LAYER;
+}
+
+void GameLayer::initColliders()
+{
+    auto& registry = scene.getRegistry();
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{0.0f, 0.0f}, glm::vec2{560.0f, 245.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{322.0f, 249.0f}, glm::vec2{80.0f, 81.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{561.0f, 3.0f}, glm::vec2{84.0f, 163.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{643.0f, 0.0f}, glm::vec2{158.0f, 244.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{1.0f, 490.0f}, glm::vec2{320.0f, 83.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{0.0f, 83.0f}, glm::vec2{28.0f, 405.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{294.0f, 557.0f}, glm::vec2{26.0f, 84.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{320.0f, 542.0f}, glm::vec2{482.0f, 30.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+    {
+        typewriter::Entity col = registry.create();
+        registry.emplace<typewriter::Transform2D>(col, glm::vec2{768.0f, 83.0f}, glm::vec2{33.0f, 489.0f});
+        registry.emplace<typewriter::Collision2D>(col, typewriter::AABB{{}, {}}, typewriter::CollisionType::STATIC);
+    }
+}
+
+void GameLayer::initObjectsAnimation()
+{
+    //Microwave animations
+    
+    // Close light
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveLightClose.png", 48, 53);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7};
+        microwave_close_light = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+    }
+    // Close Dark
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveDarkClose.png", 48, 53);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7};
+        microwave_close_dark = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+    }
+    
+    //  Cooking Light
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveLightCooking.png", 48, 55);
+        std::vector<int> frames = {0,1,2,3,4,5,6};
+        microwave_cooking_light = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, true, frames);
+    }
+    // Cooking Dark
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveDarkCooking.png", 48, 55);
+        std::vector<int> frames = {0,1,2,3,4,5,6};
+        microwave_cooking_dark = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, true, frames);
+    }
+    
+    //  Done Light
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveLightDone.png", 48, 53);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7,8,};
+        microwave_done_light = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+    }
+    // Done Dark
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/Microwave/MicrowaveDarkDone.png", 48, 53);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7,8};
+        microwave_done_dark = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, false, frames);
+    }
+    
+    // Door animations
+    //  Anim light
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/DoorLight.png", 32, 67);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7,8,9,10,11,12,13};
+        door_light_anim = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 14.0f, false, frames);
+    }
+    // Anim dark
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/DoorDark.png", 32, 67);
+        std::vector<int> frames = {0,1,2,3,4,5,6,7,8,9,10,11,12,13};
+        door_dark_anim = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 14.0f, false, frames);
+    }
+    
+    // Laptop
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/LaptopLight.png", 39, 54);
+        std::vector<int> frames = {0,1,2,3,4,5,6};
+        laptop_light_anim = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, true, frames);
+    }
+    {
+        auto spritesheet = typewriter::ResourceManager::loadSpriteSheet("assets/LaptopDark.png", 39, 54);
+        std::vector<int> frames = {0,1,2,3,4,5,6};
+        laptop_dark_anim = std::make_unique<typewriter::SpriteAnimation>(spritesheet, 7.0f, true, frames);
+    }
+}
+
+void GameLayer::updateLevel(float deltaTime)
+{
+    world_theme_transit_timer += deltaTime;
+    
+    if (world_theme_transit_timer >= WORLD_THEME_TRANSIT_TIME)
+        world_theme_transit_timer = WORLD_THEME_TRANSIT_TIME;
+    
+    if (was_day != scene.getRegistry().get<Components::Window>(window).opened)
+        world_theme_transit_timer = 0.0f;
+    
+    was_day = scene.getRegistry().get<Components::Window>(window).opened;
+    
+    uint8_t alpha = static_cast<uint8_t>(world_theme_transit_timer / WORLD_THEME_TRANSIT_TIME * 255.0f);
+    day = was_day ? alpha : 255 - alpha;
+    night = was_day ? 255 - alpha : alpha;
+}
+
+void GameLayer::updateObjects(float deltaTime)
+{
+    microwave_close_light->update(deltaTime);
+    microwave_close_dark->update(deltaTime);
+    microwave_cooking_light->update(deltaTime);
+    microwave_cooking_dark->update(deltaTime);
+    microwave_done_light->update(deltaTime);
+    microwave_done_dark->update(deltaTime);
+    
+    door_light_anim->update(deltaTime);
+    door_dark_anim->update(deltaTime);
+    
+    laptop_dark_anim->update(deltaTime);
+    laptop_light_anim->update(deltaTime);
+}
+
+void GameLayer::renderLevel()
+{
+    float level_width = 800.0f;
+    float level_height = level_width / 1.4f;
+    
+    auto house_light_sprite = typewriter::ResourceManager::loadSprite("assets/HouseLight.png");
+    house_light_sprite.setColor(typewriter::Color{255,255,255,day});
+    typewriter::Renderer2D::drawSprite(house_light_sprite, 0.0f, 0.0f, level_width, level_height);
+    
+    auto house_dark_sprite = typewriter::ResourceManager::loadSprite("assets/HouseDark.png");
+    house_dark_sprite.setColor(typewriter::Color{255,255,255,night});
+    typewriter::Renderer2D::drawSprite(house_dark_sprite, 0.0f, 0.0f, level_width, level_height);
+}
+
+void GameLayer::renderObjects()
+{
+    auto& registry = scene.getRegistry();
+    if (microwave != entt::null)
+    {
+        const auto& ts = registry.get<typewriter::Transform2D>(microwave);
+        
+        // If started cooking
+        if(microwave_close_light->isDone() == false || microwave_close_dark->isDone() == false)
+        {
+            typewriter::Sprite sprite1 = *microwave_close_light.get();
+            sprite1.setColor({255,255,255,day});
+            typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            typewriter::Sprite sprite2 = *microwave_close_dark.get();
+            sprite2.setColor({255,255,255,night});
+            typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+        }
+        // Else if cooking
+        else if (registry.get<Components::Microwave>(microwave).status == Components::Microwave::MicrowaveStatus::COOKING)
+        {
+            typewriter::Sprite sprite1 = *microwave_cooking_light.get();
+            std::cout << "play cooking animation" << std::endl;
+            sprite1.setColor({255,255,255,day});
+            typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            typewriter::Sprite sprite2 = *microwave_cooking_dark.get();
+            sprite2.setColor({255,255,255,night});
+            typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+        }
+        // Else if done cooking
+        else if(microwave_done_light->isDone() == false || microwave_done_dark->isDone() == false)
+        {
+            typewriter::Sprite sprite1 = *microwave_done_light.get();
+            sprite1.setColor({255,255,255,day});
+            typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            typewriter::Sprite sprite2 = *microwave_done_dark.get();
+            sprite2.setColor({255,255,255,night});
+            typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+        }
+        // Else draw common microwave
+        else
+        {
+            if (registry.get<Components::Microwave>(microwave).status == Components::Microwave::MicrowaveStatus::DONE)
+            {
+                typewriter::Sprite sprite1 = (*microwave_done_light)[8];
+                sprite1.setColor({255,255,255,day});
+                typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+                typewriter::Sprite sprite2 = (*microwave_done_dark)[8];
+                sprite2.setColor({255,255,255,night});
+                typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            }
+            else
+            {
+                typewriter::Sprite sprite1 = (*microwave_close_light)[0];
+                sprite1.setColor({255,255,255,day});
+                typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+                typewriter::Sprite sprite2 = (*microwave_close_dark)[0];
+                sprite2.setColor({255,255,255,night});
+                typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            }
+        }
+    }
+    
+    // door
+    
+    if (door != entt::null)
+    {
+        const auto& ts = registry.get<typewriter::Transform2D>(door);
+        
+        // If animation is playing
+        if (!door_dark_anim->isDone() || !door_light_anim->isDone())
+        {
+            typewriter::Sprite sp_l = *door_light_anim.get(); 
+            sp_l.setColor({255,255,255,day});
+            typewriter::Sprite sp_d = *door_dark_anim.get(); 
+            sp_d.setColor({255,255,255,night});
+            typewriter::Renderer2D::drawSprite(sp_l, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            typewriter::Renderer2D::drawSprite(sp_d, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+        }
+        else
+        {
+            typewriter::Sprite sp_l = (*door_light_anim)[0]; 
+            sp_l.setColor({255,255,255,day});
+            typewriter::Sprite sp_d = (*door_dark_anim)[0]; 
+            sp_d.setColor({255,255,255,night});
+            typewriter::Renderer2D::drawSprite(sp_l, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+            typewriter::Renderer2D::drawSprite(sp_d, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+        }
+        
+    } 
+    
+    if (computer != entt::null)
+    {
+        const auto& ts = registry.get<typewriter::Transform2D>(computer);
+        
+        typewriter::Sprite sprite1 = *laptop_light_anim.get();
+        sprite1.setColor({255,255,255,day});
+        typewriter::Renderer2D::drawSprite(sprite1, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+        
+        typewriter::Sprite sprite2 = *laptop_dark_anim.get();
+        sprite2.setColor({255,255,255,night});
+        typewriter::Renderer2D::drawSprite(sprite2, ts.position.x, ts.position.y, ts.size.x, ts.size.y);
+    }
+    
+    // Bed
+    auto bed_sprite1 = typewriter::ResourceManager::loadSprite("assets/LightBed.png");
+    bed_sprite1.setColor({255,255,255,day});
+    typewriter::Renderer2D::drawSprite(bed_sprite1, 400.0f, 250.0f, 150.0f, 75.0f);
+    
+    auto bed_sprite2 = typewriter::ResourceManager::loadSprite("assets/DarkBed.png");
+    bed_sprite2.setColor({255,255,255,night});
+    typewriter::Renderer2D::drawSprite(bed_sprite2, 400.0f, 250.0f, 150.0f, 75.0f);
+}
+
 void GameLayer::renderStats()
 {
     auto& player_component = scene.getRegistry().get<Components::Player>(player);
     auto font = typewriter::ResourceManager::loadFont("assets/Fonts/Jersey15-Regular.ttf", 35);
-    auto text = typewriter::ResourceManager::loadText(font, std::format("Hunger: {}", player_component.hunger));
-    typewriter::Renderer2D::drawText(text.get(), 0.0f, 0.0f);
+    
+    
+    typewriter::Renderer2D::drawSprite(typewriter::ResourceManager::loadSprite("assets/Icons.png"), -15.0f, -5.0f, 120.0f, 200.0f);
             
-    auto text1 = typewriter::ResourceManager::loadText(font, std::format("Food: {}", player_component.inv_food));
-    typewriter::Renderer2D::drawText(text1.get(), 0.0f, 50.0f);
-            
-    auto text2 = typewriter::ResourceManager::loadText(font, std::format("Temperature: {}", player_component.temperature));
-    typewriter::Renderer2D::drawText(text2.get(), 0.0f, 100.0f);
-            
-    auto text3 = typewriter::ResourceManager::loadText(font, std::format("Sanity: {}", player_component.sanity));
-    typewriter::Renderer2D::drawText(text3.get(), 0.0f, 150.0f);
+    auto text = typewriter::ResourceManager::loadText(font, std::format("{}%", static_cast<int>(player_component.hunger * 100.0f)));
+    typewriter::Renderer2D::drawText(text.get(), 58.0f, 15.0f);
+    
+    auto text2 = typewriter::ResourceManager::loadText(font, std::format("{}%", static_cast<int>(player_component.temperature * 100.0f)));
+    typewriter::Renderer2D::drawText(text2.get(), 58.0f, 73.0f);
+    
+    auto text3 = typewriter::ResourceManager::loadText(font, std::format("{}%", static_cast<int>(player_component.sanity * 100.0f)));
+    typewriter::Renderer2D::drawText(text3.get(), 58.0f, 131.0f);
 }
 
 void GameLayer::renderFilter()
@@ -1232,7 +1642,13 @@ void GameLayer::initAssets()
     SoundManager::get().loadSound("Laptop-app-close", "assets/Sounds/Laptop-app-close.mp3");
     SoundManager::get().loadSound("Laptop-app-opened", "assets/Sounds/Laptop-app-opened.mp3");
     SoundManager::get().loadSound("Laptop-close", "assets/Sounds/Laptop-close.mp3");
+    
     SoundManager::get().loadSound("Laptop-message", "assets/Sounds/Laptop-message.mp3");
+    SoundManager::get().getSound("Laptop-message").setVolume(0.4f);
+    
+    SoundManager::get().loadSound("Siren", "assets/Sounds/Siren.mp3");
+    SoundManager::get().getSound("Siren").setVolume(0.4f);
+    
     SoundManager::get().loadSound("Laptop-open", "assets/Sounds/Laptop-open.mp3");
     SoundManager::get().loadSound("Microwave-cooking", "assets/Sounds/Microwave-cooking.mp3");
     SoundManager::get().loadSound("Microwave-finished", "assets/Sounds/Microwave-finished.mp3");
@@ -1248,6 +1664,24 @@ void GameLayer::initAssets()
     SoundManager::get().loadSound("Warning", "assets/Sounds/Warning.mp3");
     SoundManager::get().getSound("Warning").setVolume(0.7f);
     
+    SoundManager::get().loadSound("Scream1", "assets/Sounds/Scream2.mp3");
+    SoundManager::get().getSound("Scream1").setVolume(0.5f);
+    SoundManager::get().loadSound("Scream2", "assets/Sounds/Scream2.mp3");
+    SoundManager::get().getSound("Scream2").setVolume(0.5f);
+    
+    SoundManager::get().loadSound("Shot1", "assets/Sounds/Shot1.mp3");
+    SoundManager::get().getSound("Shot1").setVolume(0.5f);
+    SoundManager::get().loadSound("Shot2", "assets/Sounds/Shot2.mp3");
+    SoundManager::get().getSound("Shot2").setVolume(0.5f);
+    
     SoundManager::get().loadSound("MenuMusic", "assets/Sounds/MenuMusic.mp3");
     SoundManager::get().getSound("MenuMusic").setVolume(0.7f);
+    
+    SoundManager::get().loadSound("MusicDay2", "assets/Sounds/MusicDay2.mp3");
+    SoundManager::get().getSound("MusicDay2").setVolume(0.7f);
+    SoundManager::get().getSound("MusicDay2").setLooping(true);
+    
+    SoundManager::get().loadSound("MusicDay3", "assets/Sounds/MusicDay3.mp3");
+    SoundManager::get().getSound("MusicDay3").setVolume(0.7f);
+    SoundManager::get().getSound("MusicDay3").setLooping(true);
 }

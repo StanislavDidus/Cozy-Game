@@ -19,8 +19,8 @@ void CollisionSystem::update(float deltaTime)
         {
             if (entity == entity_) continue;
             
-            typewriter::AABB a {transform.position + collider.bounds.min, transform.size + collider.bounds.max};
-            typewriter::AABB b {transform_.position + collider_.bounds.min, transform_.size + collider_.bounds.max};
+            typewriter::AABB a {transform.position + collider.bounds.min, transform.position + transform.size + collider.bounds.max};
+            typewriter::AABB b {transform_.position + collider_.bounds.min, transform_.position + transform_.size + collider_.bounds.max};
 
             if (!a.intersect(b)) continue;
 
